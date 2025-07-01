@@ -1,0 +1,527 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Receiving Data From Multiple Sources - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="54-receiving-data-from-multiple-sources"><a class="header" href="#54-receiving-data-from-multiple-sources">5.4 Receiving Data From Multiple Sources</a></h2>
+<p>It is common in FreeRTOS designs for a task to receive data from more
+than one source. The receiving task needs to know where the data came
+from to determine what to do with it. An easy design pattern to achieve
+that uses a single queue to transfer structures that contain both the
+data value and data source, as demonstrated in Figure 5.4.</p>
+<p><a name="fig5.4" title="Figure 5.4 An example scenario where structures are sent on a queue"></a></p>
+<div align="center">
+<img src="../media/image34.png" alt="Figure 5.4 *An example scenario where structures are sent on a queue*"/>
+<p><em><strong>Figure 5.4</strong></em> <strong>An example scenario where structures are sent on a queue</strong></p>
+</div>
+<p>Referring to Figure 5.4:</p>
+<ul>
+<li>
+<p>The created queue holds structures of type <code>Data_t</code>. The structure
+allows both a data value and an enumerated type indicating what the
+data means to be sent to the queue in one message.</p>
+</li>
+<li>
+<p>A central Controller task performs the primary system function. This
+has to react to inputs and changes to the system state communicated
+to it on the queue.</p>
+</li>
+<li>
+<p>A CAN bus task is used to encapsulate the CAN bus interfacing
+functionality. When the CAN bus task has received and decoded a
+message, it sends the already decoded message to the Controller task
+in a <code>Data_t</code> structure. The <code>eDataID</code> member of the transferred
+structure tells the Controller task what the data is. In the case
+shown here, it is a motor speed value. The <code>lDataValue</code> member of the
+transferred structure tells the Controller task the actual motor
+speed value.</p>
+</li>
+<li>
+<p>A Human Machine Interface (HMI) task is used to encapsulate all the
+HMI functionality. The machine operator can probably input commands
+and query values in a number of ways that have to be detected and
+interpreted within the HMI task. When a new command is input, the
+HMI task sends the command to the Controller task in a <code>Data_t</code>
+structure. The <code>eDataID</code> member of the transferred structure tells the
+Controller task what the data is. In the case shown here, it is a new
+set point value. The <code>lDataValue</code> member of the transferred structure
+tells the Controller task the actual set point value.</p>
+</li>
+</ul>
+<p>Chapter (RB-TBD) shows how to extend this design pattern such that
+the controller task can reply directly to the task that queued a structure.</p>
+<h2 id=""><a class="header" href="#"><a name="example5.2" title="Example 5.2 Blocking when sending to a queue, and sending structures on a queue"></a></a></h2>
+<p><em><strong>Example 5.2</strong></em> <em>Blocking when sending to a queue, and sending structures on a queue</em></p>
+<hr />
+<p>Example 5.2 is similar to Example 5.1, but with reversed task priorities,
+so the receiving task has a lower priority than the sending tasks. Also,
+the created queue holds structures rather than integers.</p>
+<p>Listing 5.9 shows the definition of the structure used by Example 5.2.</p>
+<p><a name="list5.9" title="Listing 5.9 The definition of the structure that is to be passed on a queue, plus the declaration of two variables for use by the example"></a></p>
+<pre><code class="language-c">/* Define an enumerated type used to identify the source of the data. */
+typedef enum
+{
+    eSender1,
+    eSender2
+} DataSource_t;
+
+/* Define the structure type that will be passed on the queue. */
+typedef struct
+{
+    uint8_t ucValue;
+    DataSource_t eDataSource;
+} Data_t;
+
+/* Declare two variables of type Data_t that will be passed on the queue. */
+static const Data_t xStructsToSend[ 2 ] =
+{
+    { 100, eSender1 }, /* Used by Sender1. */
+    { 200, eSender2 }  /* Used by Sender2. */
+};
+</code></pre>
+<p><em><strong>Listing 5.9</strong></em> <em>The definition of the structure that is to be passed on a queue, plus the declaration of two variables for use by the example</em></p>
+<p>In Example 5.1, the receiving task has the highest priority, so the queue
+never contains more than one item. This happens because the receiving task
+pre-empts the sending tasks as soon as data is placed into the queue.
+In Example 5.2, the sending tasks have the higher priority, so the queue
+will normally be full. This is because, as soon as the receiving task
+removes an item from the queue, it is pre-empted by one of the sending
+tasks which then immediately re-fills the queue. The sending task then
+re-enters the Blocked state to wait for space to become available on the
+queue again.</p>
+<p>Listing 5.10 shows the implementation of the sending task. The sending
+task specifies a block time of 100 milliseconds, so it enters the
+Blocked state to wait for space to become available each time the queue
+becomes full. It leaves the Blocked state when either space is available
+on the queue, or 100 milliseconds passes without space becoming
+available. In this example, the receiving tasks continuously make space
+in the queue, so the 100 milliseconds timeout never expires.</p>
+<p><a name="list5.10" title="Listing 5.10 The implementation of the sending task for Example 5.2"></a></p>
+<pre><code class="language-c">static void vSenderTask( void *pvParameters )
+{
+    BaseType_t xStatus;
+    const TickType_t xTicksToWait = pdMS_TO_TICKS( 100 );
+
+    /* As per most tasks, this task is implemented within an infinite loop. */
+    for( ;; )
+    {
+        /* Send to the queue.
+
+           The second parameter is the address of the structure being sent. The
+           address is passed in as the task parameter so pvParameters is used
+           directly.
+
+           The third parameter is the Block time - the time the task should be 
+           kept in the Blocked state to wait for space to become available on 
+           the queue if the queue is already full. A block time is specified 
+           because the sending tasks have a higher priority than the receiving 
+           task so the queue is expected to become full. The receiving task 
+           will remove items from the queue when both sending tasks are in the 
+           Blocked state. */
+        xStatus = xQueueSendToBack( xQueue, pvParameters, xTicksToWait );
+
+        if( xStatus != pdPASS )
+        {
+            /* The send operation could not complete, even after waiting for 
+               100ms. This must be an error as the receiving task should make 
+               space in the queue as soon as both sending tasks are in the 
+               Blocked state. */
+            vPrintString( "Could not send to the queue.\r\n" );
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.10</strong></em> <em>The implementation of the sending task for Example 5.2</em></p>
+<p>The receiving task has the lowest priority so it only runs only when both
+sending tasks are in the Blocked state. The sending tasks only enter the
+Blocked state when the queue is full, so the receiving task will only
+execute when the queue is already full. Therefore, it always expects to
+receive data even when it does not specify a block time.</p>
+<p>Listing 5.11 shows the implementation of the receiving task.</p>
+<p><a name="list5.11" title="Listing 5.11 The definition of the receiving task for Example 5.2"></a></p>
+<pre><code class="language-c">static void vReceiverTask( void *pvParameters )
+{
+    /* Declare the structure that will hold the values received from the
+       queue. */
+    Data_t xReceivedStructure;
+    BaseType_t xStatus;
+
+    /* This task is also defined within an infinite loop. */
+    for( ;; )
+    {
+        /* Because it has the lowest priority this task will only run when the
+           sending tasks are in the Blocked state. The sending tasks will only
+           enter the Blocked state when the queue is full so this task always 
+           expects the number of items in the queue to be equal to the queue 
+           length, which is 3 in this case. */
+        if( uxQueueMessagesWaiting( xQueue ) != 3 )
+        {
+            vPrintString( "Queue should have been full!\r\n" );
+        }
+
+        /* Receive from the queue.
+
+           The second parameter is the buffer into which the received data will
+           be placed. In this case the buffer is simply the address of a 
+           variable that has the required size to hold the received structure.
+
+           The last parameter is the block time - the maximum amount of time 
+           that the task will remain in the Blocked state to wait for data to 
+           be available if the queue is already empty. In this case a block 
+           time is not necessary because this task will only run when the 
+           queue is full. */
+        xStatus = xQueueReceive( xQueue, &amp;xReceivedStructure, 0 );
+
+        if( xStatus == pdPASS )
+        {
+            /* Data was successfully received from the queue, print out the
+               received value and the source of the value. */
+            if( xReceivedStructure.eDataSource == eSender1 )
+            {
+                vPrintStringAndNumber( "From Sender 1 = ", 
+                                       xReceivedStructure.ucValue );
+            }
+            else
+            {
+                vPrintStringAndNumber( "From Sender 2 = ", 
+                                       xReceivedStructure.ucValue );
+            }
+        }
+        else
+        {
+            /* Nothing was received from the queue. This must be an error as 
+               this task should only run when the queue is full. */
+            vPrintString( "Could not receive from the queue.\r\n" );
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.11</strong></em> <em>The definition of the receiving task for Example 5.2</em></p>
+<p><code>main()</code> changes only slightly from the previous example. The queue is
+created to hold three <code>Data_t</code> structures, and the priorities of the
+sending and receiving tasks are reversed. Listing 5.12 shows the
+implementation of <code>main()</code>.</p>
+<p><a name="list5.12" title="Listing 5.12 The implementation of main() for Example 5.2"></a></p>
+<pre><code class="language-c">int main( void )
+{
+    /* The queue is created to hold a maximum of 3 structures of type Data_t. */
+    xQueue = xQueueCreate( 3, sizeof( Data_t ) );
+
+    if( xQueue != NULL )
+    {
+        /* Create two instances of the task that will write to the queue. The
+           parameter is used to pass the structure that the task will write to
+           the queue, so one task will continuously send xStructsToSend[ 0 ]
+           to the queue while the other task will continuously send 
+           xStructsToSend[ 1 ]. Both tasks are created at priority 2, which is
+           above the priority of the receiver. */
+        xTaskCreate( vSenderTask, "Sender1", 1000, &amp;( xStructsToSend[ 0 ] ),
+                     2, NULL );
+        xTaskCreate( vSenderTask, "Sender2", 1000, &amp;( xStructsToSend[ 1 ] ),
+                     2, NULL );
+
+        /* Create the task that will read from the queue. The task is created
+           with priority 1, so below the priority of the sender tasks. */
+        xTaskCreate( vReceiverTask, "Receiver", 1000, NULL, 1, NULL );
+
+        /* Start the scheduler so the created tasks start executing. */
+        vTaskStartScheduler();
+    }
+    else
+    {
+        /* The queue could not be created. */
+    }
+
+    /* If all is well then main() will never reach here as the scheduler will
+       now be running the tasks. If main() does reach here then it is likely
+       that there was insufficient heap memory available for the idle task to 
+       be created. Chapter 3 provides more information on heap memory 
+       management. */
+    for( ;; );
+}
+</code></pre>
+<p><em><strong>Listing 5.12</strong></em> <em>The implementation of main() for Example 5.2</em></p>
+<p>Figure 5.5 shows the output produced by Example 5.2.</p>
+<p><a name="fig5.5" title="Figure 5.5 The output produced by Example 5.2"></a></p>
+<div align="center">
+<img src="../media/image35.jpg" alt="Figure 5.5 *The output produced by Example 5.2*"/>
+<p><em><strong>Figure 5.5</strong></em> <strong>The output produced by Example 5.2</strong></p>
+</div>
+<p>Figure 5.6 demonstrates the sequence of execution that results from
+having the priority of the sending tasks above the priority of the
+receiving task. Given below is a further explanation of Figure 5.6, and
+description on why the first four messages originate from the same task.</p>
+<p><a name="fig5.6" title="Figure 5.6 The sequence of execution produced by Example 5.2"></a></p>
+<div align="center">
+<img src="../media/image36.png" alt="Figure 5.6 *The sequence of execution produced by Example 5.2*"/>
+<p><em><strong>Figure 5.6</strong></em> <strong>The sequence of execution produced by Example 5.2</strong></p>
+</div>
+<p><strong>Key to Figure 5.6</strong></p>
+<ul>
+<li>
+<p>t1</p>
+<p>Task Sender 1 executes and sends 3 data items to the queue.</p>
+</li>
+<li>
+<p>t2</p>
+<p>The queue is full so Sender 1 enters the Blocked state to wait for
+its next send to complete. Task Sender 2 is now the highest priority
+task that can run, so it enters the Running state.</p>
+</li>
+<li>
+<p>t3</p>
+<p>Task Sender 2 finds the queue is already full, so it enters the Blocked
+state to wait for its first send to complete. Task Receiver is now the
+highest priority task that can run, so it enters the Running state.</p>
+</li>
+<li>
+<p>t4</p>
+<p>Two tasks that have a priority higher than the receiving task's
+priority are waiting for space to become available on the queue,
+resulting in task Receiver being pre-empted as soon as it has removed
+one item from the queue. Tasks Sender 1 and Sender 2 have the same
+priority, so the scheduler selects the task that has been waiting the
+longest as the task that will enter the Running state—in this case that
+is task Sender 1.</p>
+</li>
+<li>
+<p>t5</p>
+<p>Task Sender 1 sends another data item to the queue. There was
+only one space in the queue, so task Sender 1 enters the Blocked state
+to wait for its next send to complete. Task Receiver is again the
+highest priority task that can run so it enters the Running state.</p>
+<p>Task Sender 1 has now sent four items to the queue, and task Sender 2
+is still waiting to send its first item to the queue.</p>
+</li>
+<li>
+<p>t6</p>
+<p>Two tasks that have a priority higher than the receiving task's
+priority are waiting for space to become available on the queue, so task
+Receiver is pre-empted as soon as it has removed one item from the
+queue. This time Sender 2 has been waiting longer than Sender 1, so
+Sender 2 enters the Running state.</p>
+</li>
+<li>
+<p>t7</p>
+<p>Task Sender 2 sends a data item to the queue. There was only one
+space in the queue so Sender 2 enters the Blocked state to wait for its
+next send to complete. Both tasks Sender 1 and Sender 2 are waiting for
+space to become available on the queue, so task Receiver is the only
+task that can enter the Running state.</p>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch05/5.3-using-a-queue.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch05/5.5-working-with-large-or-variable-sized-data.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch05/5.3-using-a-queue.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch05/5.5-working-with-large-or-variable-sized-data.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

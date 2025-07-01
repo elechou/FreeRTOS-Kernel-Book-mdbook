@@ -3,3 +3,5 @@ authors = ["elechou"]
 language = "en"
 src = "src"
 title = "Mastering the FreeRTOS"
+[build]
+build-dir = "docs"

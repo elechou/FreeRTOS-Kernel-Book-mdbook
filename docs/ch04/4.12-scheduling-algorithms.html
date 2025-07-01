@@ -1,0 +1,628 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Scheduling Algorithms - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="412-scheduling-algorithms"><a class="header" href="#412-scheduling-algorithms">4.12 Scheduling Algorithms</a></h2>
+<h3 id="4121-a-recap-of-task-states-and-events"><a class="header" href="#4121-a-recap-of-task-states-and-events">4.12.1 A Recap of Task States and Events</a></h3>
+<p>The task that is actually running (using processing time) is in the
+<em>Running</em> state. On a single core processor there can only be one task in
+the <em>Running</em> state at any given time. It is also possible to run FreeRTOS
+on more than one core (asymmetric multiprocessing, or AMP), or have
+FreeRTOS schedule tasks across multiple cores (symmetric
+multiprocessing, or SMP). Neither of those scenarios are described here.</p>
+<p>Tasks that are not actually running, but are not in either the Blocked
+state or the <em>Suspended</em> state, are in the <em>Ready</em> state. Tasks in the Ready
+state are available to be selected by the scheduler as the task to enter
+the <em>Running</em> state. The scheduler will always choose the highest priority
+Ready state task to enter the <em>Running</em> state.</p>
+<p>Tasks can wait in the <em>Blocked</em> state for an event and they are automatically
+moved back to the <em>Ready</em> state when the event occurs. Temporal events
+occur at a particular time, for example, when a block time expires, and
+are normally used to implement periodic or timeout behavior.
+Synchronization events occur when a task or interrupt service routine
+sends information using a task notification, queue, event group, message
+buffer, stream buffer, or one of the many types of semaphore. They are
+generally used to signal asynchronous activity, such as data arriving at
+a peripheral.</p>
+<h3 id="4122-selecting-the-scheduling-algorithm"><a class="header" href="#4122-selecting-the-scheduling-algorithm">4.12.2 Selecting the Scheduling Algorithm</a></h3>
+<p>The scheduling algorithm is the software routine that decides which
+<em>Ready</em> state task to transition into the <em>Running</em> state.</p>
+<p>All the examples so far have used the same scheduling algorithm, but the
+algorithm can be changed using the <code>configUSE_PREEMPTION</code> and
+<code>configUSE_TIME_SLICING</code> configuration constants. Both constants are
+defined in FreeRTOSConfig.h.</p>
+<p>A third configuration constant, <code>configUSE_TICKLESS_IDLE</code>, also affects
+the scheduling algorithm, as its use can result in the tick interrupt
+being turned off completely for extended periods.
+<code>configUSE_TICKLESS_IDLE</code> is an advanced option provided specifically for
+use in applications that must minimize their power consumption.
+The descriptions provided in this section assume <code>configUSE_TICKLESS_IDLE</code>
+is set to 0, which is the default setting if the constant is left
+undefined.</p>
+<p>In all possible single core configurations the FreeRTOS scheduler
+selects tasks that share a priority in turn. This 'take it in turn'
+policy is often referred to as 'Round Robin Scheduling'. A Round Robin
+scheduling algorithm does not guarantee time is shared equally between
+tasks of equal priority, only that <em>Ready</em> state tasks of equal priority
+enter the <em>Running</em> state in turn.</p>
+<p><a name="tbl5" title="Table 5 The FreeRTOSConfig.h settings to configure the kernel scheduling algorithms"></a></p>
+<hr />
+<div class="table-wrapper"><table><thead><tr><th>Scheduling Algorithm</th><th>Prioritized</th><th><code>configUSE_PREEMPTION</code></th><th><code>configUSE_TIME_SLICING</code></th></tr></thead><tbody>
+<tr><td>Preemptive With Time Slicing</td><td>Yes</td><td>1</td><td>1</td></tr>
+<tr><td>Preemptive Without Time Slicing</td><td>Yes</td><td>1</td><td>0</td></tr>
+<tr><td>Co-Operative</td><td>No</td><td>0</td><td>Any</td></tr>
+</tbody></table>
+</div>
+<p><em><strong>Table 5</strong></em> <em>The FreeRTOSConfig.h settings to configure the kernel scheduling algorithms</em></p>
+<hr />
+<h3 id="4123-prioritized-preemptive-scheduling-with-time-slicing"><a class="header" href="#4123-prioritized-preemptive-scheduling-with-time-slicing">4.12.3 Prioritized Preemptive Scheduling with Time Slicing</a></h3>
+<p>The configuration shown in the Table 5 sets the FreeRTOS scheduler to use a
+scheduling algorithm called 'Fixed Priority Preemptive Scheduling with
+Time Slicing', which is the scheduling algorithm used by most small RTOS
+applications, and the algorithm used by all the examples presented in
+this book so far. The next table provides a description of the terminology
+used in the algorithm's name.</p>
+<p><strong>An explanation of the terms used to describe the scheduling policy:</strong></p>
+<ul>
+<li>
+<p>Fixed Priority</p>
+<p>Scheduling algorithms described as 'Fixed Priority' do not change the priority
+assigned to the tasks being scheduled, but also do not prevent the tasks
+themselves from changing their own priority or that of other tasks.</p>
+</li>
+<li>
+<p>Preemptive</p>
+<p>Preemptive scheduling algorithms will immediately 'preempt' the <em>Running</em> state
+task if a task that has a priority higher than the <em>Running</em> state task enters
+the <em>Ready</em> state. Being preempted means being involuntarily moved out of the
+<em>Running</em> state and into the <em>Ready</em> state (without explicitly yielding or
+blocking) to allow a different task to enter the <em>Running</em> state. Task preemption
+can occur at any time, not just in the RTOS tick interrupt.</p>
+</li>
+<li>
+<p>Time Slicing</p>
+<p>Time slicing is used to share processing time between tasks of equal priority,
+even when the tasks do not explicitly yield or enter the <em>Blocked</em> state.
+Scheduling algorithms described as using <em>Time Slicing</em> select a new task to
+enter the <em>Running</em> state at the end of each time slice if there are other <em>Ready</em>
+state tasks that have the same priority as the Running task. A time slice is equal
+to the time between two RTOS tick interrupts.</p>
+</li>
+</ul>
+<p>Figure 4.18 and Figure 4.19 demonstrate how tasks are scheduled when a fixed
+priority preemptive scheduling with time slicing algorithm is used.
+Figure 4.18 shows the sequence in which tasks are selected to enter the
+<em>Running</em> state when all the tasks in an application have a unique
+priority. Figure 4.19 shows the sequence in which tasks are selected to
+enter the <em>Running</em> state when two tasks in an application share a
+priority.</p>
+<p><a name="fig4.18" title="Figure 4.18 Execution pattern highlighting task prioritization and preemption..."></a></p>
+<hr />
+<p><img src="../media/figure_4.18_preemption_execution_pattern.png" alt="" />
+<em><strong>Figure 4.18</strong></em> <em>Execution pattern highlighting task prioritization and preemption
+in a hypothetical application in which each task has been assigned a unique
+priority</em></p>
+<hr />
+<p>Referring to Figure 4.18:</p>
+<ul>
+<li>
+<p>Idle Task</p>
+<p>The idle task is running at the lowest priority, so it gets preempted
+every time a higher priority task enters the <em>Ready</em> state, for example, at
+times t3, t5 and t9.</p>
+</li>
+<li>
+<p>Task 3</p>
+<p>Task 3 is an event-driven task that executes with a relatively low
+priority, but above the Idle priority. It spends most of its time in the
+<em>Blocked</em> state waiting for its event of interest, transitioning from the
+<em>Blocked</em> state to the <em>Ready</em> state each time the event occurs. All
+FreeRTOS inter-task communication mechanisms (task notifications,
+queues, semaphores, event groups, etc.) can be used to signal events and
+unblock tasks in this way.</p>
+<p>Events occur at times t3 and t5, and also somewhere between t9 and t12.
+The events occurring at times t3 and t5 are processed immediately because, at
+these times, Task 3 is the highest priority task that is able to run.
+The event that occurs somewhere between times t9 and t12 is not
+processed until t12 because, until then, the higher priority tasks Task
+1 and Task 2 are still executing. It is only at time t12 that both Task
+1 and Task 2 are in the <em>Blocked</em> state, making Task 3 the highest
+priority <em>Ready</em> state task.</p>
+</li>
+<li>
+<p>Task 2</p>
+<p>Task 2 is a periodic task that executes at a priority above the priority
+of Task 3, but below the priority of Task 1. The task's period interval
+means Task 2 wants to execute at times t1, t6, and t9.</p>
+<p>At time t6, Task 3 is in the <em>Running</em> state, but Task 2 has the higher
+relative priority so preempts Task 3 and starts executing immediately.
+Task 2 completes its processing and re-enters the <em>Blocked</em> state at time
+t7, at which point Task 3 can re-enter the <em>Running</em> state to complete its
+processing. Task 3 itself Blocks at time t8.</p>
+</li>
+<li>
+<p>Task 1</p>
+<p>Task 1 is also an event-driven task. It executes with the highest
+priority of all, so can preempt any other task in the system. The only
+Task 1 event shown occurs at time t10, at which time Task 1 preempts
+Task 2. Task 2 can complete its processing only after Task 1 has
+re-entered the <em>Blocked</em> state at time t11.</p>
+</li>
+</ul>
+<p><a name="fig4.19" title="Figure 4.19 Execution pattern highlighting task prioritization and time slicing..."></a></p>
+<hr />
+<p><img src="../media/figure_4.19_time_slicing_execution_pattern.png" alt="" />
+<em><strong>Figure 4.19</strong></em> <em>Execution pattern highlighting task prioritization and time slicing
+in a hypothetical application in which two tasks run at the same priority</em></p>
+<hr />
+<p>Referring to Figure 4.19:</p>
+<ul>
+<li>
+<p>The Idle Task and Task 2</p>
+<p>The Idle task and Task 2 are both continuous processing tasks, and both
+have a priority of 0 (the lowest possible priority). The scheduler only
+allocates processing time to the priority 0 tasks when there are no
+higher priority tasks that are able to run, and shares the time that is
+allocated to the priority 0 tasks by time slicing. A new time slice
+starts on each tick interrupt, which in Figure 4.19 occurs at times t1, t2,
+t3, t4, t5, t8, t9, t10 and t11.</p>
+<p>The Idle task and Task 2 enter the <em>Running</em> state in turn, which can
+result in both tasks being in the <em>Running</em> state for part of the same
+time slice, as happens between time t5 and time t8.</p>
+</li>
+<li>
+<p>Task 1</p>
+<p>The priority of Task 1 is higher than the Idle priority. Task 1 is an
+event driven task that spends most of its time in the <em>Blocked</em> state
+waiting for its event of interest, transitioning from the <em>Blocked</em> state
+to the <em>Ready</em> state each time the event occurs.</p>
+<p>The event of interest occurs at time t6. At t6 Task 1 becomes the
+highest priority task that is able to run, and therefore Task 1
+preempts the Idle task part way through a time slice. Processing of the
+event completes at time t7, at which point Task 1 re-enters the Blocked
+state.</p>
+</li>
+</ul>
+<p>Figure 4.19 shows the Idle task sharing processing time with a task
+created by the application writer. Allocating that much processing time
+to the Idle task might not be desirable if the Idle priority tasks
+created by the application writer have work to do, but the Idle task
+does not. The <code>configIDLE_SHOULD_YIELD</code> compile time configuration
+constant can be used to change how the Idle task is scheduled:</p>
+<ul>
+<li>
+<p>If <code>configIDLE_SHOULD_YIELD</code> is set to 0 then the Idle task remains in
+the <em>Running</em> state for the entirety of its time slice, unless it is
+preempted by a higher priority task.</p>
+</li>
+<li>
+<p>If <code>configIDLE_SHOULD_YIELD</code> is set to 1 then the Idle task yields
+(voluntarily gives up whatever remains of its allocated time slice)
+on each iteration of its loop if there are other Idle priority tasks
+in the <em>Ready</em> state.</p>
+</li>
+</ul>
+<p>The execution pattern shown in Figure 4.19 is what would be observed when
+<code>configIDLE_SHOULD_YIELD</code> is set to 0. The execution pattern shown in
+Figure 4.20 is what would be observed in the same scenario when
+<code>configIDLE_SHOULD_YIELD</code> is set to 1.</p>
+<p><a name="fig4.20" title="Figure 4.20 The execution pattern for the same scenario as shown in Figure 4.19..."></a></p>
+<hr />
+<p><img src="../media/figure_4.20_time_slicing_with_yield_execution_pattern.png" alt="" />
+<em><strong>Figure 4.20</strong></em> <em>The execution pattern for the same scenario as shown in Figure 4.19,
+but this time with <code>configIDLE_SHOULD_YIELD</code> set to 1</em></p>
+<hr />
+<p>Figure 4.20 also shows that when <code>configIDLE_SHOULD_YIELD</code> is set to 1, the
+task selected to enter the <em>Running</em> state after the Idle task does not
+execute for an entire time slice, but instead executes for whatever
+remains of the time slice during which the Idle task yielded.</p>
+<h3 id="4124-prioritized-preemptive-scheduling-without-time-slicing"><a class="header" href="#4124-prioritized-preemptive-scheduling-without-time-slicing">4.12.4 Prioritized Preemptive Scheduling without Time Slicing</a></h3>
+<p>Prioritized Preemptive Scheduling without time slicing maintains the
+same task selection and preemption algorithms as described in the
+previous section, but does not use time slicing to share processing time
+between tasks of equal priority.</p>
+<p>The Table 5 shows the FreeRTOSConfig.h settings that configure the FreeRTOS
+scheduler to use prioritized preemptive scheduling without time slicing.</p>
+<p>As was demonstrated in Figure 4.19, if time slicing is used, and there is
+more than one ready state task at the highest priority that is able to
+run, then the scheduler selects a new task to enter the <em>Running</em> state
+during each RTOS tick interrupt (a tick interrupt marking the end of a
+time slice). If time slicing is not used, then the scheduler only
+selects a new task to enter the <em>Running</em> state when either:</p>
+<ul>
+<li>
+<p>A higher priority task enters the <em>Ready</em> state.</p>
+</li>
+<li>
+<p>The task in the <em>Running</em> state enters the <em>Blocked</em> or <em>Suspended</em> state.</p>
+</li>
+</ul>
+<p>There are fewer task context switches when time slicing is not used than
+when time slicing is used. Therefore, turning time slicing off results
+in a reduction in the scheduler's processing overhead. However, turning
+time slicing off can also result in tasks of equal priority receiving
+greatly different amounts of processing time, a scenario demonstrated by
+Figure 4.21. For this reason, running the scheduler without time slicing
+is considered an advanced technique that should only be used by
+experienced users.</p>
+<p><a name="fig4.21" title="Figure 4.21 Execution pattern that demonstrates how tasks of equal priority can..."></a></p>
+<hr />
+<p><img src="../media/figure_4.21_equal_priority_without_time_slicing_execution_pattern.png" alt="" />
+<em><strong>Figure 4.21</strong></em> <em>Execution pattern that demonstrates how tasks of equal priority can
+receive hugely different amounts of processing time when time slicing is not used</em></p>
+<hr />
+<p>Referring to Figure 4.21, which assumes <code>configIDLE_SHOULD_YIELD</code> is set to 0:</p>
+<ul>
+<li>
+<p>Tick Interrupts</p>
+<p>Tick interrupts occur at times t1, t2, t3, t4, t5, t8, t11, t12 and
+t13.</p>
+</li>
+<li>
+<p>Task 1</p>
+<p>Task 1 is a high priority event driven task that spends most of its
+time in the <em>Blocked</em> state waiting for its event of interest. Task 1
+transitions from the <em>Blocked</em> state to the <em>Ready</em> state (and
+subsequently, as it is the highest priority <em>Ready</em> state task, on into
+the <em>Running</em> state) each time the event occurs. Figure 4.21 shows Task 1
+processing an event between times t6 and t7, then again between times
+t9 and t10.</p>
+</li>
+<li>
+<p>The Idle Task and Task 2</p>
+<p>The Idle task and Task 2 are both continuous processing tasks, and both
+have a priority of 0 (the idle priority). Continuous processing tasks do
+not enter the <em>Blocked</em> state.</p>
+<p>Time slicing is not being used, so an idle priority task that is in the
+<em>Running</em> state will remain in the <em>Running</em> state until it is preempted by
+the higher priority Task 1.</p>
+<p>In Figure 4.21 the Idle task starts running at time t1, and remains in the
+<em>Running</em> state until it is preempted by Task 1 at time t6, which is more
+than four complete tick periods after it entered the <em>Running</em> state.</p>
+<p>Task 2 starts running at time t7, which is when Task 1 re-enters the
+<em>Blocked</em> state to wait for another event. Task 2 remains in the Running
+state until it too is preempted by Task 1 at time t9, which is less than
+one tick period after it entered the <em>Running</em> state.</p>
+<p>At time t10 the Idle task re-enters the <em>Running</em> state, despite having
+already received more than four times more processing time than Task 2.</p>
+</li>
+</ul>
+<h3 id="4125-cooperative-scheduling"><a class="header" href="#4125-cooperative-scheduling">4.12.5 Cooperative Scheduling</a></h3>
+<p>This book focuses on preemptive scheduling, but FreeRTOS can also use
+cooperative scheduling. The Table 5 shows the FreeRTOSConfig.h settings
+that configure the FreeRTOS scheduler to use cooperative scheduling.</p>
+<p>When using the cooperative scheduler (and therefore assuming
+application-provided interrupt service routines do not explicitly
+request context switches) a context switch only occurs when the Running
+state task enters the <em>Blocked</em> state, or the <em>Running</em> state task explicitly
+yields (manually requests a re-schedule) by calling <code>taskYIELD()</code>. Tasks
+are never preempted, so time slicing cannot be used.</p>
+<p>Figure 4.22 demonstrates the behavior of the cooperative scheduler. The
+horizontal dashed lines in Figure 4.22 show when a task is in the Ready
+state.</p>
+<p><a name="fig4.22" title="Figure 4.22 Execution pattern demonstrating the behavior of the cooperative scheduler"></a></p>
+<hr />
+<p><img src="../media/figure_4.22_cooperative_scheduler_execution_pattern.png" alt="" />
+<em><strong>Figure 4.22</strong></em> <em>Execution pattern demonstrating the behavior of the cooperative scheduler</em></p>
+<hr />
+<p>Referring to Figure 4.22:</p>
+<ul>
+<li>
+<p>Task 1</p>
+<p>Task 1 has the highest priority. It starts in the <em>Blocked</em> state,
+waiting for a semaphore.</p>
+<p>At time t3, an interrupt gives the semaphore, causing Task 1 to leave
+the <em>Blocked</em> state and enter the <em>Ready</em> state (giving semaphores from
+interrupts is covered in Chapter 6).</p>
+<p>At time t3, Task 1 is the highest priority <em>Ready</em> state task, and if the
+preemptive scheduler had been used Task 1 would become the Running
+state task. However, as the cooperative scheduler is being used, Task
+1 remains in the <em>Ready</em> state until time t4, which is when the Running
+state task calls <code>taskYIELD()</code>.</p>
+</li>
+<li>
+<p>Task 2</p>
+<p>The priority of Task 2 is between that of Task 1 and Task 3. It starts
+in the <em>Blocked</em> state, waiting for a message that is sent to it by Task
+3 at time t2.</p>
+<p>At time t2, Task 2 is the highest priority <em>Ready</em> state task, and if the
+preemptive scheduler had been used Task 2 would become the Running
+state task. However, as the cooperative scheduler is being used, Task
+2 remains in the <em>Ready</em> state until the <em>Running</em> state task either
+enters the <em>Blocked</em> state or calls <code>taskYIELD()</code>.</p>
+<p>The <em>Running</em> state task calls <code>taskYIELD()</code> at time t4, but by then Task
+1 is the highest priority <em>Ready</em> state task, so Task 2 does not
+actually become the <em>Running</em> state task until Task 1 re-enters the
+<em>Blocked</em> state at time t5.</p>
+<p>At time t6, Task 2 re-enters the <em>Blocked</em> state to wait for the next
+message, at which point Task 3 is once again the highest priority
+<em>Ready</em> state task.</p>
+</li>
+</ul>
+<p>In a multi-tasking application the application writer must take care
+that a resource is not accessed by more than one task simultaneously, as
+simultaneous access could corrupt the resource. As an example, consider
+the following scenario in which the accessed resource is a UART (serial
+port). Two tasks write strings to the UART; Task 1 writes
+"abcdefghijklmnop", and Task 2 writes "123456789":</p>
+<ol>
+<li>
+<p>Task 1 is in the <em>Running</em> state and starts to write its string. It
+writes "abcdefg" to the UART, but leaves the <em>Running</em> state before
+writing any further characters.</p>
+</li>
+<li>
+<p>Task 2 enters the <em>Running</em> state and writes "123456789" to the UART,
+before leaving the <em>Running</em> state.</p>
+</li>
+<li>
+<p>Task 1 re-enters the <em>Running</em> state and writes the remaining
+characters of its string to the UART.</p>
+</li>
+</ol>
+<p>In that scenario, what is actually written to the UART is
+"abcdefg123456789hijklmnop". The string written by Task 1 has not been
+written to the UART in an unbroken sequence as intended, but instead it
+has been corrupted, because the string written to the UART by Task 2
+appears within it.</p>
+<p>Using the cooperative scheduler normally makes it easier to avoid
+problems caused by simultaneous access than when using the preemptive
+scheduler<sup class="footnote-reference" id="fr-7-1"><a href="#footnote-7">1</a></sup>:</p>
+<ul>
+<li>
+<p>When you use the preemptive scheduler the <em>Running</em> state task can be
+preempted at any time, including when a resource it is sharing with
+another task is in an inconsistent state. As just demonstrated by
+the UART example, leaving a resource in an inconsistent state can
+result in data corruption.</p>
+</li>
+<li>
+<p>When you use the cooperative scheduler you control when a switch to
+another task occurs. You can, therefore, ensure a switch to another
+task does not occur while a resource is in an inconsistent state.</p>
+</li>
+<li>
+<p>In the above UART example, you can ensure Task 1 does not leave the
+<em>Running</em> state until after writing its entire string to the UART
+and, in doing so, remove the possibility of the string being corrupted by the
+activities of another task.</p>
+</li>
+</ul>
+<p>As demonstrated in Figure 4.22, using the cooperative scheduler makes
+systems less responsive than when using the preemptive scheduler:</p>
+<ul>
+<li>
+<p>When using the preemptive scheduler, the scheduler starts running a
+task immediately when the task becomes the highest priority <em>Ready</em>
+state task. This is often essential in real-time systems which must
+respond to high priority events within a defined time period.</p>
+</li>
+<li>
+<p>When using the cooperative scheduler, a switch to a task that has
+become the highest priority <em>Ready</em> state task is not performed until
+the <em>Running</em> state task enters the <em>Blocked</em> state or calls
+<code>taskYIELD()</code>.</p>
+</li>
+</ul>
+<hr>
+<ol class="footnote-definition"><li id="footnote-7">
+<p>Methods of safely sharing resources between tasks are covered
+later in this book. Resources provided by FreeRTOS itself, such as
+queues and semaphores, are always safe to share between tasks. <a href="#fr-7-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch04/4.11-thread-local-storage-and-reentrancy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch05/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch04/4.11-thread-local-storage-and-reentrancy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch05/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Changing the Period of a Timer - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="67-changing-the-period-of-a-timer"><a class="header" href="#67-changing-the-period-of-a-timer">6.7 Changing the Period of a Timer</a></h2>
+<p>Every official FreeRTOS port is provided with one or more example
+projects. Most example projects are self-checking, and an LED is used to
+give visual feedback of the project's status; if the self-checks have
+always passed then the LED is toggled slowly, if a self-check has ever
+failed then the LED is toggled quickly.</p>
+<p>Some example projects perform the self-checks in a task, and use the
+<code>vTaskDelay()</code> function to control the rate at which the LED toggles.
+Other example projects perform the self-checks in a software timer
+callback function, and use the timer's period to control the rate at
+which the LED toggles.</p>
+<h3 id="671-the-xtimerchangeperiod-api-function"><a class="header" href="#671-the-xtimerchangeperiod-api-function">6.7.1 The xTimerChangePeriod() API Function</a></h3>
+<p>The period of a software timer is changed using the <code>xTimerChangePeriod()</code> function.</p>
+<p>If <code>xTimerChangePeriod()</code> is used to change the period of a timer that is
+already running, then the timer will use the new period value to
+recalculate its expiry time. The recalculated expiry time is relative to
+when <code>xTimerChangePeriod()</code> was called, not relative to when the timer was
+originally started.</p>
+<p>If <code>xTimerChangePeriod()</code> is used to change the period of a timer that is
+in the Dormant state (a timer that is not running), then the timer will
+calculate an expiry time, and transition to the Running state (the timer
+will start running).</p>
+<blockquote>
+<p><em>Note: Never call <code>xTimerChangePeriod()</code> from an interrupt service
+routine. The interrupt-safe version <code>xTimerChangePeriodFromISR()</code> should
+be used in its place.</em></p>
+</blockquote>
+<p><a name="list6.12" title="Listing 6.12 The xTimerChangePeriod() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xTimerChangePeriod( TimerHandle_t xTimer,
+                               TickType_t xNewPeriod,
+                               TickType_t xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 6.12</strong></em> <em>The xTimerChangePeriod() API function prototype</em></p>
+<p><strong>xTimerChangePeriod() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xTimer</code></p>
+<p>The handle of the software timer being updated with a new period
+value. The handle will have been returned from the call to
+<code>xTimerCreate()</code> used to create the software timer.</p>
+</li>
+<li>
+<p><code>xTimerPeriodInTicks</code></p>
+<p>The new period for the software timer, specified in ticks. The
+<code>pdMS_TO_TICKS()</code> macro can be used to convert a time specified in
+milliseconds into a time specified in ticks.</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p><code>xTimerChangePeriod()</code> uses the timer command queue to send the
+'change period' command to the daemon task. <code>xTicksToWait</code> specifies the
+maximum amount of time the calling task should remain in the Blocked
+state to wait for space to become available on the timer command queue,
+if the queue is already full.</p>
+<p><code>xTimerChangePeriod()</code> will return immediately if <code>xTicksToWait</code> is zero
+and the timer command queue is already full.</p>
+<p>The macro <code>pdMS_TO_TICKS()</code> can be used to convert a time specified in
+milliseconds into a time specified in ticks.</p>
+<p>If <code>INCLUDE_vTaskSuspend</code> is set to 1 in FreeRTOSConfig.h, then setting
+<code>xTicksToWait</code> to <code>portMAX_DELAY</code> will result in the calling task remaining
+in the Blocked state indefinitely (without a timeout) to wait for space
+to become available in the timer command queue.</p>
+<p>If <code>xTimerChangePeriod()</code> is called before the scheduler has been
+started, then the value of <code>xTicksToWait</code> is ignored, and
+<code>xTimerChangePeriod()</code> behaves as if <code>xTicksToWait</code> had been set to zero.</p>
+</li>
+<li>
+<p>Returned value</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdPASS</code></p>
+<p><code>pdPASS</code> will be returned only if data was successfully sent to the
+timer command queue.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero), then it is
+possible the calling task was placed into the Blocked state to wait for
+space to become available in the timer command queue before the function
+returned, but data was successfully written to the timer command queue
+before the block time expired.</p>
+</li>
+<li>
+<p><code>pdFAIL</code></p>
+<p><code>pdFAIL</code> will be returned if the 'change period' command could not be
+written to the timer command queue because the queue was already
+full.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero) then the
+calling task will have been placed into the Blocked state to wait for
+the daemon task to make room in the queue, but the specified block time
+expired before that happened.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>Listing 6.13 shows how the FreeRTOS examples that include self-checking
+functionality in a software timer callback function use
+<code>xTimerChangePeriod()</code> to increase the rate at which an LED toggles if a
+self-check fails. The software timer that performs the self-checks is
+referred to as the 'check timer'.</p>
+<p><a name="list6.13" title="Listing 6.13 Using xTimerChangePeriod()"></a></p>
+<pre><code class="language-c">/* The check timer is created with a period of 3000 milliseconds, resulting
+   in the LED toggling every 3 seconds. If the self-checking functionality
+   detects an unexpected state, then the check timer's period is changed to
+   just 200 milliseconds, resulting in a much faster toggle rate. */
+const TickType_t xHealthyTimerPeriod = pdMS_TO_TICKS( 3000 );
+const TickType_t xErrorTimerPeriod = pdMS_TO_TICKS( 200 );
+
+/* The callback function used by the check timer. */
+static void prvCheckTimerCallbackFunction( TimerHandle_t xTimer )
+{
+    static BaseType_t xErrorDetected = pdFALSE;
+
+    if( xErrorDetected == pdFALSE )
+    {
+        /* No errors have yet been detected. Run the self-checking function
+           again. The function asks each task created by the example to report
+           its own status, and also checks that all the tasks are actually
+           still running (and so able to report their status correctly). */
+        if( CheckTasksAreRunningWithoutError() == pdFAIL )
+        {
+            /* One or more tasks reported an unexpected status. An error might
+               have occurred. Reduce the check timer's period to increase the
+               rate at which this callback function executes, and in so doing
+               also increase the rate at which the LED is toggled. This
+               callback function is executing in the context of the RTOS daemon
+               task, so a block time of 0 is used to ensure the Daemon task
+               never enters the Blocked state. */
+            xTimerChangePeriod(
+                  xTimer,            /* The timer being updated */
+                  xErrorTimerPeriod, /* The new period for the timer */
+                  0 );               /* Do not block when sending this command */
+
+            /* Latch that an error has already been detected. */
+            xErrorDetected = pdTRUE;
+        }
+    }
+
+    /* Toggle the LED. The rate at which the LED toggles will depend on how
+       often this function is called, which is determined by the period of the
+       check timer. The timer's period will have been reduced from 3000ms to
+       just 200ms if CheckTasksAreRunningWithoutError() has ever returned
+       pdFAIL. */
+    ToggleLED();
+}
+</code></pre>
+<p><em><strong>Listing 6.13</strong></em> <em>Using xTimerChangePeriod()</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch06/6.6-the-timer-id.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch06/6.8-resetting-a-software-timer.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch06/6.6-the-timer-id.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch06/6.8-resetting-a-software-timer.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
