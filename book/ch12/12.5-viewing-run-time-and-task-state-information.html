@@ -1,0 +1,754 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Viewing Run-time and Task State Information - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="125-viewing-run-time-and-task-state-information"><a class="header" href="#125-viewing-run-time-and-task-state-information">12.5 Viewing Run-time and Task State Information</a></h2>
+<h3 id="1251-task-run-time-statistics"><a class="header" href="#1251-task-run-time-statistics">12.5.1 Task Run-Time Statistics</a></h3>
+<p>Task run-time statistics provide information on the amount of processing
+time each task has received. A task's <em>run time</em> is the total time the
+task has been in the Running state since the application booted.</p>
+<p>Run-time statistics are intended to be used as a profiling and debugging
+aid during the development phase of a project. The information they
+provide is only valid until the counter used as the run-time statistics
+clock overflows. Collecting run-time statistics will increase the task
+context switch time.</p>
+<p>To obtain binary run-time statistics information, call the
+<code>uxTaskGetSystemState()</code> API function. To obtain run-time statistics
+information as a human readable ASCII table, call the
+<code>vTaskGetRunTimeStatistics()</code> helper function.</p>
+<h3 id="1252-the-run-time-statistics-clock"><a class="header" href="#1252-the-run-time-statistics-clock">12.5.2 The Run-Time Statistics Clock</a></h3>
+<p>Run-time statistics need to measure fractions of a tick period.
+Therefore, the RTOS tick count is not used as the run-time statistics
+clock, and the clock is instead provided by the application code. It is
+recommended to make the frequency of the run-time statistics clock
+between 10 and 100 times faster than the frequency of the tick
+interrupt. The faster the run-time statistics clock, the more accurate
+the statistics will be, but also the sooner the time value will
+overflow.</p>
+<p>Ideally, the time value will be generated by a free-running 32-bit
+peripheral timer/counter, the value of which can be read with no other
+processing overhead. If the available peripherals and clock speeds do
+not make that technique possible, then alternative, but less efficient,
+techniques include:</p>
+<ul>
+<li>
+<p>Configure a peripheral to generate a periodic interrupt at the
+desired run-time statistics clock frequency, and then use a count
+of the number of interrupts generated as the run-time statistics clock.</p>
+<p>This method is very inefficient if the periodic interrupt is only
+used for the purpose of providing a run-time statistics clock.
+However, if the application already uses a periodic interrupt with a
+suitable frequency, then it is simple and efficient to add a count
+of the number of interrupts generated into the existing interrupt
+service routine.</p>
+</li>
+<li>
+<p>Generate a 32-bit value by using the current value of a free running
+16-bit peripheral timer as the 32-bit value's least significant
+16-bits, and the number of times the timer has overflowed as the
+32-bit value's most significant 16-bits.</p>
+</li>
+</ul>
+<p>It is possible, with appropriate and somewhat complex manipulation, to
+generate a run-time statistics clock by combining the RTOS tick count
+with the current value of an ARM Cortex-M SysTick timer. Some of the
+demo projects in the FreeRTOS download demonstrate how this is achieved.</p>
+<h3 id="1253-configuring-an-application-to-collect-run-time-statistics"><a class="header" href="#1253-configuring-an-application-to-collect-run-time-statistics">12.5.3 Configuring an Application to Collect Run-Time Statistics</a></h3>
+<p>Below are details on the macros necessary to collect task run-time
+statistics. Originally, the macros were intended to be included in
+the RTOS port layer, which is why the macros are prefixed 'port', but it
+has proven more practical to define them in <code>FreeRTOSConfig.h</code>.</p>
+<p><strong>Macros used in the collection of run-time statistics</strong></p>
+<ul>
+<li>
+<p><code>configGENERATE_RUN_TIME_STATS</code></p>
+<p>This macro must be set to 1 in FreeRTOSConfig.h. When this macro is
+set to 1 the scheduler will call the other macros detailed in this section
+at the appropriate times.</p>
+</li>
+<li>
+<p><code>portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()</code></p>
+<p>This macro must be provided to initialize whichever peripheral is
+used to provide the run-time statistics clock.</p>
+</li>
+<li>
+<p><code>portGET_RUN_TIME_COUNTER_VALUE()</code>, or <code>portALT_GET_RUN_TIME_COUNTER_VALUE(Time)</code></p>
+<p>One of these two macros must be provided to return the current
+run-time statistics clock value. This is the total time the application
+has been running, in run-time statistics clock units, since the
+application first booted.</p>
+<p>If the first macro is used, it must be defined to evaluate to the
+current clock value. If the second macro is used, it must be defined to
+set its 'Time' parameter to the current clock value.</p>
+</li>
+</ul>
+<h3 id="1254-the-uxtaskgetsystemstate-api-function"><a class="header" href="#1254-the-uxtaskgetsystemstate-api-function">12.5.4 The uxTaskGetSystemState() API Function</a></h3>
+<p><code>uxTaskGetSystemState()</code> provides a snapshot of status information for
+each task under the control of the FreeRTOS scheduler. The information
+is provided as an array of <code>TaskStatus_t</code> structures, with one index in
+the array for each task. <code>TaskStatus_t</code> is described by Listing 12.5 and
+below.</p>
+<p><a name="list12.4" title="Listing 12.4 The uxTaskGetSystemState() API function prototype"></a></p>
+<pre><code class="language-c">UBaseType_t uxTaskGetSystemState( TaskStatus_t * const pxTaskStatusArray,
+                                  const UBaseType_t uxArraySize,
+                                  configRUN_TIME_COUNTER_TYPE * const pulTotalRunTime );
+</code></pre>
+<p><em><strong>Listing 12.4</strong></em> <em>The uxTaskGetSystemState() API function prototype</em></p>
+<blockquote>
+<p>Note: <code>configRUN_TIME_COUNTER_TYPE</code> defaults to <code>uint32_t</code> for backward compatibility, but can be
+overridden in FreeRTOSConfig.h if <code>uint32_t</code> is too restrictive.</p>
+</blockquote>
+<p><strong>uxTaskGetSystemState() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>pxTaskStatusArray</code></p>
+<p>A pointer to an array of <code>TaskStatus_t</code> structures.</p>
+<p>The array must contain at least one <code>TaskStatus_t</code> structure for each
+task. The number of tasks can be determined using the
+<code>uxTaskGetNumberOfTasks()</code> API function.</p>
+<p>The <code>TaskStatus_t</code> structure is shown in Listing 12.5, and the
+TaskStatus_t structure members are described in the next list.</p>
+</li>
+<li>
+<p><code>uxArraySize</code></p>
+<p>The size of the array pointed to by the <code>pxTaskStatusArray</code> parameter.
+The size is specified as the number of indexes in the array (the number
+of <code>TaskStatus_t</code> structures contained in the array), not by the number of
+bytes in the array.</p>
+</li>
+<li>
+<p><code>pulTotalRunTime</code></p>
+<p>If <code>configGENERATE_RUN_TIME_STATS</code> is set to 1 in <code>FreeRTOSConfig.h</code>,
+then <code>*pulTotalRunTime</code> is set by <code>uxTaskGetSystemState()</code> to the total run
+time (as defined by the run-time statistics clock provided by the
+application) since the target booted.</p>
+<p><code>pulTotalRunTime</code> is optional, and can be set to NULL if the total run
+time is not required.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>The number of <code>TaskStatus_t</code> structures that were populated by
+<code>uxTaskGetSystemState()</code> is returned.</p>
+<p>The returned value should equal the number returned by the
+<code>uxTaskGetNumberOfTasks()</code> API function, but will be zero if the value
+passed in the <code>uxArraySize</code> parameter was too small.</p>
+</li>
+</ul>
+<p><a name="list12.5" title="Listing 12.5 The TaskStatus\_t structure"></a></p>
+<pre><code class="language-c">typedef struct xTASK_STATUS
+{
+    TaskHandle_t xHandle;
+    const char *pcTaskName;
+    UBaseType_t xTaskNumber;
+    eTaskState eCurrentState;
+    UBaseType_t uxCurrentPriority;
+    UBaseType_t uxBasePriority;
+    configRUN_TIME_COUNTER_TYPE ulRunTimeCounter;
+    StackType_t * pxStackBase;
+    #if ( ( portSTACK_GROWTH &gt; 0 ) || ( configRECORD_STACK_HIGH_ADDRESS == 1 ) )
+        StackType_t * pxTopOfStack;
+        StackType_t * pxEndOfStack;
+    #endif
+    uint16_t usStackHighWaterMark;
+    #if ( ( configUSE_CORE_AFFINITY == 1 ) &amp;&amp; ( configNUMBER_OF_CORES &gt; 1 ) )
+        UBaseType_t uxCoreAffinityMask;
+    #endif
+} TaskStatus_t;
+</code></pre>
+<p><em><strong>Listing 12.5</strong></em> <em>The TaskStatus_t structure</em></p>
+<p><strong>TaskStatus_t structure members</strong></p>
+<ul>
+<li>
+<p><code>xHandle</code></p>
+<p>The handle of the task to which the information in the structure relates.</p>
+</li>
+<li>
+<p><code>pcTaskName</code></p>
+<p>The human readable text name of the task.</p>
+</li>
+<li>
+<p><code>xTaskNumber</code></p>
+<p>Each task has a unique <code>xTaskNumber</code> value.</p>
+<p>If an application creates and deletes tasks at run time then it is
+possible that a task will have the same handle as a task that was
+previously deleted. <code>xTaskNumber</code> is provided to allow application code,
+and kernel aware debuggers, to distinguish between a task that is still
+valid, and a deleted task that had the same handle as the valid
+task.</p>
+</li>
+<li>
+<p><code>eCurrentState</code></p>
+<p>An enumerated type that holds the state of the task.
+<code>eCurrentState</code> can be one of the following values:</p>
+<ul>
+<li><code>eRunning</code></li>
+<li><code>eReady</code></li>
+<li><code>eBlocked</code></li>
+<li><code>eSuspended</code></li>
+<li><code>eDeleted</code></li>
+</ul>
+<p>A task will only be reported as being in the <code>eDeleted</code> state for the
+short period between the time the task was deleted by a call to
+<code>vTaskDelete()</code>, and the time the Idle task frees the memory that was
+allocated to the deleted task's internal data structures and stack.
+After that time, the task will no longer exist in any way, and it is
+invalid to attempt to use its handle.</p>
+</li>
+<li>
+<p><code>uxCurrentPriority</code></p>
+<p>The priority at which the task was running at the time
+<code>uxTaskGetSystemState()</code> was called. <code>uxCurrentPriority</code> will only be higher
+than the priority assigned to the task by the application writer if the
+task has temporarily been assigned a higher priority in accordance with
+the priority inheritance mechanism described in section
+<a href="ch08.html#83-mutexes-and-binary-semaphores">8.3 Mutexes (and Binary Semaphores)</a>.</p>
+</li>
+<li>
+<p><code>uxBasePriority</code></p>
+<p>The priority assigned to the task by the application writer.
+<code>uxBasePriority</code> is only valid if <code>configUSE_MUTEXES</code> is set to 1 in
+FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p><code>ulRunTimeCounter</code></p>
+<p>The total run time used by the task since the task was created. The
+total run time is provided as an absolute time that uses the clock
+provided by the application writer for the collection of run-time
+statistics. <code>ulRunTimeCounter</code> is only valid if
+<code>configGENERATE_RUN_TIME_STATS</code> is set to 1 in FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p><code>pxStackBase</code></p>
+<p>Points to the base address of the stack region allotted to this task.</p>
+</li>
+<li>
+<p><code>pxTopOfStack</code></p>
+<p>Points to the current top address of the stack region allotted to this task.
+The field <code>pxTopOfStack</code> is only valid if either the stack grows upwards (i.e.
+<code>portSTACK_GROWTH</code> is greater than zero) or <code>configRECORD_STACK_HIGH_ADDRESS</code>
+is set to 1 in FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p><code>pxEndOfStack</code></p>
+<p>Points to the end address of the of the stack region allotted to this task.
+The field <code>pxEndOfStack</code> is only valid if either the stack grows upwards (i.e.
+<code>portSTACK_GROWTH</code> is greater than zero) or <code>configRECORD_STACK_HIGH_ADDRESS</code>
+is set to 1 in FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p><code>usStackHighWaterMark</code></p>
+<p>The task's stack high water mark. This is the minimum amount of
+stack space that has remained for the task since the task was created.
+It is an indication of how close the task has come to overflowing its
+stack; the closer this value is to zero, the closer the task has come to
+overflowing its stack. <code>usStackHighWaterMark</code> is specified in bytes.</p>
+</li>
+<li>
+<p><code>uxCoreAffinityMask</code></p>
+<p>A bitwise value that indicates the cores on which the task can run.
+Cores are numbered from 0 to <code>configNUMBER_OF_CORES</code> - 1. For example, a
+task that can run on core 0 and core 1 will have its <code>uxCoreAffinityMask</code>
+set to 0x03. The field <code>uxCoreAffinityMask</code> is only available if both
+<code>configUSE_CORE_AFFINITY</code> is set to 1 and <code>configNUMBER_OF_CORES</code>
+is set to greater than 1 in FreeRTOSConfig.h.</p>
+</li>
+</ul>
+<h3 id="1255-the-vtasklisttasks-helper-function"><a class="header" href="#1255-the-vtasklisttasks-helper-function">12.5.5 The vTaskListTasks() Helper Function</a></h3>
+<p><code>vTaskListTasks()</code> provides similar task status information to that provided by
+<code>uxTaskGetSystemState()</code>, but it presents the information as a human
+readable ASCII table, rather than an array of binary values.</p>
+<p><code>vTaskListTasks()</code> is a very processor intensive function, and leaves the
+scheduler suspended for an extended period. Therefore, it is recommended
+to use the function for debug purposes only, and not in a production
+real-time system.</p>
+<p><code>vTaskListTasks()</code> is available if <code>configUSE_TRACE_FACILITY</code> is set to 1 and
+<code>configUSE_STATS_FORMATTING_FUNCTIONS</code> is set to greater than 0 in
+FreeRTOSConfig.h.</p>
+<p><a name="list12.6" title="Listing 12.6 The vTaskListTasks() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskListTasks( char * pcWriteBuffer, size_t uxBufferLength );
+</code></pre>
+<p><em><strong>Listing 12.6</strong></em> <em>The vTaskListTasks() API function prototype</em></p>
+<p><strong>vTaskListTasks() parameters</strong></p>
+<ul>
+<li>
+<p><code>pcWriteBuffer</code></p>
+<p>A pointer to a character buffer into which the formatted and human readable table is written.
+This buffer is assumed to be large enough to contain the generated report.<br />
+Approximately 40 bytes per task should be sufficient.</p>
+</li>
+<li>
+<p><code>uxBufferLength</code></p>
+<p>Length of the <code>pcWriteBuffer</code>.</p>
+</li>
+</ul>
+<p>An example of the output generated by <code>vTaskListTasks()</code> is shown in Figure 12.7.
+In the output:</p>
+<ul>
+<li>
+<p>Each row provides information on a single task.</p>
+</li>
+<li>
+<p>The first column is the task's name.</p>
+</li>
+<li>
+<p>The second column is the task's state, where 'X' means Running, 'R' means Ready, 'B'
+means Blocked, 'S' means Suspended, and 'D' means the task has been
+deleted. A task will only be reported as being in the deleted state
+for the short period between the time the task was deleted by a call
+to <code>vTaskDelete()</code>, and the time the Idle task frees the memory that
+was allocated to the deleted task's internal data structures and
+stack. After that time, the task will no longer exist in any way,
+and it is invalid to attempt to use its handle.</p>
+</li>
+<li>
+<p>The third column is the task's priority.</p>
+</li>
+<li>
+<p>The fourth column is the task's stack high water mark. See the
+description of <code>usStackHighWaterMark</code>.</p>
+</li>
+<li>
+<p>The fifth column is the unique number allocated to the task. See the
+description of <code>xTaskNumber</code>.</p>
+</li>
+</ul>
+<p><a name="fig12.7" title="Figure 12.7 Example output generated by vTaskListTasks()"></a></p>
+<div align="center">
+<img src="../media/image88.png" alt="Figure 12.7 *Example output generated by vTaskListTasks()*"/>
+<p><em><strong>Figure 12.7</strong></em> <strong>Example output generated by vTaskListTasks()</strong></p>
+</div>
+<blockquote>
+<p>Note:<br />
+The older version of <code>vTaskListTasks</code> is <code>vTaskList</code>. <code>vTaskList</code> assumes that the
+<code>pcWriteBuffer</code> is of length <code>configSTATS_BUFFER_MAX_LENGTH</code>. This function is there only for
+backward compatibility. New applications are recommended to use <code>vTaskListTasks</code> and
+supply the length of the <code>pcWriteBuffer</code> explicitly.</p>
+</blockquote>
+<p><a name="list12.7" title="Listing 12.7 The vTaskList() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskList( signed char *pcWriteBuffer );
+</code></pre>
+<p><em><strong>Listing 12.7</strong></em> <em>The vTaskList() API function prototype</em></p>
+<p><strong>vTaskList() parameters</strong></p>
+<ul>
+<li>
+<p><code>pcWriteBuffer</code></p>
+<p>A pointer to a character buffer into which the formatted and human readable table is written.
+The buffer must be large enough to hold the entire table, as no boundary checking is performed.</p>
+</li>
+</ul>
+<h3 id="1256-the-vtaskgetruntimestatistics-helper-function"><a class="header" href="#1256-the-vtaskgetruntimestatistics-helper-function">12.5.6 The vTaskGetRunTimeStatistics() Helper Function</a></h3>
+<p><code>vTaskGetRunTimeStatistics()</code> formats collected run-time statistics into a
+human readable ASCII table.</p>
+<p><code>vTaskGetRunTimeStatistics()</code> is a very processor intensive function and leaves
+the scheduler suspended for an extended period. Therefore, it is
+recommended to use the function for debug purposes only, and not in a
+production real-time system.</p>
+<p><code>vTaskGetRunTimeStatistics()</code> is available when <code>configGENERATE_RUN_TIME_STATS</code> is set to
+1, <code>configUSE_STATS_FORMATTING_FUNCTIONS</code> is set greater than 0, and
+<code>configUSE_TRACE_FACILITY</code> is set to 1 in FreeRTOSConfig.h.</p>
+<p><a name="list12.8" title="Listing 12.8 The vTaskGetRunTimeStatistics() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskGetRunTimeStatistics( char * pcWriteBuffer, size_t uxBufferLength );
+</code></pre>
+<p><em><strong>Listing 12.8</strong></em> <em>The vTaskGetRunTimeStatistics() API function prototype</em></p>
+<p><strong>vTaskGetRunTimeStatistics() parameters</strong></p>
+<ul>
+<li>
+<p><code>pcWriteBuffer</code></p>
+<p>A pointer to a character buffer into which the formatted and human readable table is written.
+This buffer is assumed to be large enough to contain the generated report.<br />
+Approximately 40 bytes per task should be sufficient.</p>
+</li>
+<li>
+<p><code>uxBufferLength</code></p>
+<p>Length of the <code>pcWriteBuffer</code>.</p>
+</li>
+</ul>
+<p>An example of the output generated by <code>vTaskGetRunTimeStatistics()</code> is shown in
+Figure 12.8. In the output:</p>
+<ul>
+<li>
+<p>Each row provides information on a single task.</p>
+</li>
+<li>
+<p>The first column is the task name.</p>
+</li>
+<li>
+<p>The second column is the amount of time the task has spent in the
+Running state as an absolute value. See the description of
+<code>ulRunTimeCounter</code>.</p>
+</li>
+<li>
+<p>The third column is the amount of time the task has spent in the
+Running state as a percentage of the total time since the target was
+booted. The total of the displayed percentage times will normally be
+less than the expected 100% because statistics are collected and
+calculated using integer calculations that round down to the nearest
+integer value.</p>
+</li>
+</ul>
+<p><a name="fig12.8" title="Figure 12.8 Example output generated by vTaskGetRunTimeStatistics()"></a></p>
+<div align="center">
+<img src="../media/image89.png" alt="Figure 12.8 *Example output generated by vTaskGetRunTimeStatistics()*"/>
+<p><em><strong>Figure 12.8</strong></em> <strong>Example output generated by vTaskGetRunTimeStatistics()</strong></p>
+</div>
+<blockquote>
+<p>Note:<br />
+The older version of <code>vTaskGetRunTimeStatistics</code> is <code>vTaskGetRunTimeStats</code>.
+<code>vTaskGetRunTimeStats</code> assumes that the pcWriteBuffer is of length
+<code>configSTATS_BUFFER_MAX_LENGTH</code>. This function is there only for backward compatiblity.
+New applications are recommended to use <code>vTaskGetRunTimeStatistics</code> and supply the length
+of the pcWriteBuffer explicitly.</p>
+</blockquote>
+<p><a name="list12.9" title="Listing 12.9 The vTaskGetRunTimeStats() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskGetRunTimeStats( signed char *pcWriteBuffer );
+</code></pre>
+<p><em><strong>Listing 12.9</strong></em> <em>The vTaskGetRunTimeStats() API function prototype</em></p>
+<p><strong>vTaskGetRunTimeStats() parameters</strong></p>
+<ul>
+<li>
+<p><code>pcWriteBuffer</code></p>
+<p>A pointer to a character buffer into which the formatted and human readable table is written. The
+buffer must be large enough to hold the entire table, as no boundary checking is performed.</p>
+</li>
+</ul>
+<h3 id="1257-generating-and-displaying-run-time-statistics-a-worked-example"><a class="header" href="#1257-generating-and-displaying-run-time-statistics-a-worked-example">12.5.7 Generating and Displaying Run-Time Statistics, a Worked Example</a></h3>
+<p>This example uses a hypothetical 16-bit timer to generate a 32-bit
+run-time statistics clock. The counter is configured to generate an
+interrupt each time the 16-bit value reaches its maximum
+value—effectively creating an overflow interrupt. The interrupt service
+routine counts the number of overflow occurrences.</p>
+<p>The 32-bit value is created by using the count of overflow occurrences
+as the two most significant bytes of the 32-bit value, and the current
+16-bit counter value as the two least significant bytes of the 32-bit
+value. Pseudo code for the interrupt service routine is shown in Listing
+12.10.</p>
+<p><a name="list12.10" title="Listing 12.10 16-bit timer overflow interrupt handler used to count timer overflows"></a></p>
+<pre><code class="language-c">void TimerOverflowInterruptHandler( void )
+{
+    /* Just count the number of interrupts. */
+    ulOverflowCount++;
+
+    /* Clear the interrupt. */
+    ClearTimerInterrupt();
+}
+</code></pre>
+<p><em><strong>Listing 12.10</strong></em> <em>16-bit timer overflow interrupt handler used to count timer overflows</em></p>
+<p>Listing 12.11 shows the lines added to FreeRTOSConfig.h to enable the
+collection of run-time statistics.</p>
+<p><a name="list12.11" title="Listing 12.11 Macros added to FreeRTOSConfig.h to enable the collection of run-time statistics"></a></p>
+<pre><code class="language-c">/* Set configGENERATE_RUN_TIME_STATS to 1 to enable collection of run-time 
+   statistics. When this is done, both portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
+   and portGET_RUN_TIME_COUNTER_VALUE() or 
+   portALT_GET_RUN_TIME_COUNTER_VALUE(x) must also be defined. */
+#define configGENERATE_RUN_TIME_STATS 1
+
+/* portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() is defined to call the function 
+   that sets up the hypothetical 16-bit timer (the function's implementation 
+   is not shown). */
+void vSetupTimerForRunTimeStats( void );
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()  vSetupTimerForRunTimeStats()
+
+/* portALT_GET_RUN_TIME_COUNTER_VALUE() is defined to set its parameter to the
+   current run-time counter/time value. The returned time value is 32-bits 
+   long, and is formed by shifting the count of 16-bit timer overflows into 
+   the top two bytes of a 32-bit number, then bitwise ORing the result with 
+   the current 16-bit counter value. */
+#define portALT_GET_RUN_TIME_COUNTER_VALUE( ulCountValue )                  \
+{                                                                           \
+    extern volatile unsigned long ulOverflowCount;                          \
+                                                                            \
+    /* Disconnect the clock from the counter so it does not change          \
+       while its value is being used. */                                    \
+    PauseTimer();                                                           \
+                                                                            \
+    /* The number of overflows is shifted into the most significant         \
+       two bytes of the returned 32-bit value. */                           \
+    ulCountValue = ( ulOverflowCount &lt;&lt; 16UL );                             \
+                                                                            \
+    /* The current counter value is used as the two least significant       \
+       bytes of the returned 32-bit value. */                               \
+    ulCountValue |= ( unsigned long ) ReadTimerCount();                     \
+                                                                            \
+    /* Reconnect the clock to the counter. */                               \
+    ResumeTimer();                                                          \
+}
+</code></pre>
+<p><em><strong>Listing 12.11</strong></em> <em>Macros added to FreeRTOSConfig.h to enable the collection of run-time statistics</em></p>
+<p>The task shown in Listing 12.12 prints out the collected run-time statistics every 5 seconds.</p>
+<p><a name="list12.12" title="Listing 12.12 The task that prints out the collected run-time statistics"></a></p>
+<pre><code class="language-c">#define RUN_TIME_STATS_STRING_BUFFER_LENGTH       512
+
+/* For clarity, calls to fflush() have been omitted from this code listing. */
+static void prvStatsTask( void *pvParameters )
+{
+    TickType_t xLastExecutionTime;
+
+    /* The buffer used to hold the formatted run-time statistics text needs to
+       be quite large. It is therefore declared static to ensure it is not
+       allocated on the task stack. This makes this function non re-entrant. */
+    static signed char cStringBuffer[ RUN_TIME_STATS_STRING_BUFFER_LENGTH ];
+
+    /* The task will run every 5 seconds. */
+    const TickType_t xBlockPeriod = pdMS_TO_TICKS( 5000 );
+
+    /* Initialize xLastExecutionTime to the current time. This is the only
+       time this variable needs to be written to explicitly. Afterwards it is 
+       updated internally within the vTaskDelayUntil() API function. */
+    xLastExecutionTime = xTaskGetTickCount();
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /* Wait until it is time to run this task again. */
+        xTaskDelayUntil( &amp;xLastExecutionTime, xBlockPeriod );
+
+        /* Generate a text table from the run-time stats. This must fit into
+           the cStringBuffer array. */
+        vTaskGetRunTimeStatistics( cStringBuffer, RUN_TIME_STATS_STRING_BUFFER_LENGTH );
+
+        /* Print out column headings for the run-time stats table. */
+        printf( "\nTask\t\tAbs\t\t\t%%\n" );
+        printf( "-------------------------------------------------------------\n" );
+
+        /* Print out the run-time stats themselves. The table of data contains
+           multiple lines, so the vPrintMultipleLines() function is called 
+           instead of calling printf() directly. vPrintMultipleLines() simply 
+           calls printf() on each line individually, to ensure the line 
+           buffering works as expected. */ 
+        vPrintMultipleLines( cStringBuffer );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 12.12</strong></em> <em>The task that prints out the collected run-time statistics</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch12/12.4-debug-related-hook-callback-functions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch12/12.6-trace-hook-macros.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch12/12.4-debug-related-hook-callback-functions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch12/12.6-trace-hook-macros.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

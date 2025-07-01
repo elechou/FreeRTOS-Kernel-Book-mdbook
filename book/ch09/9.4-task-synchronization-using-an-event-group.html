@@ -1,0 +1,581 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Task Synchronization Using an Event Group - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="94-task-synchronization-using-an-event-group"><a class="header" href="#94-task-synchronization-using-an-event-group">9.4 Task Synchronization Using an Event Group</a></h2>
+<p>Sometimes the design of an application requires two or more tasks to
+synchronize with each other. For example, consider a design where Task A
+receives an event, then delegates some of the processing necessitated by
+the event to three other tasks: Task B, Task C and Task D. If Task A
+cannot receive another event until tasks B, C and D have all completed
+processing the previous event, then all four tasks will need to
+synchronize with each other. Each task's synchronization point will be
+after that task has completed its processing, and cannot proceed further
+until each of the other tasks have done the same. Task A can only
+receive another event after all four tasks have reached their
+synchronization point.</p>
+<p>A less abstract example of the need for this type of task
+synchronization is found in one of the FreeRTOS+TCP demonstration
+projects. The demonstration shares a TCP socket between two tasks; one
+task sends data to the socket, and a different task receives data from
+the same socket<sup class="footnote-reference" id="fr-25-1"><a href="#footnote-25">1</a></sup>. It is not safe for either task to close the TCP
+socket until it is sure the other task will not attempt to access the
+socket again. If either of the two tasks wishes to close the socket,
+then it must inform the other task of its intent, and then wait for the
+other task to stop using the socket before proceeding. The scenario
+where it is the task that sends data to the socket that wishes to close
+the socket is demonstrated by the pseudo code shown in Listing 9.10.</p>
+<p>The scenario demonstrated by Listing 9.10 is trivial, as there are only
+two tasks that need to synchronize with each other, but it is easy to
+see how the scenario would become more complex, and require more tasks
+to join the synchronization, if other tasks were performing processing
+that was dependent on the socket being open.</p>
+<p><a name="list9.11" title="Listing 9.11 Pseudo code for two tasks that synchronize with each other to ensure a shared TCP socket..."></a></p>
+<pre><code class="language-c">void SocketTxTask( void *pvParameters )
+{
+    xSocket_t xSocket;
+    uint32_t ulTxCount = 0UL;
+
+    for( ;; )
+    {
+        /* Create a new socket. This task will send to this socket, and another
+           task will receive from this socket. */
+        xSocket = FreeRTOS_socket( ... );
+
+        /* Connect the socket. */
+        FreeRTOS_connect( xSocket, ... );
+
+        /* Use a queue to send the socket to the task that receives data. */
+        xQueueSend( xSocketPassingQueue, &amp;xSocket, portMAX_DELAY );
+
+        /* Send 1000 messages to the socket before closing the socket. */
+        for( ulTxCount = 0; ulTxCount &lt; 1000; ulTxCount++ )
+        {
+            if( FreeRTOS_send( xSocket, ... ) &lt; 0 )
+            {
+                /* Unexpected error - exit the loop, after which the socket
+                   will be closed. */
+                break;
+            }
+        }
+
+        /* Let the Rx task know the Tx task wants to close the socket. */
+        TxTaskWantsToCloseSocket();
+
+        /* This is the Tx task's synchronization point. The Tx task waits here
+           for the Rx task to reach its synchronization point. The Rx task will
+           only reach its synchronization point when it is no longer using the
+           socket, and the socket can be closed safely. */
+        xEventGroupSync( ... );
+
+        /* Neither task is using the socket. Shut down the connection, then
+           close the socket. */
+        FreeRTOS_shutdown( xSocket, ... );
+        WaitForSocketToDisconnect();
+        FreeRTOS_closesocket( xSocket );
+    }
+}
+/*-----------------------------------------------------------*/
+
+void SocketRxTask( void *pvParameters )
+{
+    xSocket_t xSocket;
+
+    for( ;; )
+    {
+        /* Wait to receive a socket that was created and connected by the Tx
+           task. */
+        xQueueReceive( xSocketPassingQueue, &amp;xSocket, portMAX_DELAY );
+
+        /* Keep receiving from the socket until the Tx task wants to close the
+           socket. */
+        while( TxTaskWantsToCloseSocket() == pdFALSE )
+        {
+           /* Receive then process data. */
+           FreeRTOS_recv( xSocket, ... );
+           ProcessReceivedData();
+        }
+
+        /* This is the Rx task's synchronization point - it only reaches here
+           when it is no longer using the socket, and it is therefore safe for
+           the Tx task to close the socket. */
+        xEventGroupSync( ... );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 9.11</strong></em> <em>Pseudo code for two tasks that synchronize with each other to ensure a shared TCP socket is no longer in use by either task before the socket is closed</em></p>
+<p>An event group can be used to create a synchronization point:</p>
+<ul>
+<li>
+<p>Each task that must participate in the synchronization is assigned a
+unique event bit within the event group.</p>
+</li>
+<li>
+<p>Each task sets its own event bit when it reaches the synchronization
+point.</p>
+</li>
+<li>
+<p>Having set its own event bit, each task blocks on the event group to
+wait for the event bits that represent all the other synchronizing
+tasks to also become set.</p>
+</li>
+</ul>
+<p>However, the <code>xEventGroupSetBits()</code> and <code>xEventGroupWaitBits()</code> API
+functions cannot be used in this scenario. If they were used, then the
+setting of a bit (to indicate a task had reached its synchronization
+point) and the testing of bits (to determine if the other synchronizing
+tasks had reached their synchronization point) would be performed as two
+separate operations. To see why that would be a problem, consider a
+scenario where Task A, Task B and Task C attempt to synchronize using an
+event group:</p>
+<ol>
+<li>
+<p>Task A and Task B have already reached the synchronization point, so
+their event bits are set in the event group, and they are in the
+Blocked state to wait for task C's event bit to also become set.</p>
+</li>
+<li>
+<p>Task C reaches the synchronization point, and uses
+<code>xEventGroupSetBits()</code> to set its bit in the event group. As soon as
+Task C's bit is set, Task A and Task B leave the Blocked state, and
+clear all three event bits.</p>
+</li>
+<li>
+<p>Task C then calls <code>xEventGroupWaitBits()</code> to wait for all three event
+bits to become set, but by that time, all three event bits have
+already been cleared, Task A and Task B have left their respective
+synchronization points, and so the synchronization has failed.</p>
+</li>
+</ol>
+<p>To successfully use an event group to create a synchronization point,
+the setting of an event bit, and the subsequent testing of event bits,
+must be performed as a single uninterruptable operation. The
+<code>xEventGroupSync()</code> API function is provided for that purpose.</p>
+<h3 id="941-the-xeventgroupsync-api-function"><a class="header" href="#941-the-xeventgroupsync-api-function">9.4.1 The xEventGroupSync() API Function</a></h3>
+<p><code>xEventGroupSync()</code> is provided to allow two or more tasks to use an event
+group to synchronize with each other. The function allows a task to set
+one or more event bits in an event group, then wait for a combination of
+event bits to become set in the same event group, as a single
+uninterruptable operation.</p>
+<p>The <code>xEventGroupSync()</code> <code>uxBitsToWaitFor</code> parameter specifies the calling
+task's unblock condition. The event bits specified by <code>uxBitsToWaitFor</code>
+will be cleared back to zero before <code>xEventGroupSync()</code> returns, if
+<code>xEventGroupSync()</code> returned because the unblock condition had been met.</p>
+<p><a name="list9.12" title="Listing 9.12 The xEventGroupSync() API function prototype"></a></p>
+<pre><code class="language-c">EventBits_t xEventGroupSync( EventGroupHandle_t xEventGroup,
+                             const EventBits_t uxBitsToSet,
+                             const EventBits_t uxBitsToWaitFor,
+                             TickType_t xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 9.12</strong></em> <em>The xEventGroupSync() API function prototype</em></p>
+<p><strong>xEventGroupSync() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xEventGroup</code></p>
+<p>The handle of the event group in which event bits are to be set, and
+then tested. The event group handle will have been returned from the
+call to <code>xEventGroupCreate()</code> used to create the event group.</p>
+</li>
+<li>
+<p><code>uxBitsToSet</code></p>
+<p>A bit mask that specifies the event bit, or event bits, to set to
+1 in the event group. The value of the event group is updated by bitwise
+ORing the event group's existing value with the value passed in
+<code>uxBitsToSet</code>.</p>
+<p>As an example, setting <code>uxBitsToSet</code> to 0x04 (binary 0100) will result
+in event bit 2 becoming set (if it was not already set), while leaving
+all the other event bits in the event group unchanged.</p>
+</li>
+<li>
+<p><code>uxBitsToWaitFor</code></p>
+<p>A bit mask that specifies the event bit, or event bits, to test
+in the event group.</p>
+<p>For example, if the calling task wants to wait for event bits 0, 1
+and 2 to become set in the event group, then set <code>uxBitsToWaitFor</code> to 0x07
+(binary 111).</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p>The maximum amount of time the task should remain in the Blocked
+state to wait for its unblock condition to be met.</p>
+<p><code>xEventGroupSync()</code> will return immediately if <code>xTicksToWait</code> is zero, or
+the unblock condition is met at the time <code>xEventGroupSync()</code> is
+called.</p>
+<p>The block time is specified in tick periods, so the absolute time it
+represents is dependent on the tick frequency. The macro <code>pdMS_TO_TICKS()</code>
+can be used to convert a time specified in milliseconds into a time
+specified in ticks.</p>
+<p>Setting <code>xTicksToWait</code> to <code>portMAX_DELAY</code> will cause the task to wait
+indefinitely (without timing out), provided <code>INCLUDE_vTaskSuspend</code> is set
+to 1 in FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p>Returned Value</p>
+<p>If <code>xEventGroupSync()</code> returned because the calling task's unblock
+condition was met, then the returned value is the value of the event
+group at the time the calling task's unblock condition was met (before
+any bits were automatically cleared back to zero). In this case the
+returned value will also meet the calling task's unblock condition.</p>
+<p>If <code>xEventGroupSync()</code> returned because the block time specified by the
+<code>xTicksToWait</code> parameter expired, then the returned value is the value of
+the event group at the time the block time expired. In this case the
+returned value will not meet the calling task's unblock
+condition.</p>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example9.2" title="Example 9.2 Synchronizing tasks"></a></a></h2>
+<p><em><strong>Example 9.2</strong></em> <em>Synchronizing tasks</em></p>
+<hr />
+<p>Example 9.2 uses <code>xEventGroupSync()</code> to synchronize three instances of a
+single task implementation. The task parameter is used to pass into each
+instance the event bit the task will set when it calls
+<code>xEventGroupSync()</code>.</p>
+<p>The task prints a message before calling <code>xEventGroupSync()</code>, and again
+after the call to <code>xEventGroupSync()</code> has returned. Each message includes
+a time stamp. This allows the sequence of execution to be observed in
+the output produced. A pseudo random delay is used to prevent all the
+tasks reaching the synchronization point at the same time.</p>
+<p>See Listing 9.12 for the task's implementation.</p>
+<p><a name="list9.13" title="Listing 9.13 The implementation of the task used in Example 9.2"></a></p>
+<pre><code class="language-c">static void vSyncingTask( void *pvParameters )
+{
+    const TickType_t xMaxDelay = pdMS_TO_TICKS( 4000UL );
+    const TickType_t xMinDelay = pdMS_TO_TICKS( 200UL );
+    TickType_t xDelayTime;
+    EventBits_t uxThisTasksSyncBit;
+    const EventBits_t uxAllSyncBits = ( mainFIRST_TASK_BIT  |
+                                        mainSECOND_TASK_BIT |
+                                        mainTHIRD_TASK_BIT );
+
+    /* Three instances of this task are created - each task uses a different
+       event bit in the synchronization. The event bit to use is passed into
+       each task instance using the task parameter. Store it in the
+       uxThisTasksSyncBit variable. */
+    uxThisTasksSyncBit = ( EventBits_t ) pvParameters;
+
+    for( ;; )
+    {
+        /* Simulate this task taking some time to perform an action by delaying
+           for a pseudo random time. This prevents all three instances of this
+           task reaching the synchronization point at the same time, and so
+           allows the example's behavior to be observed more easily. */
+        xDelayTime = ( rand() % xMaxDelay ) + xMinDelay;
+        vTaskDelay( xDelayTime );
+
+        /* Print out a message to show this task has reached its synchronization
+           point. pcTaskGetTaskName() is an API function that returns the name
+           assigned to the task when the task was created. */
+        vPrintTwoStrings( pcTaskGetTaskName( NULL ), "reached sync point" );
+
+        /* Wait for all the tasks to have reached their respective
+           synchronization points. */
+        xEventGroupSync( /* The event group used to synchronize. */
+                         xEventGroup,
+
+                         /* The bit set by this task to indicate it has reached
+                            the synchronization point. */
+                         uxThisTasksSyncBit,
+
+                         /* The bits to wait for, one bit for each task taking
+                            part in the synchronization. */
+                         uxAllSyncBits,
+
+                         /* Wait indefinitely for all three tasks to reach the
+                            synchronization point. */
+                         portMAX_DELAY );
+
+        /* Print out a message to show this task has passed its synchronization
+           point. As an indefinite delay was used the following line will only
+           be executed after all the tasks reached their respective
+           synchronization points. */
+        vPrintTwoStrings( pcTaskGetTaskName( NULL ), "exited sync point" );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 9.13</strong></em> <em>The implementation of the task used in Example 9.2</em></p>
+<p>The <code>main()</code> function creates the event group, creates all three tasks,
+and then starts the scheduler. See Listing 9.14 for its implementation.</p>
+<p><a name="list9.14" title="Listing 9.14 The main() function used in Example 9.2"></a></p>
+<pre><code class="language-c">/* Definitions for the event bits in the event group. */
+
+#define mainFIRST_TASK_BIT ( 1UL &lt;&lt; 0UL ) /* Event bit 0, set by the 1st task */
+#define mainSECOND_TASK_BIT( 1UL &lt;&lt; 1UL ) /* Event bit 1, set by the 2nd task */
+#define mainTHIRD_TASK_BIT ( 1UL &lt;&lt; 2UL ) /* Event bit 2, set by the 3rd task */
+
+/* Declare the event group used to synchronize the three tasks. */
+EventGroupHandle_t xEventGroup;
+
+int main( void )
+{
+    /* Before an event group can be used it must first be created. */
+    xEventGroup = xEventGroupCreate();
+
+    /* Create three instances of the task. Each task is given a different
+       name, which is later printed out to give a visual indication of which
+       task is executing. The event bit to use when the task reaches its
+       synchronization point is passed into the task using the task parameter. */
+    xTaskCreate( vSyncingTask, "Task 1", 1000, mainFIRST_TASK_BIT, 1, NULL );
+    xTaskCreate( vSyncingTask, "Task 2", 1000, mainSECOND_TASK_BIT, 1, NULL );
+    xTaskCreate( vSyncingTask, "Task 3", 1000, mainTHIRD_TASK_BIT, 1, NULL );
+
+    /* Start the scheduler so the created tasks start executing. */
+    vTaskStartScheduler();
+
+    /* As always, the following line should never be reached. */
+    for( ;; );
+    return 0;
+}
+</code></pre>
+<p><em><strong>Listing 9.14</strong></em> <em>The main() function used in Example 9.2</em></p>
+<p>The output produced when Example 9.2 is executed is shown in Figure 9.5.
+It can be seen that, even though each task reaches the synchronization
+point at a different (pseudo random) time, each task exits the
+synchronization point at the same time<sup class="footnote-reference" id="fr-26-1"><a href="#footnote-26">2</a></sup> (which is the time at which
+the last task reached the synchronization point).</p>
+<p><a name="fig9.5" title="Figure 9.5 The output produced when Example 9.2 is executed"></a></p>
+<div align="center">
+<img src="../media/image75.jpg" alt="Figure 9.5 *The output produced when Example 9.2 is executed*"/>
+<p><em><strong>Figure 9.5</strong></em> <strong>The output produced when Example 9.2 is executed</strong></p>
+</div><hr>
+<ol class="footnote-definition"><li id="footnote-25">
+<p>At the time of writing, this is the only way a single
+FreeRTOS+TCP socket can be shared between tasks. <a href="#fr-25-1">↩</a></p>
+</li>
+<li id="footnote-26">
+<p>Figure 9.5 shows the example running in the FreeRTOS Windows port,
+which does not provide true real time behavior (especially when
+using Windows system calls to print to the console), and will
+therefore show some timing variation. <a href="#fr-26-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch09/9.3-event-management-using-event-groups.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch10/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch09/9.3-event-management-using-event-groups.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch10/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

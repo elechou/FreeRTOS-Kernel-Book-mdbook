@@ -1,0 +1,343 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Data Types and Coding Style Guide - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="25-data-types-and-coding-style-guide"><a class="header" href="#25-data-types-and-coding-style-guide">2.5 Data Types and Coding Style Guide</a></h2>
+<h3 id="251-data-types"><a class="header" href="#251-data-types">2.5.1 Data Types</a></h3>
+<p>Each port of FreeRTOS has a unique portmacro.h header file that contains
+(amongst other things) definitions for two port-specific data types:
+<code>TickType_t</code> and <code>BaseType_t</code>. The following list describes the macro or
+typedef used and the actual type:</p>
+<ul>
+<li>
+<p><code>TickType_t</code></p>
+<p>FreeRTOS configures a periodic interrupt called the tick interrupt.</p>
+<p>The number of tick interrupts that have occurred since the FreeRTOS
+application started is called the <em>tick count</em>. The tick count is
+used as a measure of time.</p>
+<p>The time between two tick interrupts is called the <em>tick period</em>.
+Times are specified as multiples of tick periods.</p>
+<p><code>TickType_t</code> is the data type used to hold the tick count value, and to
+specify times.</p>
+<p><code>TickType_t</code> can be an unsigned 16-bit type, an unsigned 32-bit
+type, or an unsigned 64-bit type, depending on the setting of <code>configTICK_TYPE_WIDTH_IN_BITS</code>
+in FreeRTOSConfig.h. The setting of <code>configTICK_TYPE_WIDTH_IN_BITS</code> is architecture
+dependent. FreeRTOS ports will also check if this setting is valid.</p>
+<p>Using a 16-bit type can greatly improve efficiency on 8-bit and
+16-bit architectures, but severely limits the maximum block time that
+can be specified in FreeRTOS API calls. There is no reason to use a
+16-bit <code>TickType_t</code> type on a 32-bit or 64-bit architecture.</p>
+<p>Previous use of <code>configUSE_16_BIT_TICKS</code> has been replaced by <code>configTICK_TYPE_WIDTH_IN_BITS</code> to support
+tick counts greater than 32-bits. New designs should use <code>configTICK_TYPE_WIDTH_IN_BITS</code>
+instead of <code>configUSE_16_BIT_TICKS</code>.</p>
+<p><a name="tbl2" title="Table 2 TickType_t data type and the configTICK_TYPE_WIDTH_IN_BITS configuration"></a></p>
+<hr />
+<div class="table-wrapper"><table><thead><tr><th>configTICK_TYPE_WIDTH_IN_BITS</th><th>8-bit architectures</th><th>16-bit architectures</th><th>32-bit architectures</th><th>64-bit architectures</th></tr></thead><tbody>
+<tr><td>TICK_TYPE_WIDTH_16_BITS</td><td>uint16_t</td><td>uint16_t</td><td>uint16_t</td><td>N/A</td></tr>
+<tr><td>TICK_TYPE_WIDTH_32_BITS</td><td>uint32_t</td><td>uint32_t</td><td>uint32_t</td><td>N/A</td></tr>
+<tr><td>TICK_TYPE_WIDTH_64_BITS</td><td>N/A</td><td>N/A</td><td>uint64_t</td><td>uint64_t</td></tr>
+</tbody></table>
+</div>
+<p><em><strong>Table 2</strong></em> <em>TickType_t data type and the configTICK_TYPE_WIDTH_IN_BITS configuration</em></p>
+<hr />
+</li>
+<li>
+<p><code>BaseType_t</code></p>
+<p>This is always defined as the most efficient data type for the
+architecture. Typically, this is a 64-bit type on a 64-bit architecture,
+a 32-bit type on a 32-bit architecture, a 16-bit type on a 16-bit
+architecture, and an 8-bit type on an 8-bit architecture.</p>
+<p><code>BaseType_t</code> is generally used for return types that take only a very
+limited range of values, and for <code>pdTRUE</code>/<code>pdFALSE</code> type Booleans.</p>
+</li>
+</ul>
+<p><em>List of port specific data types used by FreeRTOS</em></p>
+<h3 id="252-variable-names"><a class="header" href="#252-variable-names">2.5.2 Variable Names</a></h3>
+<p>Variables are prefixed with their type: 'c' for <code>char</code>, 's' for <code>int16_t</code>
+(short), 'l' for <code>int32_t</code> (long), and 'x' for <code>BaseType_t</code> and any other
+non-standard types (structures, task handles, queue handles, etc.).</p>
+<p>If a variable is unsigned, it is also prefixed with a 'u'. If a variable
+is a pointer, it is also prefixed with a 'p'. For example, a variable of
+type <code>uint8_t</code> will be prefixed with 'uc', and a variable of type pointer
+to char (<code>char *</code>) will be prefixed with 'pc'.</p>
+<h3 id="253-function-names"><a class="header" href="#253-function-names">2.5.3 Function Names</a></h3>
+<p>Functions are prefixed with both the type they return and the file they
+are defined within. For example:</p>
+<ul>
+<li>v<strong>Task</strong>PrioritySet() returns a <em>v</em>oid and is defined within <strong>tasks</strong>.c.</li>
+<li>x<strong>Queue</strong>Receive() returns a variable of type <em>BaseType_t</em> and is defined within <strong>queue</strong>.c.</li>
+<li>pv<strong>Timer</strong>GetTimerID() returns a <em>p</em>ointer to <em>v</em>oid and is defined within <strong>timers</strong>.c.</li>
+</ul>
+<p>File scope (private) functions are prefixed with 'prv'.</p>
+<h3 id="254-formatting"><a class="header" href="#254-formatting">2.5.4 Formatting</a></h3>
+<p>Tabs are used in some demo applications where one tab is always set to
+equal four spaces. The kernel no longer uses tabs.</p>
+<h3 id="255-macro-names"><a class="header" href="#255-macro-names">2.5.5 Macro Names</a></h3>
+<p>Most macros are written in upper case, and prefixed with lower case
+letters that indicate where the macro is defined. Table 3 provides a
+list of prefixes.</p>
+<p><a name="tbl3" title="Table 3 Macro prefixes"></a></p>
+<hr />
+<div class="table-wrapper"><table><thead><tr><th>Prefix</th><th>Location of macro definition</th></tr></thead><tbody>
+<tr><td>port (for example, <code>portMAX_DELAY</code>)</td><td><code>portable.h</code> or <code>portmacro.h</code></td></tr>
+<tr><td>task (for example, <code>taskENTER_CRITICAL()</code>)</td><td><code>task.h</code></td></tr>
+<tr><td>pd (for example, <code>pdTRUE</code>)</td><td><code>projdefs.h</code></td></tr>
+<tr><td>config (for example, <code>configUSE_PREEMPTION</code>)</td><td><code>FreeRTOSConfig.h</code></td></tr>
+<tr><td>err (for example, <code>errQUEUE_FULL</code>)</td><td><code>projdefs.h</code></td></tr>
+</tbody></table>
+</div>
+<p><em><strong>Table 3</strong></em> <em>Macro prefixes</em></p>
+<hr />
+<p>Note that the semaphore API is written almost entirely as a set of
+macros, but follows the function naming convention, rather than the
+macro naming convention.</p>
+<p>The macros defined in Table 4 are used throughout the FreeRTOS source code.</p>
+<p><a name="tbl4" title="Table 4 Common macro definitions"></a></p>
+<hr />
+<div class="table-wrapper"><table><thead><tr><th>Macro</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>pdTRUE</code></td><td>1</td></tr>
+<tr><td><code>pdFALSE</code></td><td>0</td></tr>
+<tr><td><code>pdPASS</code></td><td>1</td></tr>
+<tr><td><code>pdFAIL</code></td><td>0</td></tr>
+</tbody></table>
+</div>
+<p><em><strong>Table 4</strong></em> <em>Common macro definitions</em></p>
+<hr />
+<h3 id="256-rationale-for-excessive-type-casting"><a class="header" href="#256-rationale-for-excessive-type-casting">2.5.6 Rationale for Excessive Type Casting</a></h3>
+<p>The FreeRTOS source code compiles with many different compilers, many of
+which differ in how and when they generate warnings. In particular,
+different compilers want casting used in different ways. As a result,
+the FreeRTOS source code contains more type casting than would normally
+be warranted.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch02/2.4-creating-a-freertos-project.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch03/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch02/2.4-creating-a-freertos-project.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch03/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Heap Related Utility Functions and Macros - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="33-heap-related-utility-functions-and-macros"><a class="header" href="#33-heap-related-utility-functions-and-macros">3.3 Heap Related Utility Functions and Macros</a></h2>
+<h3 id="331-defining-the-heap-start-address"><a class="header" href="#331-defining-the-heap-start-address">3.3.1 Defining the Heap Start Address</a></h3>
+<p>Heap_1, heap_2 and heap_4 allocate memory from a statically allocated
+array dimensioned by <code>configTOTAL_HEAP_SIZE</code>. This section refers to these
+allocation schemes collectively as heap_n.</p>
+<p>Sometimes the heap needs to be placed at a specific memory address. For
+example, the stack allocated to a dynamically created task comes from
+the heap, so it might be necessary to locate the heap in fast internal
+memory rather than slow external memory. (See the sub-section Placing
+Task Stacks in Fast Memory below for another method of allocating task
+stacks in fast memory). The <code>configAPPLICATION_ALLOCATED_HEAP</code>
+compile-time configuration constant enables the application to declare
+the array in place of the declaration that would otherwise be in the
+heap_n.c source file. Declaring the array in the application code
+enables the application writer to specify its start address.</p>
+<p>If <code>configAPPLICATION_ALLOCATED_HEAP</code> is set to 1 in FreeRTOSConfig.h,
+the application that uses FreeRTOS must allocate a <code>uint8_t</code> array
+called <code>ucHeap</code> and dimensioned by the <code>configTOTAL_HEAP_SIZE</code> constant.</p>
+<p>The syntax required to place a variable at a specific memory address is
+dependent on the compiler in use, so refer to your compiler's
+documentation. Examples for two compilers follow:</p>
+<ul>
+<li>Listing 3.5 shows the syntax required by the GCC compiler to declare
+the array and place the array in a memory section called <code>.my_heap</code>.</li>
+<li>Listing 3.6 shows the syntax required by the IAR compiler to declare
+the array and place the array at the absolute memory address
+0x20000000.</li>
+</ul>
+<p><a name="list3.5" title="Listing 3.5 Using GCC syntax to declare the array that will be used by heap\_4, and place the array in a memory section named .my\_heap"></a></p>
+<pre><code class="language-c">uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__ ( ( section( ".my_heap" ) ) );
+</code></pre>
+<p><em><strong>Listing 3.5</strong></em> <em>Using GCC syntax to declare the array that will be used by heap_4, and place the array in a memory section named .my_heap</em></p>
+<p><a name="list3.6" title="Listing 3.6 Using IAR syntax to declare the array that will be used by heap\_4, and place the array at the absolute address 0x20000000"></a></p>
+<pre><code class="language-c">uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] @ 0x20000000;
+</code></pre>
+<p><em><strong>Listing 3.6</strong></em> <em>Using IAR syntax to declare the array that will be used by heap_4, and place the array at the absolute address 0x20000000</em></p>
+<h3 id="332-the-xportgetfreeheapsize-api-function"><a class="header" href="#332-the-xportgetfreeheapsize-api-function">3.3.2 The xPortGetFreeHeapSize() API Function</a></h3>
+<p>The <code>xPortGetFreeHeapSize()</code> API function returns the number of free bytes
+in the heap at the time the function is called. It does not provide
+information on heap fragmentation.</p>
+<p><code>xPortGetFreeHeapSize()</code> is not implemented for heap_3.</p>
+<p><a name="list3.7" title="Listing 3.7 The xPortGetFreeHeapSize() API function prototype"></a></p>
+<pre><code class="language-c">size_t xPortGetFreeHeapSize( void );
+</code></pre>
+<p><em><strong>Listing 3.7</strong></em> <em>The xPortGetFreeHeapSize() API function prototype</em></p>
+<p><strong>Return value:</strong></p>
+<ul>
+<li><code>xPortGetFreeHeapSize()</code> returns the number of bytes that remain unallocated in the heap at
+the time it is called.</li>
+</ul>
+<h3 id="333-the-xportgetminimumeverfreeheapsize-api-function"><a class="header" href="#333-the-xportgetminimumeverfreeheapsize-api-function">3.3.3 The xPortGetMinimumEverFreeHeapSize() API Function</a></h3>
+<p>The <code>xPortGetMinimumEverFreeHeapSize()</code> API function returns the minimum
+number of unallocated bytes that have ever existed in the heap since the
+FreeRTOS application started executing.</p>
+<p>The value returned by <code>xPortGetMinimumEverFreeHeapSize()</code> indicates how
+close the application has ever come to running out of heap space. For
+example, if <code>xPortGetMinimumEverFreeHeapSize()</code> returns 200, then, at some
+time since the application started executing, it came within 200 bytes
+of running out of heap space.</p>
+<p><code>xPortGetMinimumEverFreeHeapSize()</code> can also be used to optimise the heap
+size. For example, if <code>xPortGetMinimumEverFreeHeapSize()</code> returns 2000
+after executing the code that you know has the highest heap usage,
+<code>configTOTAL_HEAP_SIZE</code> can be reduced by up to 2000 bytes.</p>
+<p><code>xPortGetMinimumEverFreeHeapSize()</code> is only implemented in heap_4 and heap_5.</p>
+<p><a name="list3.8" title="Listing 3.8 The xPortGetMinimumEverFreeHeapSize() API function prototype"></a></p>
+<pre><code class="language-c">size_t xPortGetMinimumEverFreeHeapSize( void );
+</code></pre>
+<p><em><strong>Listing 3.8</strong></em> <em>The xPortGetMinimumEverFreeHeapSize() API function prototype</em></p>
+<p><strong>Return value:</strong></p>
+<ul>
+<li><code>xPortGetMinimumEverFreeHeapSize()</code> returns the minimum number of unallocated
+bytes that existed in the heap since the FreeRTOS application started executing.</li>
+</ul>
+<h3 id="334-the-vportgetheapstats-api-function"><a class="header" href="#334-the-vportgetheapstats-api-function">3.3.4 The vPortGetHeapStats() API Function</a></h3>
+<p>Heap_4 and heap_5 implement <code>vPortGetHeapStats()</code>, which completes the
+<code>HeapStats_t</code> structure pass by reference as the function's only parameter.</p>
+<p>Listing 3.9 shows the <code>vPortGetHeapStats()</code> function prototype. Listing 3.10
+shows the <code>HeapStats_t</code> structure members.</p>
+<p><a name="list3.9" title="Listing 3.9 The vPortGetHeapStatus() API function prototype"></a></p>
+<pre><code class="language-c">void vPortGetHeapStats( HeapStats_t *xHeapStats );
+</code></pre>
+<p><em><strong>Listing 3.9</strong></em> <em>The vPortGetHeapStatus() API function prototype</em></p>
+<p><a name="list3.10" title="Listing 3.10 The HeapStatus\_t() structure"></a></p>
+<pre><code class="language-c">/* Prototype of the vPortGetHeapStats() function. */
+void vPortGetHeapStats( HeapStats_t *xHeapStats );
+
+/* Definition of the HeapStats_t structure. All sizes specified in bytes. */
+typedef struct xHeapStats
+{
+    /* The total heap size currently available - this is the sum of all the
+       free blocks, not the largest available block. */
+    size_t xAvailableHeapSpaceInBytes;
+
+    /* The size of the largest free block within the heap at the time
+       vPortGetHeapStats() is called. */
+    size_t xSizeOfLargestFreeBlockInBytes;
+
+    /* The size of the smallest free block within the heap at the time
+       vPortGetHeapStats() is called. */
+    size_t xSizeOfSmallestFreeBlockInBytes;
+
+    /* The number of free memory blocks within the heap at the time
+       vPortGetHeapStats() is called. */
+    size_t xNumberOfFreeBlocks;
+
+    /* The minimum amount of total free memory (sum of all free blocks)
+       there has been in the heap since the system booted. */
+    size_t xMinimumEverFreeBytesRemaining;
+
+    /* The number of calls to pvPortMalloc() that have returned a valid
+       memory block. */
+    size_t xNumberOfSuccessfulAllocations;
+
+    /* The number of calls to vPortFree() that has successfully freed a
+       block of memory. */
+    size_t xNumberOfSuccessfulFrees;
+} HeapStats_t;
+</code></pre>
+<p><em><strong>Listing 3.10</strong></em> <em>The HeapStatus_t() structure</em></p>
+<h3 id="335-collecting-per-task-heap-usage-statistics"><a class="header" href="#335-collecting-per-task-heap-usage-statistics">3.3.5 Collecting Per-task Heap Usage Statistics</a></h3>
+<p>The application writer can use the following trace macros to collect per-task
+heap usage statistics:</p>
+<ul>
+<li><code>traceMALLOC</code></li>
+<li><code>traceFREE</code></li>
+</ul>
+<p>Listing 3.11 shows one example implementation of these trace macros to collect
+per-task heap usage statistics.</p>
+<p><a name="list3.11" title="Listing 3.11 Collecting Per-task Heap Usage Statistics"></a></p>
+<pre><code class="language-c">#define mainNUM_ALLOCATION_ENTRIES          512
+#define mainNUM_PER_TASK_ALLOCATION_ENTRIES 32
+
+/*-----------------------------------------------------------*/
+
+/*
+ * +-----------------+--------------+----------------+-------------------+
+ * | Allocating Task | Entry in use | Allocated Size | Allocated Pointer |
+ * +-----------------+--------------+----------------+-------------------+
+ * |                 |              |                |                   |
+ * +-----------------+--------------+----------------+-------------------+
+ * |                 |              |                |                   |
+ * +-----------------+--------------+----------------+-------------------+
+ */
+typedef struct AllocationEntry
+{
+    BaseType_t xInUse;
+    TaskHandle_t xAllocatingTaskHandle;
+    size_t uxAllocatedSize;
+    void * pvAllocatedPointer;
+} AllocationEntry_t;
+
+AllocationEntry_t xAllocationEntries[ mainNUM_ALLOCATION_ENTRIES ];
+
+/*
+ * +------+-----------------------+----------------------+
+ * | Task | Memory Currently Held | Max Memory Ever Held |
+ * +------+-----------------------+----------------------+
+ * |      |                       |                      |
+ * +------+-----------------------+----------------------+
+ * |      |                       |                      |
+ * +------+-----------------------+----------------------+
+ */
+typedef struct PerTaskAllocationEntry
+{
+    TaskHandle_t xTask;
+    size_t uxMemoryCurrentlyHeld;
+    size_t uxMaxMemoryEverHeld;
+} PerTaskAllocationEntry_t;
+
+PerTaskAllocationEntry_t xPerTaskAllocationEntries[ mainNUM_PER_TASK_ALLOCATION_ENTRIES ];
+
+/*-----------------------------------------------------------*/
+
+void TracepvPortMalloc( size_t uxAllocatedSize, void * pv )
+{
+    size_t i;
+    TaskHandle_t xAllocatingTaskHandle;
+    AllocationEntry_t * pxAllocationEntry = NULL;
+    PerTaskAllocationEntry_t * pxPerTaskAllocationEntry = NULL;
+
+    if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
+    {
+        xAllocatingTaskHandle = xTaskGetCurrentTaskHandle();
+
+        for( i = 0; i &lt; mainNUM_ALLOCATION_ENTRIES; i++ )
+        {
+            if( xAllocationEntries[ i ].xInUse == pdFALSE )
+            {
+                pxAllocationEntry = &amp;( xAllocationEntries[ i ] );
+                break;
+            }
+        }
+
+        /* Do we already have an entry in the per task table? */
+        for( i = 0; i &lt; mainNUM_PER_TASK_ALLOCATION_ENTRIES; i++ )
+        {
+            if( xPerTaskAllocationEntries[ i ].xTask == xAllocatingTaskHandle )
+            {
+                pxPerTaskAllocationEntry = &amp;( xPerTaskAllocationEntries[ i ] );
+                break;
+            }
+        }
+
+        /* We do not have an entry in the per task table. Find an empty slot. */
+        if( pxPerTaskAllocationEntry == NULL )
+        {
+            for( i = 0; i &lt; mainNUM_PER_TASK_ALLOCATION_ENTRIES; i++ )
+            {
+                if( xPerTaskAllocationEntries[ i ].xTask == NULL )
+                {
+                    pxPerTaskAllocationEntry = &amp;( xPerTaskAllocationEntries[ i ] );
+                    break;
+                }
+            }
+        }
+
+        /* Ensure that we have space in both the tables. */
+        configASSERT( pxAllocationEntry != NULL );
+        configASSERT( pxPerTaskAllocationEntry != NULL );
+
+        pxAllocationEntry-&gt;xAllocatingTaskHandle = xAllocatingTaskHandle;
+        pxAllocationEntry-&gt;xInUse = pdTRUE;
+        pxAllocationEntry-&gt;uxAllocatedSize = uxAllocatedSize;
+        pxAllocationEntry-&gt;pvAllocatedPointer = pv;
+
+        pxPerTaskAllocationEntry-&gt;xTask = xAllocatingTaskHandle;
+        pxPerTaskAllocationEntry-&gt;uxMemoryCurrentlyHeld += uxAllocatedSize;
+        if( pxPerTaskAllocationEntry-&gt;uxMaxMemoryEverHeld &lt; pxPerTaskAllocationEntry-&gt;uxMemoryCurrentlyHeld )
+        {
+            pxPerTaskAllocationEntry-&gt;uxMaxMemoryEverHeld = pxPerTaskAllocationEntry-&gt;uxMemoryCurrentlyHeld;
+        }
+    }
+}
+/*-----------------------------------------------------------*/
+
+void TracevPortFree( void * pv )
+{
+    size_t i;
+    AllocationEntry_t * pxAllocationEntry = NULL;
+    PerTaskAllocationEntry_t * pxPerTaskAllocationEntry = NULL;
+
+    for( i = 0; i &lt; mainNUM_ALLOCATION_ENTRIES; i++ )
+    {
+        if( ( xAllocationEntries[ i ].xInUse == pdTRUE ) &amp;&amp;
+            ( xAllocationEntries[ i ].pvAllocatedPointer == pv ) )
+        {
+            pxAllocationEntry = &amp;( xAllocationEntries [ i ] );
+            break;
+        }
+    }
+
+    /* Attempt to free a block that was never allocated. */
+    configASSERT( pxAllocationEntry != NULL );
+
+    for( i = 0; i &lt; mainNUM_PER_TASK_ALLOCATION_ENTRIES; i++ )
+    {
+        if( xPerTaskAllocationEntries[ i ].xTask == pxAllocationEntry-&gt;xAllocatingTaskHandle )
+        {
+            pxPerTaskAllocationEntry = &amp;( xPerTaskAllocationEntries[ i ] );
+            break;
+        }
+    }
+
+    /* An entry must exist in the per task table. */
+    configASSERT( pxPerTaskAllocationEntry != NULL );
+
+    pxPerTaskAllocationEntry-&gt;uxMemoryCurrentlyHeld -= pxAllocationEntry-&gt;uxAllocatedSize;
+
+    pxAllocationEntry-&gt;xInUse = pdFALSE;
+    pxAllocationEntry-&gt;xAllocatingTaskHandle = NULL;
+    pxAllocationEntry-&gt;uxAllocatedSize = 0;
+    pxAllocationEntry-&gt;pvAllocatedPointer = NULL;
+}
+/*-----------------------------------------------------------*/
+
+/* The following goes in FreeRTOSConfig.h: */
+extern void TracepvPortMalloc( size_t uxAllocatedSize, void * pv );
+extern void TracevPortFree( void * pv );
+
+#define traceMALLOC( pvReturn, xAllocatedBlockSize ) \
+TracepvPortMalloc( xAllocatedBlockSize, pvReturn )
+
+#define traceFREE( pv, xAllocatedBlockSize ) \
+TracevPortFree( pv )
+</code></pre>
+<p><em><strong>Listing 3.11</strong></em> <em>Collecting Per-task Heap Usage Statistics</em></p>
+<h3 id="336-malloc-failed-hook-functions"><a class="header" href="#336-malloc-failed-hook-functions">3.3.6 Malloc Failed Hook Functions</a></h3>
+<p>Like the standard library <code>malloc()</code> function, <code>pvPortMalloc()</code> returns NULL
+if it cannot allocate the requested amount of RAM. The malloc failed hook
+(or callback) is an application-provided function that gets called if
+<code>pvPortMalloc()</code> returns NULL. You must set <code>configUSE_MALLOC_FAILED_HOOK</code> to
+1 in FreeRTOSConfig.h in order for the callback to occur. If the malloc failed
+hook gets called inside a FreeRTOS API function that uses dynamic memory
+allocation to create a kernel object, the object is not created.</p>
+<p>If <code>configUSE_MALLOC_FAILED_HOOK</code> is set to 1 in FreeRTOSConfig.h, then
+the application must provide a malloc failed hook function with the name
+and prototype shown in Listing 3.12. The application can implement the
+function in any way appropriate for the application. Many of the
+provided FreeRTOS demo applications treat an allocation failure as a
+fatal error, but that is not the best practice for production systems,
+which should gracefully recover from allocation failures.</p>
+<p><a name="list3.12" title="Listing 3.12 The malloc failed hook function name and prototype"></a></p>
+<pre><code class="language-c">void vApplicationMallocFailedHook( void );
+</code></pre>
+<p><em><strong>Listing 3.12</strong></em> <em>The malloc failed hook function name and prototype</em></p>
+<h3 id="337-placing-task-stacks-in-fast-memory"><a class="header" href="#337-placing-task-stacks-in-fast-memory">3.3.7 Placing Task Stacks in Fast Memory</a></h3>
+<p>Because stacks are written to and read from at a high rate, they should
+be placed in fast memory, but that might not be where you want the heap to
+reside. FreeRTOS uses the <code>pvPortMallocStack()</code> and <code>vPortFreeStack()</code>
+macros to optionally enable stacks that are allocated within the FreeRTOS API
+code to have their own memory allocator. If you want the stack to come
+from the heap managed by <code>pvPortMalloc()</code> then leave <code>pvPortMallocStack()</code>
+and <code>vPortFreeStack()</code> undefined as they default to calling
+<code>pvPortMalloc()</code> and <code>vPortFree()</code>, respectively. Otherwise, define the
+macros to call application-provided functions as shown in Listing 3.13.</p>
+<p><a name="list3.13" title="Listing 3.13 Mapping the pvPortMallocStack() and vPortFreeStack() macros to an application defined memory allocator"></a></p>
+<pre><code class="language-c">/* Functions provided by the application writer than allocate and free
+   memory from a fast area of RAM. */
+
+void *pvMallocFastMemory( size_t xWantedSize );
+
+void vPortFreeFastMemory( void *pvBlockToFree );
+
+/* Add the following to FreeRTOSConfig.h to map the pvPortMallocStack()
+   and vPortFreeStack() macros to the functions that use fast memory. */
+
+#define pvPortMallocStack( x ) pvMallocFastMemory( x )
+
+#define vPortFreeStack( x ) vPortFreeFastMemory( x )
+</code></pre>
+<p><em><strong>Listing 3.13</strong></em> <em>Mapping the pvPortMallocStack() and vPortFreeStack() macros to an application defined memory allocator</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch03/3.2-example-memory-allocation-schemes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch03/3.4-using-static-memory-allocation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch03/3.2-example-memory-allocation-schemes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch03/3.4-using-static-memory-allocation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

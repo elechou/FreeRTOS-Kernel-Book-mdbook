@@ -1,0 +1,360 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Characteristics of a Queue - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="52-characteristics-of-a-queue"><a class="header" href="#52-characteristics-of-a-queue">5.2 Characteristics of a Queue</a></h2>
+<h3 id="521-data-storage"><a class="header" href="#521-data-storage">5.2.1 Data Storage</a></h3>
+<p>A queue can hold a finite number of fixed size data items<sup class="footnote-reference" id="fr-8-1"><a href="#footnote-8">1</a></sup>. The
+maximum number of items a queue can hold is called its 'length'. Both
+the length and the size of each data item are set when the queue is
+created.</p>
+<p>Queues are normally used as First In First Out (FIFO) buffers, where
+data is written to the end (tail) of the queue and removed from the
+front (head) of the queue. Figure 5.1 demonstrates data being written to
+and read from a queue that is being used as a FIFO. It is also possible
+to write to the front of a queue, and to overwrite data that is already
+at the front of a queue.</p>
+<p><a name="fig5.1" title="Figure 5.1 An example sequence of writes to, and reads from a queue"></a></p>
+<div align="center">
+<img src="../media/image31.png" alt="Figure 5.1 *An example sequence of writes to, and reads from a queue*"/>
+<p><em><strong>Figure 5.1</strong></em> <strong>An example sequence of writes to, and reads from a queue</strong></p>
+</div>
+<p>There are two ways in which queue behaviour can be implemented:</p>
+<ol>
+<li>
+<p>Queue by copy</p>
+<p>Queuing by copy means the data sent to the queue is copied byte for
+byte into the queue.</p>
+</li>
+<li>
+<p>Queue by reference</p>
+<p>Queuing by reference means the queue only holds pointers to the data
+sent to the queue, not the data itself.</p>
+</li>
+</ol>
+<p>FreeRTOS uses the queue by copy method because it is both more
+powerful and simpler to use than queueing by reference because:</p>
+<ul>
+<li>
+<p>Queuing by copy does not prevent the queue from also being used to
+queue by reference. For example, when the size of the data being
+queued makes it impractical to copy the data into the queue, then a
+pointer to the data can be copied into the queue instead.</p>
+</li>
+<li>
+<p>A stack variable can be sent directly to a queue, even though the
+variable will not exist after the function in which it is declared
+has exited.</p>
+</li>
+<li>
+<p>Data can be sent to a queue without first allocating a buffer to
+hold the data—you then copy the data into the allocated buffer
+and queue a reference to the buffer.</p>
+</li>
+<li>
+<p>The sending task can immediately re-use the variable or buffer that
+was sent to the queue.</p>
+</li>
+<li>
+<p>The sending task and the receiving task are completely
+de-coupled; an application designer does not need to concern
+themself with which task 'owns' the data, or which task is
+responsible for releasing the data.</p>
+</li>
+<li>
+<p>The RTOS takes complete responsibility for allocating the memory
+used to store data.</p>
+</li>
+<li>
+<p>Memory protected systems restrict access to RAM, in which case
+queueing by reference can only be accomplished if the sending and
+receiving tasks can both access the referenced data. Queuing by copy
+allows data to pass across memory protection boundaries.</p>
+</li>
+</ul>
+<h3 id="522-access-by-multiple-tasks"><a class="header" href="#522-access-by-multiple-tasks">5.2.2 Access by Multiple Tasks</a></h3>
+<p>Queues are objects in their own right and can be accessed by any task
+or ISR that knows of their existence. Any number of tasks can write to
+the same queue, and any number of tasks can read from the same queue. In
+practice, it is very common for a queue to have multiple writers, but
+much less common for a queue to have multiple readers.</p>
+<h3 id="523-blocking-on-queue-reads"><a class="header" href="#523-blocking-on-queue-reads">5.2.3 Blocking on Queue Reads</a></h3>
+<p>When a task attempts to read from a queue, it can optionally specify a
+'block' time. This is the time the task is kept in the Blocked state to
+wait for data to become available from the queue, if the queue
+is already empty. A task that is in the Blocked state waiting for data
+to become available from a queue is automatically moved to the Ready
+state when another task or interrupt places data into the queue. The
+task will also be moved automatically from the Blocked state to the
+Ready state if the specified block time expires before data becomes
+available.</p>
+<p>Queues can have multiple readers, so it is possible for a single queue
+to have more than one task blocked on it waiting for data. When this is
+the case, only one task is unblocked when data becomes available. The
+task that is unblocked is always the highest priority task that is
+waiting for data. If two or more blocked tasks have equal priority, then the
+task that is unblocked is the one that has been waiting the longest.</p>
+<h3 id="524-blocking-on-queue-writes"><a class="header" href="#524-blocking-on-queue-writes">5.2.4 Blocking on Queue Writes</a></h3>
+<p>Just as it can when reading from a queue, a task can optionally specify a block
+time when writing to a queue. In this case, the block time is the
+maximum time the task will be held in the Blocked state to wait for
+space to become available on the queue, should the queue already be
+full.</p>
+<p>Queues can have multiple writers, so it is possible for a full queue to
+have more than one task blocked on it waiting to complete a send
+operation. When this is the case, only one task is unblocked when space
+on the queue becomes available. The task that is unblocked is always the
+highest priority task that is waiting for space. If two or more blocked tasks
+have equal priority, then the task that is unblocked is the one that has been
+waiting the longest.</p>
+<h3 id="525-blocking-on-multiple-queues"><a class="header" href="#525-blocking-on-multiple-queues">5.2.5 Blocking on Multiple Queues</a></h3>
+<p>Queues can be grouped into sets, allowing a task to enter the Blocked
+state to wait for data to become available on any of the queues in the
+set. Section 5.6, Receiving From Multiple Queues, demonstrates queue
+sets.</p>
+<h3 id="526-creating-queues-statically-allocated-and-dynamically-allocated-queues"><a class="header" href="#526-creating-queues-statically-allocated-and-dynamically-allocated-queues">5.2.6 Creating Queues: Statically Allocated and Dynamically Allocated Queues</a></h3>
+<p>Queues are referenced by handles, which are variables of type
+<code>QueueHandle_t</code>. A queue must be explicitly created before it can be used.</p>
+<p>Two API functions create queues: <code>xQueueCreate()</code>, <code>xQueueCreateStatic()</code>.</p>
+<p>Each queue requires two blocks of RAM, the first to hold its data
+structure, and the second to hold queued data. <code>xQueueCreate()</code> allocates
+the required RAM from the heap (dynamically). <code>xQueueCreateStatic()</code> uses
+pre-allocated RAM passed into the function as parameters.</p>
+<hr>
+<ol class="footnote-definition"><li id="footnote-8">
+<p>FreeRTOS message buffers, described in chapter TBD, provide a
+lighter weight alternative to queues that hold variable length
+messages. <a href="#fr-8-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch05/5.1-introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch05/5.3-using-a-queue.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch05/5.1-introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch05/5.3-using-a-queue.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

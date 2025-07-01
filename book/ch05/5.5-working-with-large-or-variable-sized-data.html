@@ -1,0 +1,520 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Working with Large or Variable Sized Data - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="55-working-with-large-or-variable-sized-data"><a class="header" href="#55-working-with-large-or-variable-sized-data">5.5 Working with Large or Variable Sized Data</a></h2>
+<h3 id="551-queuing-pointers"><a class="header" href="#551-queuing-pointers">5.5.1 Queuing Pointers</a></h3>
+<p>If the size of the data stored in the queue is large, then it is
+preferable to use the queue to transfer pointers to the data, rather
+than copy the data itself into and out of the queue byte by byte.
+Transferring pointers is more efficient in both processing time and the
+amount of RAM required to create the queue. However, when queuing
+pointers, extreme care must be taken to ensure that:</p>
+<ul>
+<li>
+<p>The owner of the RAM being pointed to is clearly defined.</p>
+<p>When sharing memory between tasks via a pointer, it is essential to
+ensure both tasks do not modify the memory contents simultaneously, or
+take any other action that could cause the memory contents to be invalid
+or inconsistent. Ideally, only the sending task should be permitted to
+access the memory before the pointer is sent to the queue, and only the
+receiving task should be permitted to access the memory after the
+pointer has been received from the queue.</p>
+</li>
+<li>
+<p>The RAM being pointed to remains valid.</p>
+<p>If the memory being pointed to was allocated dynamically, or obtained
+from a pool of pre-allocated buffers, then exactly one task should be
+responsible for freeing the memory. No tasks should attempt to access
+the memory after it has been freed.</p>
+<p>A pointer should never be used to access data that has been allocated on
+a task stack. The data will not be valid after the stack frame has
+changed.</p>
+</li>
+</ul>
+<p>By way of example, Listings 5.13, 5.14 and 5.15 demonstrate how
+to use a queue to send a pointer to a buffer from one task to another:</p>
+<ul>
+<li>
+<p>Listing 5.13 creates a queue that can hold up to 5 pointers.</p>
+</li>
+<li>
+<p>Listing 5.14 allocates a buffer, writes a string to the buffer, then
+sends a pointer to the buffer to the queue.</p>
+</li>
+<li>
+<p>Listing 5.15 receives a pointer to a buffer from the queue, then
+prints the string contained in the buffer.</p>
+</li>
+</ul>
+<p><a name="list5.13" title="Listing 5.13 Creating a queue that holds pointers"></a></p>
+<pre><code class="language-c">/* Declare a variable of type QueueHandle_t to hold the handle of the
+   queue being created. */
+QueueHandle_t xPointerQueue;
+
+/* Create a queue that can hold a maximum of 5 pointers, in this case
+   character pointers. */
+xPointerQueue = xQueueCreate( 5, sizeof( char * ) );
+</code></pre>
+<p><em><strong>Listing 5.13</strong></em> <em>Creating a queue that holds pointers</em></p>
+<p><a name="list5.14" title="Listing 5.14 Using a queue to send a pointer to a buffer"></a></p>
+<pre><code class="language-c">/* A task that obtains a buffer, writes a string to the buffer, then
+   sends the address of the buffer to the queue created in Listing 5.13. */
+void vStringSendingTask( void *pvParameters )
+{
+    char *pcStringToSend;
+    const size_t xMaxStringLength = 50;
+    BaseType_t xStringNumber = 0;
+
+    for( ;; )
+    {
+        /* Obtain a buffer that is at least xMaxStringLength characters big.
+           The implementation of prvGetBuffer() is not shown – it might obtain
+           the buffer from a pool of pre-allocated buffers, or just allocate 
+           the buffer dynamically. */
+        pcStringToSend = ( char * ) prvGetBuffer( xMaxStringLength );
+
+        /* Write a string into the buffer. */
+        snprintf( pcStringToSend, xMaxStringLength, "String number %d\r\n",
+                  xStringNumber );
+
+        /* Increment the counter so the string is different on each iteration
+           of this task. */
+        xStringNumber++;
+
+        /* Send the address of the buffer to the queue that was created in
+           Listing 5.13. The address of the buffer is stored in the 
+           pcStringToSend variable.*/
+        xQueueSend( xPointerQueue,   /* The handle of the queue. */
+                    &amp;pcStringToSend, /* The address of the pointer that points
+                                        to the buffer. */
+                    portMAX_DELAY );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.14</strong></em> <em>Using a queue to send a pointer to a buffer</em></p>
+<p><a name="list5.15" title="Listing 5.15 Using a queue to receive a pointer to a buffer"></a></p>
+<pre><code class="language-c">/* A task that receives the address of a buffer from the queue created
+   in Listing 5.13, and written to in Listing 5.14. The buffer contains a
+   string, which is printed out. */
+
+void vStringReceivingTask( void *pvParameters )
+{
+    char *pcReceivedString;
+
+    for( ;; )
+    {
+        /* Receive the address of a buffer. */
+        xQueueReceive( xPointerQueue,     /* The handle of the queue. */
+                       &amp;pcReceivedString, /* Store the buffer's address in 
+                                             pcReceivedString. */
+                       portMAX_DELAY );
+
+        /* The buffer holds a string, print it out. */
+        vPrintString( pcReceivedString );
+
+        /* The buffer is not required any more - release it so it can be freed,
+           or re-used. */
+        prvReleaseBuffer( pcReceivedString );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.15</strong></em> <em>Using a queue to receive a pointer to a buffer</em></p>
+<h3 id="552-using-a-queue-to-send-different-types-and-lengths-of-data1"><a class="header" href="#552-using-a-queue-to-send-different-types-and-lengths-of-data1">5.5.2 Using a Queue to Send Different Types and Lengths of Data<sup class="footnote-reference" id="fr-9-1"><a href="#footnote-9">1</a></sup></a></h3>
+<p>Previous sections of this book demonstrated two powerful design
+patterns; sending structures to a queue, and sending pointers to a
+queue. Combining those techniques allows a task to use a single queue to
+receive any data type from any data source. The implementation of the
+FreeRTOS+TCP TCP/IP stack provides a practical example of how this is
+achieved.</p>
+<p>The TCP/IP stack, which runs in its own task, must process events from
+many different sources. Different event types are associated with
+different types and lengths of data. <code>IPStackEvent_t</code> structures describe
+all events that occur outside of the TCP/IP task, and are sent to the
+TCP/IP task on a queue. Listing 5.16 shows the <code>IPStackEvent_t</code> structure.
+The <code>pvData</code> member of the <code>IPStackEvent_t</code> structure is a pointer that can
+be used to hold a value directly, or point to a buffer.</p>
+<p><a name="list5.16" title="Listing 5.16 The structure used to send events to the TCP/IP stack task in FreeRTOS+TCP"></a></p>
+<pre><code class="language-c">/* A subset of the enumerated types used in the TCP/IP stack to
+   identify events. */
+typedef enum
+{
+    eNetworkDownEvent = 0, /* The network interface has been lost, or needs
+                              (re)connecting. */
+    eNetworkRxEvent,       /* A packet has been received from the network. */
+    eTCPAcceptEvent,       /* FreeRTOS_accept() called to accept or wait for a
+                              new client. */
+
+/* Other event types appear here but are not shown in this listing. */
+
+} eIPEvent_t;
+
+/* The structure that describes events, and is sent on a queue to the
+   TCP/IP task. */
+typedef struct IP_TASK_COMMANDS
+{
+    /* An enumerated type that identifies the event. See the eIPEvent_t
+       definition above. */
+    eIPEvent_t eEventType;
+
+    /* A generic pointer that can hold a value, or point to a buffer. */
+    void *pvData;
+
+} IPStackEvent_t;
+</code></pre>
+<p><em><strong>Listing 5.16</strong></em> <em>The structure used to send events to the TCP/IP stack task in FreeRTOS+TCP</em></p>
+<p>Example TCP/IP events, and their associated data, include:</p>
+<ul>
+<li>
+<p><code>eNetworkRxEvent</code>: A packet of data was received from the network.</p>
+<p>The network interface sends data received events to the TCP/IP task
+using a structure of type <code>IPStackEvent_t</code>. The structure's <code>eEventType</code>
+member is set to <code>eNetworkRxEvent</code>, and the structure's <code>pvData</code> member is
+used to point to the buffer that contains the received data. Listing
+59 shows a pseudo code example.</p>
+<p><a name="list5.17" title="Listing 5.17 Pseudo code showing how an IPStackEvent_t structure is used to send data received from the network to the TCP/IP task"></a></p>
+<pre><code class="language-c">void vSendRxDataToTheTCPTask( NetworkBufferDescriptor_t *pxRxedData )
+{
+    IPStackEvent_t xEventStruct;
+
+    /* Complete the IPStackEvent_t structure. The received data is stored in
+       pxRxedData. */
+    xEventStruct.eEventType = eNetworkRxEvent;
+    xEventStruct.pvData = ( void * ) pxRxedData;
+
+    /* Send the IPStackEvent_t structure to the TCP/IP task. */
+    xSendEventStructToIPTask( &amp;xEventStruct );
+}
+</code></pre>
+<p><em><strong>Listing 5.17</strong></em> <em>Pseudo code showing how an IPStackEvent_t structure is used to send data received from the network to the TCP/IP task</em></p>
+</li>
+<li>
+<p><code>eTCPAcceptEvent</code>: A socket is to accept, or wait for, a connection
+from a client.</p>
+<p>The task that called <code>FreeRTOS_accept()</code> sends accept events to the
+TCP/IP task using a structure of type <code>IPStackEvent_t</code>. The structure's
+<code>eEventType</code> member is set to <code>eTCPAcceptEvent</code>, and the structure's
+<code>pvData</code> member is set to the handle of the socket that is accepting a
+connection. Listing 5.18 shows a pseudo code example.</p>
+<p><a name="list5.18" title="Listing 5.18 Pseudo code showing how an IPStackEvent_t structure is used to send the handle of a socket that is accepting a connection to the TCP/IP task"></a></p>
+<pre><code class="language-c">void vSendAcceptRequestToTheTCPTask( Socket_t xSocket )
+{
+    IPStackEvent_t xEventStruct;
+
+    /* Complete the IPStackEvent_t structure. */
+    xEventStruct.eEventType = eTCPAcceptEvent;
+    xEventStruct.pvData = ( void * ) xSocket;
+
+    /* Send the IPStackEvent_t structure to the TCP/IP task. */
+    xSendEventStructToIPTask( &amp;xEventStruct );
+}
+</code></pre>
+<p><em><strong>Listing 5.18</strong></em> <em>Pseudo code showing how an IPStackEvent_t structure is used to send the handle of a socket that is accepting a connection to the TCP/IP task</em></p>
+</li>
+<li>
+<p><code>eNetworkDownEvent</code>: The network needs connecting, or re-connecting.</p>
+<p>The network interface sends network down events to the TCP/IP task
+using a structure of type <code>IPStackEvent_t</code>. The structure's <code>eEventType</code>
+member is set to <code>eNetworkDownEvent</code>. Network down events are not
+associated with any data, so the structure's <code>pvData</code> member is not
+used. Listing 5.19 shows a pseudo code example.</p>
+<p><a name="list5.19" title="Listing 5.19 Pseudo code showing how an IPStackEvent_t structure is used to send a network down event to the TCP/IP task"></a></p>
+<pre><code class="language-c">void vSendNetworkDownEventToTheTCPTask( Socket_t xSocket )
+{
+    IPStackEvent_t xEventStruct;
+
+    /* Complete the IPStackEvent_t structure. */
+    xEventStruct.eEventType = eNetworkDownEvent;
+
+    xEventStruct.pvData = NULL; /* Not used, but set to NULL for
+                                   completeness. */
+
+    /* Send the IPStackEvent_t structure to the TCP/IP task. */
+    xSendEventStructToIPTask( &amp;xEventStruct );
+}
+</code></pre>
+<p><em><strong>Listing 5.19</strong></em> <em>Pseudo code showing how an IPStackEvent_t structure is used to send a network down event to the TCP/IP task</em></p>
+<p>Listing 5.20 shows the code that receives and processes these events
+within the TCP/IP task. It can be seen that the <code>eEventType</code> member of the
+<code>IPStackEvent_t</code> structures received from the queue is used to determine
+how the <code>pvData</code> member is to be interpreted.</p>
+<p><a name="list5.20" title="Listing 5.20 Pseudo code showing how an IPStackEvent_t structure is received and processed"></a></p>
+<pre><code class="language-c">IPStackEvent_t xReceivedEvent;
+
+/* Block on the network event queue until either an event is received, or 
+   xNextIPSleep ticks pass without an event being received. eEventType is 
+   set to eNoEvent in case the call to xQueueReceive() returns because it 
+   timed out, rather than because an event was received. */
+xReceivedEvent.eEventType = eNoEvent;
+xQueueReceive( xNetworkEventQueue, &amp;xReceivedEvent, xNextIPSleep );
+
+/* Which event was received, if any? */
+switch( xReceivedEvent.eEventType )
+{
+    case eNetworkDownEvent :
+         /* Attempt to (re)establish a connection. This event is not 
+            associated with any data. */
+         prvProcessNetworkDownEvent();
+         break;
+
+    case eNetworkRxEvent:
+         /* The network interface has received a new packet. A pointer to the
+            received data is stored in the pvData member of the received 
+            IPStackEvent_t structure. Process the received data. */
+         prvHandleEthernetPacket( ( NetworkBufferDescriptor_t * )
+                                  ( xReceivedEvent.pvData ) );
+         break;
+
+    case eTCPAcceptEvent:
+         /* The FreeRTOS_accept() API function was called. The handle of the
+            socket that is accepting a connection is stored in the pvData 
+            member of the received IPStackEvent_t structure. */
+         xSocket = ( FreeRTOS_Socket_t * ) ( xReceivedEvent.pvData );
+         xTCPCheckNewClient( xSocket );
+         break;
+
+    /* Other event types are processed in the same way, but are not shown
+       here. */
+
+}
+</code></pre>
+<p><em><strong>Listing 5.20</strong></em> <em>Pseudo code showing how an IPStackEvent_t structure is received and processed</em></p>
+</li>
+</ul>
+<hr>
+<ol class="footnote-definition"><li id="footnote-9">
+<p>FreeRTOS message buffers are a lighter weight alternative to
+queues that hold variable length data. <a href="#fr-9-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch05/5.4-receiving-data-from-multiple-sources.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch05/5.6-receiving-from-multiple-queues.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch05/5.4-receiving-data-from-multiple-sources.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch05/5.6-receiving-from-multiple-queues.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

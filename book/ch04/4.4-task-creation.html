@@ -1,0 +1,641 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Task Creation - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="44-task-creation"><a class="header" href="#44-task-creation">4.4 Task Creation</a></h2>
+<p>Six API functions may be used to create tasks:
+<code>xTaskCreate()</code>,
+<code>xTaskCreateStatic()</code>,
+<code>xTaskCreateRestricted()</code>,
+<code>xTaskCreateRestrictedStatic()</code>,
+<code>xTaskCreateAffinitySet()</code>, and
+<code>xTaskCreateStaticAffinitySet()</code></p>
+<p>Each task requires two blocks of RAM: one to hold its Task Control Block (TCB)
+and one to store its stack. FreeRTOS API functions with "Static" in their names
+use pre-allocated blocks of RAM passed into the functions as parameters.
+Conversely, API functions without "Static" in their names allocate the required
+RAM dynamically at runtime from the system heap.</p>
+<p>Some FreeRTOS ports support tasks running in a "restricted" or "unprivileged" mode.
+FreeRTOS API functions with "Restricted" in their names create tasks that
+execute with limited access to the system's memory. API functions without
+"Restricted" in their names create tasks that execute in "privileged mode" and
+have access to the system's entire memory map.</p>
+<p>FreeRTOS ports that support Symmetric Multi Processing (SMP) allow different tasks
+to run simultaneously on multiple cores of the same CPU. For these ports, you may
+specify which core a task will run on by using functions with "Affinity" in the name.</p>
+<p>The FreeRTOS task creation API functions are quite complex. Most examples in this
+document use <code>xTaskCreate()</code> because it is the simplest of these functions.</p>
+<h3 id="441-the-xtaskcreate-api-function"><a class="header" href="#441-the-xtaskcreate-api-function">4.4.1 The xTaskCreate() API Function</a></h3>
+<p>Listing 4.3 shows the <code>xTaskCreate()</code> API function prototype.
+<code>xTaskCreateStatic()</code> has two additional parameters that point to the
+memory pre-allocated to hold the task's data structure and stack,
+respectively. <a href="ch02.html#25-data-types-and-coding-style-guide">Section 2.5: Data Types and Coding Style Guide</a>
+describes the data types and naming conventions used.</p>
+<p><a name="list4.3" title="Listing 4.3 The xTaskCreate() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xTaskCreate( TaskFunction_t pvTaskCode,
+                        const char * const pcName,
+                        configSTACK_DEPTH_TYPE usStackDepth,
+                        void * pvParameters,
+                        UBaseType_t uxPriority,
+                        TaskHandle_t * pxCreatedTask );
+</code></pre>
+<p><em><strong>Listing 4.3</strong></em> <em>The xTaskCreate() API function prototype</em></p>
+<p><strong>xTaskCreate() Parameters and return value:</strong></p>
+<ul>
+<li>
+<p><code>pvTaskCode</code></p>
+<p>Tasks are simply C functions that never exit and, as such, are normally
+implemented as an infinite loop. The <code>pvTaskCode</code> parameter is simply a
+pointer to the function that implements the task (in effect, just the
+function's name).</p>
+</li>
+<li>
+<p><code>pcName</code></p>
+<p>A descriptive name for the task. FreeRTOS does not use this in
+any way and it is included purely as a debugging aid. Identifying a task by
+a human-readable name is much simpler than identifying it by its handle.</p>
+<p>The application-defined constant <code>configMAX_TASK_NAME_LEN</code> defines the
+maximum length a task name can be, including the NULL terminator.
+Supplying a longer string results in the string being truncated.</p>
+</li>
+<li>
+<p><code>usStackDepth</code></p>
+<p>Specifies the size of the stack to allocate for use by the task.
+Use <code>xTaskCreateStatic()</code> instead of <code>xTaskCreate()</code> to use pre-allocated
+memory instead of dynamically allocated memory.</p>
+<p>Note the value specifies the number of words the stack can hold, not
+the number of bytes. For example, if the stack is 32-bits wide and
+<code>usStackDepth</code> is 128, then <code>xTaskCreate()</code> allocates 512 bytes of stack
+space (128 * 4 bytes).</p>
+<p><code>configSTACK_DEPTH_TYPE</code> is a macro that allows the application writer
+to specify the data type used to hold stack sizes. <code>configSTACK_DEPTH_TYPE</code>
+defaults to <code>uint16_t</code> if left undefined, so #define <code>configSTACK_DEPTH_TYPE</code>
+to <code>unsigned long</code> or <code>size_t</code> in <code>FreeRTOSConfig.h</code> if the stack depth multiplied
+by the stack width is greater than 65535 (the largest possible 16-bit number).</p>
+<p><a href="ch13.html#133-stack-overflow">Section 13.3 Stack Overflow</a>, describes a
+practical method of choosing an optimal stack size.</p>
+</li>
+<li>
+<p><code>pvParameters</code></p>
+<p>Functions that implement tasks accept a single void pointer (<code>void *</code>)
+parameter. <code>pvParameters</code> is the value passed into the task using that
+parameter.</p>
+</li>
+<li>
+<p><code>uxPriority</code></p>
+<p>Defines the task's priority. 0 is the lowest priority and
+<code>(configMAX_PRIORITIES – 1)</code> is the highest priority. <a href="#45-task-priorities">Section 4.5</a>
+describes the user defined <code>configMAX_PRIORITIES</code> constant.</p>
+<p>If a <code>uxPriority</code> greater than <code>(configMAX_PRIORITIES – 1)</code> is defined, it will
+be capped to <code>(configMAX_PRIORITIES – 1)</code>.</p>
+</li>
+<li>
+<p><code>pxCreatedTask</code></p>
+<p>Pointer to a location to store a handle to the created task. This handle may
+be used in future API calls to, for example, change the task's priority or delete
+the task.</p>
+<p><code>pxCreatedTask</code> is an optional parameter and may be set to NULL if the
+task's handle is not required.</p>
+</li>
+<li>
+<p>Return values</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdPASS</code></p>
+<p>This indicates the task was created successfully.</p>
+</li>
+<li>
+<p><code>pdFAIL</code></p>
+<p>This indicates there was not enough heap memory available to create
+the task. <a href="ch03.html#3-heap-memory-management">Chapter 3</a> provides more
+information on heap memory management.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example4.1" title="Example 4.1 Creating tasks"></a></a></h2>
+<p><em><strong>Example 4.1</strong></em> <em>Creating tasks</em></p>
+<hr />
+<p>The following example demonstrates the steps needed to create two simple tasks
+and then start the newly created tasks. The tasks simply print out a string
+periodically by using a crude busy loop to create the period delay. Both
+tasks are created at the same priority and are identical except for the
+string they print out—see Listing 4.4 and Listing 4.5 for their respective
+implementations. See chapter 8 for warnings about using <code>printf()</code> in
+tasks.</p>
+<p><a name="list4.4" title="Listing 4.4 Implementation of the first task used in Example 4.1"></a></p>
+<pre><code class="language-c">void vTask1( void * pvParameters )
+{
+    /* ulCount is declared volatile to ensure it is not optimized out. */
+    volatile unsigned long ulCount;
+
+    for( ;; )
+    {
+        /* Print out the name of the current task task. */
+        vPrintLine( "Task 1 is running" );
+
+        /* Delay for a period. */
+        for( ulCount = 0; ulCount &lt; mainDELAY_LOOP_COUNT; ulCount++ )
+        {
+            /*
+             * This loop is just a very crude delay implementation. There is
+             * nothing to do in here. Later examples will replace this crude
+             * loop with a proper delay/sleep function.
+             */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.4</strong></em> <em>Implementation of the first task used in Example 4.1</em></p>
+<p><a name="list4.5" title="Listing 4.5 Implementation of the second task used in Example 4.1"></a></p>
+<pre><code class="language-c">void vTask2( void * pvParameters )
+{
+    /* ulCount is declared volatile to ensure it is not optimized out. */
+    volatile unsigned long ulCount;
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /* Print out the name of this task. */
+        vPrintLine( "Task 2 is running" );
+
+        /* Delay for a period. */
+        for( ulCount = 0; ulCount &lt; mainDELAY_LOOP_COUNT; ulCount++ )
+        {
+            /*
+             * This loop is just a very crude delay implementation. There is
+             * nothing to do in here. Later examples will replace this crude
+             * loop with a proper delay/sleep function.
+             */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.5</strong></em> <em>Implementation of the second task used in Example 4.1</em></p>
+<p>The main() function creates the tasks before starting the scheduler—see
+Listing 4.6 for its implementation.</p>
+<p><a name="list4.6" title="Listing 4.6 Starting the Example 4.1 tasks"></a></p>
+<pre><code class="language-c">int main( void )
+{
+    /*
+     * Variables declared here may no longer exist after starting the FreeRTOS
+     * scheduler. Do not attempt to access variables declared on the stack used
+     * by main() from tasks.
+     */
+
+    /*
+     * Create one of the two tasks. Note that a real application should check
+     * the return value of the xTaskCreate() call to ensure the task was
+     * created successfully.
+     */
+    xTaskCreate( vTask1,  /* Pointer to the function that implements the task.*/
+                 "Task 1",/* Text name for the task. */
+                 1000,    /* Stack depth in words. */
+                 NULL,    /* This example does not use the task parameter. */
+                 1,       /* This task will run at priority 1. */
+                 NULL );  /* This example does not use the task handle. */
+
+    /* Create the other task in exactly the same way and at the same priority.*/
+    xTaskCreate( vTask2, "Task 2", 1000, NULL, 1, NULL );
+
+    /* Start the scheduler so the tasks start executing. */
+    vTaskStartScheduler();
+
+    /*
+     * If all is well main() will not reach here because the scheduler will now
+     * be running the created tasks. If main() does reach here then there was
+     * not enough heap memory to create either the idle or timer tasks
+     * (described later in this book). Chapter 3 provides more information on
+     * heap memory management.
+     */
+    for( ;; );
+}
+</code></pre>
+<p><em><strong>Listing 4.6</strong></em> <em>Starting the Example 4.1 tasks</em></p>
+<p>Executing the example produces the output shown in Figure 4.2.</p>
+<p><a name="fig4.2" title="Figure 4.2 The output produced when executing Example 4.1"></a></p>
+<hr />
+<pre><code class="language-console">C:\Temp&gt;rtosdemo
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+</code></pre>
+<p><em><strong>Figure 4.2</strong></em> <em>The output produced when executing Example 4.1<sup class="footnote-reference" id="fr-4-1"><a href="#footnote-4">1</a></sup></em></p>
+<hr />
+<p>Figure 4.2 shows the two tasks appearing to execute simultaneously;
+however, both tasks execute on the same processor core, so that cannot
+be the case. In reality, both tasks are rapidly entering and exiting the
+<em>Running</em> state. Both tasks are running at the same priority and so share
+time on the same processor core. Figure 4.3 shows their actual execution
+pattern.</p>
+<p>The arrow along the bottom of Figure 4.3 shows time passing from time t1
+onwards. The colored lines show which task is executing at each point in
+time—for example, Task 1 is executing between times t1 and t2.</p>
+<p>Only one task can exist in the <em>Running</em> state at any one time. So, as one
+task enters the <em>Running</em> state (the task is switched in), the other
+enters the <em>Not Running</em> state (the task is switched out).</p>
+<p><a name="fig4.3" title="Figure 4.3 The actual execution pattern of the two Example 4.1 tasks"></a></p>
+<hr />
+<p><img src="../media/figure_4.3_example_4.1_execution_pattern.png" alt="" />
+<em><strong>Figure 4.3</strong></em> <em>The actual execution pattern of the two Example 4.1 tasks</em></p>
+<hr />
+<p>Example 4.1 created both tasks from within <code>main()</code>, prior to starting the
+scheduler. It is also possible to create a task from within another
+task. For example, Task 2 could have been created from within Task 1, as
+shown by Listing 4.7.</p>
+<p><a name="list4.7" title="Listing 4.7 Creating a task from within another task after the scheduler has started"></a></p>
+<pre><code class="language-c">void vTask1( void * pvParameters )
+{
+    const char *pcTaskName = "Task 1 is running\r\n";
+    volatile unsigned long ul; /* volatile to ensure ul is not optimized away. */
+
+    /*
+     * If this task code is executing then the scheduler must already have
+     * been started. Create the other task before entering the infinite loop.
+     */
+    xTaskCreate( vTask2, "Task 2", 1000, NULL, 1, NULL );
+
+    for( ;; )
+    {
+        /* Print out the name of this task. */
+        vPrintLine( pcTaskName );
+
+        /* Delay for a period. */
+        for( ul = 0; ul &lt; mainDELAY_LOOP_COUNT; ul++ )
+        {
+            /*
+             * This loop is just a very crude delay implementation. There is
+             * nothing to do in here. Later examples will replace this crude
+             * loop with a proper delay/sleep function.
+             */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.7</strong></em> <em>Creating a task from within another task after the scheduler has started</em></p>
+<h2 id="-1"><a class="header" href="#-1"><a name="example4.2" title="Example 4.2 Using the task parameter"></a></a></h2>
+<p><em><strong>Example 4.2</strong></em> <em>Using the task parameter</em></p>
+<hr />
+<p>The two tasks created in Example 4.1 are almost identical, the only
+difference between them is the text string they print out. If you create
+two instances of a single task implementation, and use the task
+parameter to pass the string into each instance, this would remove the
+duplication.</p>
+<p>Example 4.2 replaces the two task functions used in Example 4.1 with a
+single task function called <code>vTaskFunction()</code>, as shown in Listing 4.8.
+Note how the task parameter is cast to a <code>char *</code> to obtain the string
+the task should print out.</p>
+<p><a name="list4.8" title="Listing 4.8 The single task function used to create two tasks in Example 4.2"></a></p>
+<pre><code class="language-c">void vTaskFunction( void * pvParameters )
+{
+
+    char *pcTaskName;
+    volatile unsigned long ul; /* volatile to ensure ul is not optimized away. */
+
+    /*
+     * The string to print out is passed in via the parameter. Cast this to a
+     * character pointer.
+     */
+    pcTaskName = ( char * ) pvParameters;
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /* Print out the name of this task. */
+        vPrintLine( pcTaskName );
+
+        /* Delay for a period. */
+        for( ul = 0; ul &lt; mainDELAY_LOOP_COUNT; ul++ )
+        {
+            /*
+             * This loop is just a very crude delay implementation. There is
+             * nothing to do in here. Later exercises will replace this crude
+             * loop with a proper delay/sleep function.
+             */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.8</strong></em> <em>The single task function used to create two tasks in Example 4.2</em></p>
+<p>Listing 4.9 creates two instances of the task implemented by
+<code>vTaskFunction()</code>, using the task's parameter to pass a different string
+into each. Both tasks execute independently under the control of the
+FreeRTOS scheduler and with their own stack, and so with their own copies of
+the <code>pcTaskName</code> and <code>ul</code> variables.</p>
+<p><a name="list4.9" title="Listing 4.9 The main() function for Example 2"></a></p>
+<pre><code class="language-c">/*
+ * Define the strings that will be passed in as the task parameters. These are
+ * defined const and not on the stack used by main() to ensure they remain
+ * valid when the tasks are executing.
+ */
+static const char * pcTextForTask1 = "Task 1 is running";
+static const char * pcTextForTask2 = "Task 2 is running";
+
+int main( void )
+{
+    /*
+     * Variables declared here may no longer exist after starting the FreeRTOS
+     * scheduler. Do not attempt to access variables declared on the stack used
+     * by main() from tasks.
+     */
+
+    /* Create one of the two tasks. */
+    xTaskCreate( vTaskFunction,             /* Pointer to the function that
+                                               implements the task. */
+                 "Task 1",                  /* Text name for the task. This is to
+                                               facilitate debugging only. */
+                 1000,                      /* Stack depth - small microcontrollers
+                                               will use much less stack than this.*/
+                 ( void * ) pcTextForTask1, /* Pass the text to be printed into
+                                               the task using the task parameter. */
+                 1,                         /* This task will run at priority 1. */
+                 NULL );                    /* The task handle is not used in
+                                               this example. */
+
+    /*
+     * Create the other task in exactly the same way. Note this time that
+     * multiple tasks are being created from the SAME task implementation
+     * (vTaskFunction). Only the value passed in the parameter is different.
+     * Two instances of the same task definition are being created.
+     */
+    xTaskCreate( vTaskFunction,
+                 "Task 2",
+                 1000,
+                 ( void * ) pcTextForTask2,
+                 1,
+                 NULL );
+
+    /* Start the scheduler so the tasks start executing. */
+    vTaskStartScheduler();
+
+    /*
+     * If all is well main() will not reach here because the scheduler will
+     * now be running the created tasks. If main() does reach here then there
+     * was not enough heap memory to create either the idle or timer tasks
+     * (described later in this book). Chapter 3 provides more information on
+     * heap memory management.
+     */
+    for( ;; )
+    {
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.9</strong></em> <em>The main() function for Example 2</em></p>
+<p>The output from Example 4.2 is exactly as per that shown for example 1 in Figure
+4.2.</p>
+<hr>
+<ol class="footnote-definition"><li id="footnote-4">
+<p>The screen shot shows each task printing out its message exactly
+once before the next task executes. This is an artificial scenario
+that results from using the FreeRTOS Windows simulator. The Windows
+simulator is not truly real time. Also, writing to the Windows
+console takes a relatively long time and results in a chain of
+Windows system calls. Executing the same code on a genuine embedded
+target with a fast and non-blocking print function may result in
+each task printing its string many times before being switched out
+to allow the other task to run. <a href="#fr-4-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch04/4.3-top-level-task-states.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch04/4.5-task-priorities.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch04/4.3-top-level-task-states.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch04/4.5-task-priorities.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

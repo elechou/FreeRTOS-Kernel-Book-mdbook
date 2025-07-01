@@ -1,0 +1,313 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>configASSERT() - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="122-configassert"><a class="header" href="#122-configassert">12.2 configASSERT()</a></h2>
+<p>In C, the macro <code>assert()</code> is used to verify an <em>assertion</em> (an
+assumption) made by the program. The assertion is written as a C
+expression, and if the expression evaluates to false (0), then the
+assertion has deemed to have failed. For example, Listing 12.1 tests the
+assertion that the pointer <code>pxMyPointer</code> is not NULL.</p>
+<p><a name="list12.1" title="Listing 12.1 Using the standard C assert() macro to check pxMyPointer is not NULL"></a></p>
+<pre><code class="language-c">/* Test the assertion that pxMyPointer is not NULL */
+assert( pxMyPointer != NULL );
+</code></pre>
+<p><em><strong>Listing 12.1</strong></em> <em>Using the standard C assert() macro to check pxMyPointer is not NULL</em></p>
+<p>The application writer specifies the action to take if an assertion
+fails by providing an implementation of the <code>assert()</code> macro.</p>
+<p>The FreeRTOS source code does not call <code>assert()</code>, because <code>assert()</code> is not
+available with all the compilers with which FreeRTOS is compiled.
+Instead, the FreeRTOS source code contains lots of calls to a macro
+called <code>configASSERT()</code>, which can be defined by the application writer in
+<code>FreeRTOSConfig.h</code>, and behaves exactly like the standard C <code>assert()</code>.</p>
+<p>A failed assertion must be treated as a fatal error. Do not attempt to
+execute past a line that has failed an assertion.</p>
+<blockquote>
+<p><em>Using <code>configASSERT()</code> improves productivity by immediately trapping and
+identifying many of the most common sources of error. It is strongly
+advised to have <code>configASSERT()</code> defined while developing or debugging a
+FreeRTOS application.</em></p>
+</blockquote>
+<p>Defining <code>configASSERT()</code> will greatly assist in run-time debugging, but
+will also increase the application code size, and therefore slow down
+its execution. If a definition of <code>configASSERT()</code> is not provided, then
+the default empty definition will be used, and all the calls to
+<code>configASSERT()</code> will be completely removed by the C pre-processor.</p>
+<h3 id="1221-example-configassert-definitions"><a class="header" href="#1221-example-configassert-definitions">12.2.1 Example configASSERT() definitions</a></h3>
+<p>The definition of <code>configASSERT()</code> shown in Listing 12.2 is useful when an
+application is being executed under the control of a debugger. It will
+halt execution on any line that fails an assertion, so the line that
+failed the assertion will be the line displayed by the debugger when the
+debug session is paused.</p>
+<p><a name="list12.2" title="Listing 12.2 A simple configASSERT() definition useful when executing under the control of a debugger"></a></p>
+<pre><code class="language-c">/* Disable interrupts so the tick interrupt stops executing, then sit
+   in a loop so execution does not move past the line that failed the
+   assertion. If the hardware supports a debug break instruction, then the
+   debug break instruction can be used in place of the for() loop. */
+
+#define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); for(;;); }
+</code></pre>
+<p><em><strong>Listing 12.2</strong></em> <em>A simple configASSERT() definition useful when executing under the control of a debugger</em></p>
+<p>The definition of <code>configASSERT()</code> shown in Listing 12.3 is useful when an
+application is not being executed under the control of a debugger. It
+prints out, or otherwise records, the source code line that failed an
+assertion. The line that failed the assertion is identified using the
+standard C <code>__FILE__</code> macro to obtain the name of the source file, and
+the standard C <code>__LINE__</code> macro to obtain the line number within the
+source file.</p>
+<p><a name="list12.3" title="Listing 12.3 A configASSERT() definition that records the source code line that failed an assertion"></a></p>
+<pre><code class="language-c">/* This function must be defined in a C source file, not the FreeRTOSConfig.h 
+   header file. */
+void vAssertCalled( const char *pcFile, uint32_t ulLine )
+{
+    /* Inside this function, pcFile holds the name of the source file that 
+       contains the line that detected the error, and ulLine holds the line 
+       number in the source file. The pcFile and ulLine values can be printed 
+       out, or otherwise recorded, before the following infinite loop is 
+       entered. */
+    RecordErrorInformationHere( pcFile, ulLine );
+
+    /* Disable interrupts so the tick interrupt stops executing, then sit in a 
+       loop so execution does not move past the line that failed the assertion. */
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
+}
+/*-----------------------------------------------------------*/
+
+/* These following two lines must be placed in FreeRTOSConfig.h. */
+extern void vAssertCalled( const char *pcFile, unsigned long ulLine );
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ )
+</code></pre>
+<p><em><strong>Listing 12.3</strong></em> <em>A configASSERT() definition that records the source code line that failed an assertion</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch12/12.1-introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch12/12.3-tracealyzer-for-freertos.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch12/12.1-introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch12/12.3-tracealyzer-for-freertos.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

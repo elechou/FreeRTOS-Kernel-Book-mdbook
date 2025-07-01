@@ -1,0 +1,618 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Example Memory Allocation Schemes - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="32-example-memory-allocation-schemes"><a class="header" href="#32-example-memory-allocation-schemes">3.2 Example Memory Allocation Schemes</a></h2>
+<h3 id="321-heap_1"><a class="header" href="#321-heap_1">3.2.1 Heap_1</a></h3>
+<p>It is common for small, dedicated embedded systems to only create tasks
+and other kernel objects before starting the FreeRTOS scheduler. When
+this is the case, memory only gets (dynamically) allocated by the kernel
+before the application starts to perform any real-time functionality,
+and the memory remains allocated for the application's lifetime. This
+means the chosen allocation scheme does not have to consider the more
+complex memory allocation issues, such as determinism and fragmentation,
+and can instead prioritise attributes such as code size and simplicity.</p>
+<p>Heap_1.c implements a very basic version of <code>pvPortMalloc()</code>, and does not
+implement <code>vPortFree()</code>. Applications that never delete a task or other
+kernel objects have the potential to use heap_1. Some commercially
+critical and safety-critical systems that would otherwise prohibit the
+use of dynamic memory allocation also have the potential to use heap_1.
+Critical systems often prohibit dynamic memory allocation because of the
+uncertainties associated with non-determinism, memory fragmentation, and
+failed allocations. Heap_1 is always deterministic and cannot fragment
+memory.</p>
+<p>Heap_1's implementation of <code>pvPortMalloc()</code> simply subdivides a simple
+<code>uint8_t</code> array called the FreeRTOS heap into smaller blocks each time
+it's called. The FreeRTOSConfig.h constant <code>configTOTAL_HEAP_SIZE</code> sets
+the size of the array in bytes. Implementing the heap as a statically
+allocated array makes FreeRTOS appear to consume a lot of RAM because
+the heap becomes part of the FreeRTOS data.</p>
+<p>Each dynamically allocated task results in two calls to <code>pvPortMalloc()</code>.
+The first allocates a task control block (TCB), and the second the
+task's stack. Figure 3.1 demonstrates how heap_1 subdivides the simple
+array as tasks get created.</p>
+<p>Referring to Figure 3.1:</p>
+<ul>
+<li>
+<p><strong>A</strong> shows the array before creating any tasks—the entire array is free.</p>
+</li>
+<li>
+<p><strong>B</strong> shows the array after creating one task.</p>
+</li>
+<li>
+<p><strong>C</strong> shows the array after creating three tasks.</p>
+</li>
+</ul>
+<p><a name="fig3.1" title="Figure 3.1 RAM being allocated from the heap\_1 array each time a task is created"></a></p>
+<div align="center">
+<img src="../media/image05.png" alt="Figure 3.1 *RAM being allocated from the heap\_1 array each time a task is created*"/>
+<p><em><strong>Figure 3.1</strong></em> <strong>RAM being allocated from the heap_1 array each time a task is created</strong></p>
+</div>
+<h3 id="322-heap_2"><a class="header" href="#322-heap_2">3.2.2 Heap_2</a></h3>
+<p>Heap_2 is superseded by heap_4, which includes enhanced functionality.
+Heap_2 is kept in the FreeRTOS distribution for backward compatibility
+and is not recommended for new designs.</p>
+<p>Heap_2.c also works by subdividing an array dimensioned by the
+<code>configTOTAL_HEAP_SIZE</code> constant. It uses a best-fit algorithm to allocate
+memory, and, unlike heap_1, it does implement <code>vPortFree()</code>. Again,
+implementing the heap as a statically allocated array makes FreeRTOS
+appear to consume a lot of RAM because the heap becomes part of the
+FreeRTOS data.</p>
+<p>The best-fit algorithm ensures that <code>pvPortMalloc()</code> uses the free block
+of memory that is closest in size to the number of bytes requested. For
+example, consider the scenario where:</p>
+<ul>
+<li>The heap contains three blocks of free memory that are 5 bytes, 25
+bytes, and 100 bytes, respectively.</li>
+<li><code>pvPortMalloc()</code> requests 20 bytes of RAM.</li>
+</ul>
+<p>The smallest free block of RAM into which the requested number of bytes
+fits is the 25-byte block, so <code>pvPortMalloc()</code> splits the 25-byte block
+into one block of 20 bytes and one block of 5 bytes before returning
+a pointer to the 20-byte block<sup class="footnote-reference" id="fr-2-1"><a href="#footnote-2">1</a></sup>. The new 5-byte block remains available
+for future calls to <code>pvPortMalloc()</code>.</p>
+<p>Unlike heap_4, heap_2 does not combine adjacent free blocks into a
+single larger block, so it is more susceptible to fragmentation than
+heap_4. However, fragmentation is not an issue if the allocated and
+subsequently freed blocks are always the same size.</p>
+<p><a name="fig3.2" title="Figure 3.2 RAM being allocated and freed from the heap\_2 array as tasks are created and deleted"></a></p>
+<div align="center">
+<img src="../media/image06.png" alt="Figure 3.2 *RAM being allocated and freed from the heap\_2 array as tasks are created and deleted*"/>
+<p><em><strong>Figure 3.2</strong></em> <strong>RAM being allocated and freed from the heap_2 array as tasks are created and deleted</strong></p>
+</div>
+<p>Figure 3.2 demonstrates how the best-fit algorithm works when a task is
+created, deleted, and created again. Referring to Figure 3.2:</p>
+<ul>
+<li>
+<p><strong>A</strong> shows the array after allocating three tasks. A large free
+block remains at the top of the array.</p>
+</li>
+<li>
+<p><strong>B</strong> shows the array after deleting one of the tasks. The large
+free block at the top of the array remains. There are now also two
+smaller free blocks that previously held the TCB and stack of the
+deleted task.</p>
+</li>
+<li>
+<p><strong>C</strong> shows the situation after creating another task. Creating
+the task resulted in two calls to <code>pvPortMalloc()</code> from within the
+<code>xTaskCreate()</code> API function, one to allocate a new TCB and the other
+to allocate the task stack. Section 3.4 of this book describes
+<code>xTaskCreate()</code>.</p>
+<p>Every TCB is the same size, so the best-fit algorithm reuses the block
+of RAM that held the TCB of the deleted task to hold the TCB of the
+created task.</p>
+<p>If the size of the stack allocated to the newly created task is the
+same size as that allocated to the previously deleted task, then the
+best-fit algorithm reuses the block of RAM that held the stack of the
+deleted task to hold the stack of the created task.</p>
+<p>The larger unallocated block at the top of the array remains
+untouched.</p>
+</li>
+</ul>
+<p>Heap_2 is not deterministic but is faster than most standard library
+implementations of <code>malloc()</code> and <code>free()</code>.</p>
+<h3 id="323-heap_3"><a class="header" href="#323-heap_3">3.2.3 Heap_3</a></h3>
+<p>Heap_3.c uses the standard library <code>malloc()</code> and <code>free()</code> functions, so the
+linker configuration defines the heap size, and the
+<code>configTOTAL_HEAP_SIZE</code> constant is not used.</p>
+<p>Heap_3 makes <code>malloc()</code> and <code>free()</code> thread-safe by temporarily suspending
+the FreeRTOS scheduler for the duration of their execution. Chapter 8,
+Resource Management, covers thread safety and scheduler suspension.</p>
+<h3 id="324-heap_4"><a class="header" href="#324-heap_4">3.2.4 Heap_4</a></h3>
+<p>Like heap_1 and heap_2, heap_4 works by subdividing an array into
+smaller blocks. As before, the array is statically allocated and
+dimensioned by <code>configTOTAL_HEAP_SIZE</code>, which makes FreeRTOS appear to use
+a lot of RAM as the heap becomes part of the FreeRTOS data.</p>
+<p>Heap_4 uses a first-fit algorithm to allocate memory. Unlike heap_2,
+heap_4 combines (coalesces) adjacent free blocks of memory into a
+single larger block, which minimizes the risk of memory fragmentation.</p>
+<p>The first fit algorithm ensures <code>pvPortMalloc()</code> uses the first free block
+of memory that is large enough to hold the number of bytes requested.
+For example, consider the scenario where:</p>
+<ul>
+<li>The heap contains three blocks of free memory that, in the order in
+which they appear in the array, are 5 bytes, 200 bytes, and 100
+bytes, respectively.</li>
+<li><code>pvPortMalloc()</code> requests 20 bytes of RAM.</li>
+</ul>
+<p>The first free block of RAM that the requested number of bytes fits is
+the 200-byte block, so <code>pvPortMalloc()</code> splits the 200-byte block into one
+block of 20 bytes and one of 180 bytes<sup class="footnote-reference" id="fr-3-1"><a href="#footnote-3">2</a></sup>, before returning a pointer
+to the 20-byte block. The new 180-byte block remains available to future
+calls to <code>pvPortMalloc()</code>.</p>
+<p>Heap_4 combines (coalesces) adjacent free blocks into a single larger
+block, minimizing the risk of fragmentation, and making it suitable for
+applications that repeatedly allocate and free different-sized blocks of
+RAM.</p>
+<p><a name="fig3.3" title="Figure 3.3 RAM being allocated and freed from the heap\_4 array"></a></p>
+<div align="center">
+<img src="../media/image07.png" alt="Figure 3.3 *RAM being allocated and freed from the heap\_4 array*"/>
+<p><em><strong>Figure 3.3</strong></em> <strong>RAM being allocated and freed from the heap_4 array</strong></p>
+</div>
+<p>Figure 3.3 demonstrates how the heap_4 first-fit algorithm with memory
+coalescence works. Referring to Figure 3.3:</p>
+<ul>
+<li>
+<p><strong>A</strong> shows the array after creating three tasks. A large free
+block remains at the top of the array.</p>
+</li>
+<li>
+<p><strong>B</strong> shows the array after deleting one of the tasks. The large
+free block at the top of the array remains. There is now another
+free block where the TCB and stack of the deleted task used to be.
+Unlike in the heap_2 example, heap_4 merges the two memory blocks
+that previously held the TCB and stack of the deleted task,
+respectively, into a larger single free block.</p>
+</li>
+<li>
+<p><strong>C</strong> shows the situation after creating a FreeRTOS queue.
+Section 5.3 of this book describes the <code>xQueueCreate()</code> API function
+used to allocate queues dynamically. <code>xQueueCreate()</code> calls
+<code>pvPortMalloc()</code> to allocate the RAM used by the queue. As heap_4 uses
+a first-fit algorithm, <code>pvPortMalloc()</code> allocates RAM from the first
+free RAM block that is large enough to hold the queue, which in
+Figure 3.3, was the RAM freed by deleting the task. The queue does not
+consume all the RAM in the free block, so the block is split into
+two, and the unused portion remains available to future calls to
+<code>pvPortMalloc()</code>.</p>
+</li>
+<li>
+<p><strong>D</strong> shows the situation after calling <code>pvPortMalloc()</code> directly
+from application code, rather than indirectly by calling a FreeRTOS
+API function. The user allocated block was small enough to fit in
+the first free block, which was the block between the memory
+allocated to the queue, and the memory allocated to the TCB
+following it.</p>
+<p>The memory freed by deleting the task has now split into three
+separate blocks; the first block holds the queue, the second block
+holds the user allocated memory, and the third block remains free.</p>
+</li>
+<li>
+<p><strong>E</strong> shows the situation after deleting the queue, which
+automatically frees the memory allocated to the deleted queue. There
+is now free memory on either side of the user allocated block.</p>
+</li>
+<li>
+<p><strong>F</strong> shows the situation after freeing the user allocated
+memory. The memory previously used by the user allocated block has
+been combined with the free memory on either side to create a larger
+single free block.</p>
+</li>
+</ul>
+<p>Heap_4 is not deterministic but is faster than most standard library
+implementations of <code>malloc()</code> and <code>free()</code>.</p>
+<h3 id="325-heap_5"><a class="header" href="#325-heap_5">3.2.5 Heap_5</a></h3>
+<p>Heap_5 uses the same allocation algorithm as heap_4. Unlike heap_4,
+which is limited to allocating memory from a single array, heap_5 can
+combine memory from multiple separated memory spaces into a single heap.
+Heap_5 is useful when the RAM provided by the system on which FreeRTOS
+is running does not appear as a single contiguous (without space) block
+in the system's memory map.</p>
+<h3 id="326-initialising-heap_5-the-vportdefineheapregions-api-function"><a class="header" href="#326-initialising-heap_5-the-vportdefineheapregions-api-function">3.2.6 Initialising heap_5: The vPortDefineHeapRegions() API Function</a></h3>
+<p><code>vPortDefineHeapRegions()</code> initialises heap_5 by specifying the start
+address and size of each separate memory area that makes up the heap
+managed by heap_5. Heap_5 is the only provided heap allocation scheme
+that requires explicit initialisation and can't be used until after the
+call to <code>vPortDefineHeapRegions()</code>. That means kernel objects, such as
+tasks, queues, and semaphores, cannot be created dynamically until after
+the call to <code>vPortDefineHeapRegions()</code>.</p>
+<p><a name="list3.1" title="Listing 3.1 The vPortDefineHeapRegions() API function prototype"></a></p>
+<pre><code class="language-c">void vPortDefineHeapRegions( const HeapRegion_t * const pxHeapRegions );
+</code></pre>
+<p><em><strong>Listing 3.1</strong></em> <em>The vPortDefineHeapRegions() API function prototype</em></p>
+<p><code>vPortDefineHeapRegions()</code> takes an array of <code>HeapRegion_t</code> structures as
+its only parameter. Each structure defines the start address and size of
+a memory block that will become part of the heap—the whole array of
+structures defines the entire heap space.</p>
+<p><a name="list3.2" title="Listing 3.2 The HeapRegion\_t structure"></a></p>
+<pre><code class="language-c">typedef struct HeapRegion
+{
+    /* The start address of a block of memory that will be part of the heap.*/
+    uint8_t *pucStartAddress;
+
+    /* The size of the block of memory in bytes. */
+    size_t xSizeInBytes;
+
+} HeapRegion_t;
+</code></pre>
+<p><em><strong>Listing 3.2</strong></em> <em>The HeapRegion_t structure</em></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>
+<p><code>pxHeapRegions</code></p>
+<p>A pointer to the start of an array of <code>HeapRegion_t</code> structures.
+Each structure defines the start address and size of a memory block that
+will become part of the heap.</p>
+<p>The <code>HeapRegion_t</code> structures in the array must be ordered by start
+address; the <code>HeapRegion_t</code> structure that describes the memory area with
+the lowest start address must be the first structure in the array, and
+the <code>HeapRegion_t</code> structure that describes the memory area with the
+highest start address must be the last structure in the array.</p>
+<p>Mark the end of the array with a <code>HeapRegion_t</code> structure that has its
+<code>pucStartAddress</code> member set to <code>NULL</code>.</p>
+</li>
+</ul>
+<p>By way of example, consider the hypothetical memory map shown in Figure
+3.4 <strong>A</strong> which contains three separate blocks of RAM: RAM1, RAM2
+and RAM3. It is assumed executable code is placed in read-only memory,
+which is not shown.</p>
+<p><a name="fig3.4" title="Figure 3.4 Memory Map"></a></p>
+<div align="center">
+<img src="../media/image08.png" alt="Figure 3.4 *Memory Map*"/>
+<p><em><strong>Figure 3.4</strong></em> <strong>Memory Map</strong></p>
+</div>
+<p>Listing 3.3 shows an array of <code>HeapRegion_t</code> structures that together
+describe the three blocks of RAM in their entirety.</p>
+<p><a name="list3.3" title="Listing 3.3 An array of HeapRegion\_t structures that together describe the 3 regions of RAM in their entirety"></a></p>
+<pre><code class="language-c">/* Define the start address and size of the three RAM regions. */
+#define RAM1_START_ADDRESS ( ( uint8_t * ) 0x00010000 )
+#define RAM1_SIZE ( 64 * 1024 )
+
+#define RAM2_START_ADDRESS ( ( uint8_t * ) 0x00020000 )
+#define RAM2_SIZE ( 32 * 1024 )
+
+#define RAM3_START_ADDRESS ( ( uint8_t * ) 0x00030000 )
+#define RAM3_SIZE ( 32 * 1024 )
+
+/* Create an array of HeapRegion_t definitions, with an index for each
+   of the three RAM regions, and terminate the array with a HeapRegion_t
+   structure containing a NULL address. The HeapRegion_t structures must
+   appear in start address order, with the structure that contains the
+   lowest start address appearing first. */
+const HeapRegion_t xHeapRegions[] =
+{
+    { RAM1_START_ADDRESS, RAM1_SIZE },
+    { RAM2_START_ADDRESS, RAM2_SIZE },
+    { RAM3_START_ADDRESS, RAM3_SIZE },
+    { NULL,               0         } /* Marks the end of the array. */
+};
+
+int main( void )
+{
+    /* Initialize heap_5. */
+    vPortDefineHeapRegions( xHeapRegions );
+
+    /* Add application code here. */
+}
+</code></pre>
+<p><em><strong>Listing 3.3</strong></em> <em>An array of HeapRegion_t structures that together describe the 3 regions of RAM in their entirety</em></p>
+<p>Although Listing 3.3 correctly describes the RAM, it does not demonstrate a
+usable example because it allocates all the RAM to the heap, leaving no
+RAM free for use by other variables.</p>
+<p>The linking phase of the build process allocates a RAM address to each
+variable. The RAM available for use by the linker is normally described
+by a linker configuration file, such as a linker script. In Figure 3.4
+<strong>B</strong> it is assumed the linker script included information on
+RAM1, but did not include information on RAM2 or RAM3. As a result, the
+linker placed variables in RAM1, leaving only the portion of RAM1 above
+address 0x0001nnnn available for use by heap_5. The actual value of
+0x0001nnnn depends on the combined size of all the variables included in
+the application. The linker has left all of RAM2 and all of RAM3 unused,
+leaving the whole of RAM2 and the whole of RAM3 available for use by
+heap_5.</p>
+<p>The code shown in Listing 3.3 would cause the RAM allocated to heap_5
+below address 0x0001nnnn to overlap the RAM used to hold variables.
+If you set the start address of the first <code>HeapRegion_t</code> structure within the
+<code>xHeapRegions[]</code> array to 0x0001nnnn, rather than a start address of
+0x00010000, the heap will not overlap with RAM used by the linker.
+However, that is not a recommended solution because:</p>
+<ul>
+<li>The start address might not be easy to determine.</li>
+<li>The amount of RAM used by the linker might change in future builds,
+which would make an update to the start address used in the
+<code>HeapRegion_t</code> structure necessary.</li>
+<li>The build tools will not know, and therefore cannot warn the
+application writer, if the RAM used by the linker and the RAM used
+by heap_5 overlap.</li>
+</ul>
+<p>Listing 3.4 demonstrates a more convenient and maintainable example. It
+declares an array called <code>ucHeap</code>. <code>ucHeap</code> is a normal variable, so it
+becomes part of the data allocated to RAM1 by the linker. The first
+<code>HeapRegion_t</code> structure in the <code>xHeapRegions</code> array describes the start
+address and size of <code>ucHeap</code>, so <code>ucHeap</code> becomes part of the memory managed
+by heap_5. The size of <code>ucHeap</code> can be increased until the RAM used by the
+linker consumes all of RAM1, as shown in Figure 3.4 <strong>C</strong>.</p>
+<p><a name="list3.4" title="Listing 3.4 An array of HeapRegion\_t structures that describe all of RAM2, all of RAM3, but only part of RAM1"></a></p>
+<pre><code class="language-c">/* Define the start address and size of the two RAM regions not used by
+   the linker. */
+#define RAM2_START_ADDRESS ( ( uint8_t * ) 0x00020000 )
+#define RAM2_SIZE ( 32 * 1024 )
+
+#define RAM3_START_ADDRESS ( ( uint8_t * ) 0x00030000 )
+#define RAM3_SIZE ( 32 * 1024 )
+
+/* Declare an array that will be part of the heap used by heap_5. The
+   array will be placed in RAM1 by the linker. */
+#define RAM1_HEAP_SIZE ( 30 * 1024 )
+static uint8_t ucHeap[ RAM1_HEAP_SIZE ];
+
+/* Create an array of HeapRegion_t definitions. Whereas in Listing 3.3 the
+   first entry described all of RAM1, so heap_5 will have used all of
+   RAM1, this time the first entry only describes the ucHeap array, so
+   heap_5 will only use the part of RAM1 that contains the ucHeap array.
+   The HeapRegion_t structures must still appear in start address order,
+   with the structure that contains the lowest start address appearing first. */
+
+const HeapRegion_t xHeapRegions[] =
+{
+    { ucHeap,             RAM1_HEAP_SIZE },
+    { RAM2_START_ADDRESS, RAM2_SIZE },
+    { RAM3_START_ADDRESS, RAM3_SIZE },
+    { NULL,               0 }           /* Marks the end of the array. */
+};
+</code></pre>
+<p><em><strong>Listing 3.4</strong></em> <em>An array of HeapRegion_t structures that describe all of RAM2, all of RAM3, but only part of RAM1</em></p>
+<p>The advantages of the technique demonstrated in Listing 3.4 include:</p>
+<ul>
+<li>It is not necessary to use a hard-coded start address.</li>
+<li>The address used in the <code>HeapRegion_t</code> structure will be set
+automatically by the linker, so it will always be correct, even if the
+amount of RAM used by the linker changes in future builds.</li>
+<li>It is impossible for RAM allocated to heap_5 to overlap data placed
+into RAM1 by the linker.</li>
+<li>The application will not link if <code>ucHeap</code> is too big.</li>
+</ul>
+<hr>
+<ol class="footnote-definition"><li id="footnote-2">
+<p>This is an oversimplification, because heap_2 stores information
+on the block sizes within the heap area, so the sum of the two split
+blocks will actually be less than 25. <a href="#fr-2-1">↩</a></p>
+</li>
+<li id="footnote-3">
+<p>This is an oversimplification, because heap_4 stores information
+on the block sizes within the heap area, so the sum of the two split
+blocks will actually be less than 200 bytes. <a href="#fr-3-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch03/3.1-introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch03/3.3-heap-related-utility-functions-and-macros.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch03/3.1-introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch03/3.3-heap-related-utility-functions-and-macros.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
