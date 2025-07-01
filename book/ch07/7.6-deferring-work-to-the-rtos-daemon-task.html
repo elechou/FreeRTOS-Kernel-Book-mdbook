@@ -1,0 +1,491 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Deferring Work to the RTOS Daemon Task - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="76-deferring-work-to-the-rtos-daemon-task"><a class="header" href="#76-deferring-work-to-the-rtos-daemon-task">7.6 Deferring Work to the RTOS Daemon Task</a></h2>
+<p>The deferred interrupt handling examples presented so far have required
+the application writer to create a task for each interrupt that uses the
+deferred processing technique. It is also possible to use the
+<code>xTimerPendFunctionCallFromISR()</code><sup class="footnote-reference" id="fr-19-1"><a href="#footnote-19">1</a></sup> API function to defer interrupt
+processing to the RTOS daemon task, which removes the need to create a
+separate task for each interrupt. Deferring interrupt processing to the
+daemon task is called 'centralized deferred interrupt processing'.</p>
+<p>Chapter 6 described how software timer-related FreeRTOS API functions
+send commands to the daemon task on the timer command queue. The
+<code>xTimerPendFunctionCall()</code> and <code>xTimerPendFunctionCallFromISR()</code> API
+functions use the same timer command queue to send an 'execute function'
+command to the daemon task. The function sent to the daemon task is then
+executed in the context of the daemon task.</p>
+<p>Advantages of centralized deferred interrupt processing include:</p>
+<ul>
+<li>
+<p>Lower resource usage</p>
+<p>It removes the need to create a separate task for each deferred
+interrupt.</p>
+</li>
+<li>
+<p>Simplified user model</p>
+<p>The deferred interrupt handling function is a standard C function.</p>
+</li>
+</ul>
+<p>Disadvantages of centralized deferred interrupt processing include:</p>
+<ul>
+<li>
+<p>Less flexibility</p>
+<p>It is not possible to set the priority of each deferred interrupt
+handling task separately. Each deferred interrupt handling function
+executes at the priority of the daemon task. As described in Chapter
+6, the priority of the daemon task is set by the
+<code>configTIMER_TASK_PRIORITY</code> compile time configuration constant within
+FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p>Less determinism</p>
+<p><code>xTimerPendFunctionCallFromISR()</code> sends a command to the back of the
+timer command queue. Commands that were already in the timer command
+queue will be processed by the daemon task before the 'execute
+function' command sent to the queue by
+<code>xTimerPendFunctionCallFromISR()</code>.</p>
+</li>
+</ul>
+<p>Different interrupts have different timing constraints, so it is common
+to use both methods of deferring interrupt processing within the same
+application.</p>
+<h3 id="761-the-xtimerpendfunctioncallfromisr-api-function"><a class="header" href="#761-the-xtimerpendfunctioncallfromisr-api-function">7.6.1 The xTimerPendFunctionCallFromISR() API Function</a></h3>
+<p><code>xTimerPendFunctionCallFromISR()</code> is the interrupt safe version of
+<code>xTimerPendFunctionCall()</code>. Both API functions allow a function provided
+by the application writer to be executed by, and therefore in the
+context of, the RTOS daemon task. Both the function to be executed, and
+the value of the function's input parameters, are sent to the daemon
+task on the timer command queue. When the function actually executes is
+therefore dependent on the priority of the daemon task relative to other
+tasks in the application.</p>
+<p><a name="list7.14" title="Listing 7.14 The xTimerPendFunctionCallFromISR() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xTimerPendFunctionCallFromISR( PendedFunction_t
+                                          xFunctionToPend,
+                                          void *pvParameter1,
+                                          uint32_t ulParameter2,
+                                          BaseType_t *pxHigherPriorityTaskWoken );
+</code></pre>
+<p><em><strong>Listing 7.14</strong></em> <em>The xTimerPendFunctionCallFromISR() API function prototype</em></p>
+<p><a name="list7.15" title="Listing 7.15 The prototype to which a function passed in the xFunctionToPend parameter of xTimerPendFunctionCallFromISR()..."></a></p>
+<pre><code class="language-c">void vPendableFunction( void *pvParameter1, uint32_t ulParameter2 );
+</code></pre>
+<p><em><strong>Listing 7.15</strong></em> <em>The prototype to which a function passed in the xFunctionToPend parameter of xTimerPendFunctionCallFromISR() must conform</em></p>
+<p><strong>xTimerPendFunctionCallFromISR() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xFunctionToPend</code></p>
+<p>A pointer to the function that will be executed in the daemon task
+(in effect, just the function name). The prototype of the function must
+be the same as that shown in Listing 7.15.</p>
+</li>
+<li>
+<p><code>pvParameter1</code></p>
+<p>The value that will be passed into the function that is executed by
+the daemon task as that function's <code>pvParameter1</code> parameter. The parameter
+has a <code>void *</code> type to allow it to be used to pass any data type. For
+example, integer types can be directly cast to a <code>void *</code>, alternatively
+the <code>void *</code> can be used to point to a structure.</p>
+</li>
+<li>
+<p><code>ulParameter2</code></p>
+<p>The value that will be passed into the function that is executed by
+the daemon task as that function's <code>ulParameter2</code> parameter.</p>
+</li>
+<li>
+<p><code>pxHigherPriorityTaskWoken</code></p>
+<p><code>xTimerPendFunctionCallFromISR()</code> writes to the timer command
+queue. If the RTOS daemon task was in the Blocked state to wait for data
+to become available on the timer command queue, then writing to the
+timer command queue will cause the daemon task to leave the Blocked
+state. If the priority of the daemon task is higher than the priority of
+the currently executing task (the task that was interrupted), then,
+internally, <code>xTimerPendFunctionCallFromISR()</code> will set
+<code>*pxHigherPriorityTaskWoken</code> to <code>pdTRUE</code>.</p>
+<p>If <code>xTimerPendFunctionCallFromISR()</code> sets this value to <code>pdTRUE</code>, then a
+context switch must be performed before the interrupt is exited. This
+will ensure that the interrupt returns directly to the daemon task, as
+the daemon task will be the highest priority Ready state task.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdPASS</code></p>
+<p><code>pdPASS</code> will be returned if the 'execute function' command was written
+to the timer command queue.</p>
+</li>
+<li>
+<p><code>pdFAIL</code></p>
+<p><code>pdFAIL</code> will be returned if the 'execute function' command could not
+be written to the timer command queue because the timer command queue
+was already full. Chapter 6 describes how to set the length of the timer
+command queue.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example7.3" title="Example 7.3 Centralized deferred interrupt processing"></a></a></h2>
+<p><em><strong>Example 7.3</strong></em> <em>Centralized deferred interrupt processing</em></p>
+<hr />
+<p>Example 7.3 provides similar functionality to Example 7.1, but without
+using a semaphore, and without creating a task specifically to perform
+the processing necessitated by the interrupt. Instead, the processing is
+performed by the RTOS daemon task.</p>
+<p>The interrupt service routine used by Example 7.3 is shown in Listing 7.16.
+It calls <code>xTimerPendFunctionCallFromISR()</code> to pass a pointer to a
+function called <code>vDeferredHandlingFunction()</code> to the daemon task. The
+deferred interrupt processing is performed by the
+<code>vDeferredHandlingFunction()</code> function.</p>
+<p>The interrupt service routine increments a variable called
+<code>ulParameterValue</code> each time it executes. <code>ulParameterValue</code> is used as the
+value of <code>ulParameter2</code> in the call to <code>xTimerPendFunctionCallFromISR()</code>, so it
+will also be used as the value of <code>ulParameter2</code> in the call to
+<code>vDeferredHandlingFunction()</code> when <code>vDeferredHandlingFunction()</code> is executed
+by the daemon task. The function's other parameter, <code>pvParameter1</code>, is not
+used in this example.</p>
+<p><a name="list7.16" title="Listing 7.16 The software interrupt handler used in Example 7.3"></a></p>
+<pre><code class="language-c">static uint32_t ulExampleInterruptHandler( void )
+{
+    static uint32_t ulParameterValue = 0;
+    BaseType_t xHigherPriorityTaskWoken;
+
+    /* The xHigherPriorityTaskWoken parameter must be initialized to pdFALSE
+       as it will get set to pdTRUE inside the interrupt safe API function if
+       a context switch is required. */
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Send a pointer to the interrupt's deferred handling function to the
+       daemon task. The deferred handling function's pvParameter1 parameter
+       is not used so just set to NULL. The deferred handling function's
+       ulParameter2 parameter is used to pass a number that is incremented by
+       one each time this interrupt handler executes. */
+    xTimerPendFunctionCallFromISR( vDeferredHandlingFunction, /* Function to execute */
+                                   NULL, /* Not used */
+                                   ulParameterValue, /* Incrementing value. */
+                                   &amp;xHigherPriorityTaskWoken );
+    ulParameterValue++;
+
+    /* Pass the xHigherPriorityTaskWoken value into portYIELD_FROM_ISR(). If
+       xHigherPriorityTaskWoken was set to pdTRUE inside
+       xTimerPendFunctionCallFromISR() then calling portYIELD_FROM_ISR() will
+       request a context switch. If xHigherPriorityTaskWoken is still pdFALSE
+       then calling portYIELD_FROM_ISR() will have no effect. Unlike most
+       FreeRTOS ports, the Windows port requires the ISR to return a value -
+       the return statement is inside the Windows version
+       of portYIELD_FROM_ISR(). */
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 7.16</strong></em> <em>The software interrupt handler used in Example 7.3</em></p>
+<p>The implementation of <code>vDeferredHandlingFunction()</code> is shown in Listing
+7.17. It prints out a fixed string, and the value of its <code>ulParameter2</code>
+parameter.</p>
+<p><code>vDeferredHandlingFunction()</code> must have the prototype shown in Listing
+7.15, even though, in this example, only one of its parameters is
+actually used.</p>
+<p><a name="list7.17" title="Listing 7.17 The function that performs the processing necessitated by the interrupt in Example 7.3"></a></p>
+<pre><code class="language-c">static void vDeferredHandlingFunction( void *pvParameter1, uint32_t ulParameter2 )
+{
+    /* Process the event - in this case just print out a message and the value
+       of ulParameter2. pvParameter1 is not used in this example. */
+    vPrintStringAndNumber( "Handler function - Processing event ", ulParameter2 );
+}
+</code></pre>
+<p><em><strong>Listing 7.17</strong></em> <em>The function that performs the processing necessitated by the interrupt in Example 7.3</em></p>
+<p>The <code>main()</code> function used by Example 7.3 is shown in Listing 7.18. It is
+simpler than the <code>main()</code> function used by Example 7.1 because it does not
+create either a semaphore or a task to perform the deferred interrupt
+processing.</p>
+<p><code>vPeriodicTask()</code> is the task that periodically generates software
+interrupts. It is created with a priority below the priority of the
+daemon task to ensure it is pre-empted by the daemon task as soon as the
+daemon task leaves the Blocked state.</p>
+<p><a name="list7.18" title="Listing 7.18 The implementation of main() for Example 7.3"></a></p>
+<pre><code class="language-c">int main( void )
+{
+    /* The task that generates the software interrupt is created at a priority
+       below the priority of the daemon task. The priority of the daemon task
+       is set by the configTIMER_TASK_PRIORITY compile time configuration
+       constant in FreeRTOSConfig.h. */
+    const UBaseType_t ulPeriodicTaskPriority = configTIMER_TASK_PRIORITY - 1;
+
+    /* Create the task that will periodically generate a software interrupt. */
+    xTaskCreate( vPeriodicTask, "Periodic", 1000, NULL, ulPeriodicTaskPriority,
+                 NULL );
+
+    /* Install the handler for the software interrupt. The syntax necessary to
+       do this is dependent on the FreeRTOS port being used. The syntax shown
+       here can only be used with the FreeRTOS windows port, where such
+       interrupts are only simulated. */
+    vPortSetInterruptHandler( mainINTERRUPT_NUMBER, ulExampleInterruptHandler );
+
+    /* Start the scheduler so the created task starts executing. */
+    vTaskStartScheduler();
+
+    /* As normal, the following line should never be reached. */
+    for( ;; );
+}
+</code></pre>
+<p><em><strong>Listing 7.18</strong></em> <em>The implementation of main() for Example 7.3</em></p>
+<p>Example 7.3 produces the output shown in Figure 7.10. The priority of the
+daemon task is higher than the priority of the task that generates the
+software interrupt, so <code>vDeferredHandlingFunction()</code> is executed by the
+daemon task as soon as the interrupt is generated. That results in the
+message output by <code>vDeferredHandlingFunction()</code> appear in between the
+two messages output by the periodic task, just as it did when a
+semaphore was used to unblock a dedicated deferred interrupt processing
+task. Further explanation is provided in Figure 7.11.</p>
+<p><a name="fig7.10" title="Figure 7.10 The output produced when Example 7.3 is executed"></a>
+<a name="fig7.11" title="Figure 7.11 The sequence of execution when Example 7.3 is executed"></a></p>
+<div align="center">
+<img src="../media/image57.jpg" alt="Figure 7.10 *The output produced when Example 7.3 is executed*
+<p><img src="../media/image58.png" alt="" />
+<em><strong>Figure 7.11</strong></em> <em>The sequence of execution when Example 7.3 is executed</em>"/&gt;</p>
+<p><em><strong>Figure 7.10</strong></em> *<em>The output produced when Example 7.3 is executed</em></p>
+<p><img src="../media/image58.png" alt="" />
+<em><strong>Figure 7.11</strong></em> <em>The sequence of execution when Example 7.3 is executed</em>*</p>
+</div><hr>
+<ol class="footnote-definition"><li id="footnote-19">
+<p>The daemon task was originally
+called the timer service task because it was originally only used to
+execute software timer callback functions. Hence,
+<code>xTimerPendFunctionCall()</code> is implemented in timers.c, and, in
+accordance with the convention of prefixing a function's name with
+the name of the file in which the function is implemented, the
+function's name is prefixed with 'Timer'. <a href="#fr-19-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch07/7.5-counting-semaphores.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch07/7.7-using-queues-within-an-interrupt-service-routine.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch07/7.5-counting-semaphores.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch07/7.7-using-queues-within-an-interrupt-service-routine.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

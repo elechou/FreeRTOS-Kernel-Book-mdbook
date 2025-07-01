@@ -488,7 +488,7 @@
 + [Listing 6.3 The xTimerCreate() API function prototype](ch06.md#list6.3)
 + [Listing 6.4 The xTimerStart() API function prototype](ch06.md#list6.4)
 + [Listing 6.5 Creating and starting the timers used in Example 6.1](ch06.md#list6.5)
-+ [Listing 6.6 The callback function used by the one-shot timer in Example 6.1](ch06.md#list6.5)
++ [Listing 6.6 The callback function used by the one-shot timer in Example 6.1](ch06.md#list6.6)
 + [Listing 6.7 The callback function used by the auto-reload timer in Example 6.1](ch06.md#list6.7)
 + [Listing 6.8 The vTimerSetTimerID() API function prototype](ch06.md#list6.8)
 + [Listing 6.9 The pvTimerGetTimerID() API function prototype](ch06.md#list6.9)

@@ -1,0 +1,687 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Receiving From Multiple Queues - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="56-receiving-from-multiple-queues"><a class="header" href="#56-receiving-from-multiple-queues">5.6 Receiving From Multiple Queues</a></h2>
+<h3 id="561-queue-sets"><a class="header" href="#561-queue-sets">5.6.1 Queue Sets</a></h3>
+<p>Often application designs require a single task to receive data of
+different sizes, data with different meanings, and data from different
+sources. The previous section demonstrated how to do this in a neat and
+efficient way using a single queue that receives structures. However,
+sometimes an application's designer is working with constraints that
+limit their design choices, necessitating the use of a separate queue
+for some data sources. For example, third party code being integrated
+into a design might assume the presence of a dedicated queue. In such
+cases a 'queue set' can be used.</p>
+<p>Queue sets allow a task to receive data from more than one queue without
+the task polling each queue in turn to determine which, if any, contains
+data.</p>
+<p>A design that uses a queue set to receive data from multiple sources is
+less neat, and less efficient, than a design that achieves the same
+functionality using a single queue that receives structures. For that
+reason, it is recommended to only use queue sets if design constraints
+make their use absolutely necessary.</p>
+<p>The following sections describe how to use a queue set by:</p>
+<ul>
+<li>
+<p>Creating a queue set.</p>
+</li>
+<li>
+<p>Adding queues to the set.</p>
+<p>Semaphores can also be added to a queue set. Semaphores are described later in this book.</p>
+</li>
+<li>
+<p>Reading from the queue set to determine which queues within the set contain data.</p>
+<p>When a queue that is a member of a set receives data, the handle of
+the receiving queue is sent to the queue set, and returned when a
+task calls a function that reads from the queue set. Therefore, if a
+queue handle is returned from a queue set, then the queue referenced
+by the handle is known to contain data, and the task can then read
+from that queue directly.</p>
+<blockquote>
+<p><em>Note: If a queue is a member of a queue set then you must read from
+the queue each time its handle is received from the queue set, and you
+must not read from the queue before its handle is received from the
+queue set.</em></p>
+</blockquote>
+</li>
+</ul>
+<p>Queue set functionality is enabled by setting the <code>configUSE_QUEUE_SETS</code>
+compile time configuration constant to 1 in FreeRTOSConfig.h.</p>
+<h3 id="562-the-xqueuecreateset-api-function"><a class="header" href="#562-the-xqueuecreateset-api-function">5.6.2 The xQueueCreateSet() API Function</a></h3>
+<p>A queue set must be explicitly created before it can be used. At the
+time of writing there is no implementation of <code>xQueueCreateSetStatic()</code>.
+However queue sets are themselves queues, so it is possible to create a
+set using pre-allocated memory by using a specially crafted call to
+<code>xQueueCreateStatic()</code>.</p>
+<p>Queues sets are referenced by handles, which are variables of type
+<code>QueueSetHandle_t</code>. The <code>xQueueCreateSet()</code> API function creates a queue set
+and returns a <code>QueueSetHandle_t</code> that references the created queue set.</p>
+<p><a name="list5.21" title="Listing 5.21 The xQueueCreateSet() API function prototype"></a></p>
+<pre><code class="language-c">QueueSetHandle_t xQueueCreateSet( const UBaseType_t uxEventQueueLength);
+</code></pre>
+<p><em><strong>Listing 5.21</strong></em> <em>The xQueueCreateSet() API function prototype</em></p>
+<p><strong>xQueueCreateSet() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>uxEventQueueLength</code></p>
+<p>When a queue that is a member of a queue set receives data, the
+handle of the receiving queue is sent to the queue set.
+<code>uxEventQueueLength</code> defines the maximum number of queue handles the queue
+set being created can hold at any one time.</p>
+<p>Queue handles are only sent to a queue set when a queue within the
+set receives data. A queue cannot receive data if it is full, so no
+queue handles can be sent to the queue set if all the queues in the set
+are full. Therefore, the maximum number of items the queue set will ever
+have to hold at one time is the sum of the lengths of every queue in the
+set.</p>
+<p>As an example, if there are three empty queues in the set, and each
+queue has a length of five, then in total the queues in the set can
+receive fifteen items (three queues multiplied by five items each)
+before all the queues in the set are full. In that example
+<code>uxEventQueueLength</code> must be set to fifteen to guarantee the queue set can
+receive every item sent to it.</p>
+<p>Semaphores can also be added to a queue set. Semaphores are covered
+later in this book. For the purposes of calculating the necessary
+<code>uxEventQueueLength</code>, the length of a binary semaphore is one, the length
+of a mutex is one, and the length of a counting semaphore is given by
+the semaphore's maximum count value.</p>
+<p>As another example, if a queue set will contain a queue that has a
+length of three, and a binary semaphore (which has a length of one),
+<code>uxEventQueueLength</code> must be set to four (three plus one).</p>
+</li>
+<li>
+<p>Return Value</p>
+<p>If NULL is returned, then the queue set cannot be created because
+there is insufficient heap memory available for FreeRTOS to allocate the
+queue set data structures and storage area. Chapter 3 provides more
+information on the FreeRTOS heap.</p>
+<p>If a non-NULL value is returned then the queue set was created
+successfully and the returned value is the handle to the created queue set.</p>
+</li>
+</ul>
+<h3 id="563-the-xqueueaddtoset-api-function"><a class="header" href="#563-the-xqueueaddtoset-api-function">5.6.3 The xQueueAddToSet() API Function</a></h3>
+<p><code>xQueueAddToSet()</code> adds a queue or semaphore to a queue set. Semaphores
+are described later in this book.</p>
+<p><a name="list5.22" title="Listing 5.22 The xQueueAddToSet() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xQueueAddToSet( QueueSetMemberHandle_t xQueueOrSemaphore,
+                           QueueSetHandle_t xQueueSet );
+</code></pre>
+<p><em><strong>Listing 5.22</strong></em> <em>The xQueueAddToSet() API function prototype</em></p>
+<p><strong>xQueueAddToSet() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xQueueOrSemaphore</code></p>
+<p>The handle of the queue or semaphore that is being added to the queue set.</p>
+<p>Queue handles and semaphore handles can both be cast to the <code>QueueSetMemberHandle_t</code> type.</p>
+</li>
+<li>
+<p><code>xQueueSet</code></p>
+<p>The handle of the queue set to which the queue or semaphore is being added.</p>
+</li>
+<li>
+<p>Return Value</p>
+<p>There are two possible return values:</p>
+<ol>
+<li>
+<p><code>pdPASS</code></p>
+<p>This indicates the queue set was created successfully.</p>
+</li>
+<li>
+<p><code>pdFAIL</code></p>
+<p>This indicates the queue or semaphore could not be added to the queue set.</p>
+</li>
+</ol>
+<p>Queues and binary semaphores can only be added to a set when they are
+empty. Counting semaphores can only be added to a set when their count
+is zero. Queues and semaphores can only be a member of one set at a time.</p>
+</li>
+</ul>
+<h3 id="564-the-xqueueselectfromset-api-function"><a class="header" href="#564-the-xqueueselectfromset-api-function">5.6.4 The xQueueSelectFromSet() API Function</a></h3>
+<p><code>xQueueSelectFromSet()</code> reads a queue handle from the queue set.</p>
+<p>When a queue or semaphore that is a member of a set receives data, the
+handle of the receiving queue or semaphore is sent to the queue set, and
+returned when a task calls <code>xQueueSelectFromSet()</code>. If a handle is
+returned from a call to <code>xQueueSelectFromSet()</code> then the queue or
+semaphore referenced by the handle is known to contain data and the
+calling task must then read from the queue or semaphore directly.</p>
+<blockquote>
+<p><em>Note: Do not read data from a queue or semaphore that is a member of a
+set unless the handle of the queue or semaphore has first been returned
+from a call to <code>xQueueSelectFromSet()</code>. Only read one item from a queue or
+semaphore each time the queue handle or semaphore handle is returned
+from a call to <code>xQueueSelectFromSet()</code>.</em></p>
+</blockquote>
+<p><a name="list5.23" title="Listing 5.23 The xQueueSelectFromSet() API function prototype"></a></p>
+<pre><code class="language-c">QueueSetMemberHandle_t xQueueSelectFromSet( QueueSetHandle_t xQueueSet,
+                                            const TickType_t xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 5.23</strong></em> <em>The xQueueSelectFromSet() API function prototype</em></p>
+<p><strong>xQueueSelectFromSet() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xQueueSet</code></p>
+<p>The handle of the queue set from which a queue handle or semaphore
+handle is being received (read). The queue set handle will have been
+returned from the call to <code>xQueueCreateSet()</code> used to create the queue
+set.</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p>The maximum amount of time the calling task should remain in the
+Blocked state to wait to receive a queue or semaphore handle from the
+queue set, if all the queues and semaphore in the set are empty.</p>
+<p>If <code>xTicksToWait</code> is zero then <code>xQueueSelectFromSet()</code> will return
+immediately if all the queues and semaphores in the set are empty.</p>
+<p>The block time is specified in tick periods, so the absolute time it
+represents is dependent on the tick frequency. The macro <code>pdMS_TO_TICKS()</code>
+can be used to convert a time specified in milliseconds to a time
+specified in ticks.</p>
+<p>Setting <code>xTicksToWait</code> to <code>portMAX_DELAY</code> will cause the task to wait
+indefinitely (without timing out) provided <code>INCLUDE_vTaskSuspend</code> is set
+to 1 in FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p>Return Value</p>
+<p>A return value that is not NULL will be the handle of a queue or
+semaphore that is known to contain data. If a block time was specified
+(<code>xTicksToWait</code> was not zero), then it is possible the calling task was
+placed into the Blocked state to wait for data to become available from
+a queue or semaphore in the set, but a handle was successfully read from
+the queue set before the block time expired. Handles are returned as a
+<code>QueueSetMemberHandle_t</code> type, which can be cast to either a <code>QueueHandle_t</code>
+type or <code>SemaphoreHandle_t</code> type.</p>
+<p>If the return value is NULL then a handle could not be read from the
+queue set. If a block time was specified (<code>xTicksToWait</code> was not zero)
+then the calling task was placed in the Blocked state to
+wait for another task or interrupt to send data to a queue or semaphore
+in the set, but the block time expired before that happened.</p>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example5.3" title="Example 5.3 Using a Queue Set"></a></a></h2>
+<p><em><strong>Example 5.3</strong></em> *Using a Queue Set</i></h3></p>
+<hr />
+<p>This example creates two sending tasks and one receiving task. The
+sending tasks send data to the receiving task on two separate queues,
+one queue for each task. The two queues are added to a queue set, and
+the receiving task reads from the queue set to determine which of the
+two queues contain data.</p>
+<p>The tasks, queues, and the queue set are all created in <code>main()</code>—see
+Listing 5.24 for its implementation.</p>
+<p><a name="list5.24" title="Listing 5.24  Implementation of main() for Example 5.3"></a></p>
+<pre><code class="language-c">/* Declare two variables of type QueueHandle_t. Both queues are added
+   to the same queue set. */
+static QueueHandle_t xQueue1 = NULL, xQueue2 = NULL;
+
+/* Declare a variable of type QueueSetHandle_t. This is the queue set
+   to which the two queues are added. */
+static QueueSetHandle_t xQueueSet = NULL;
+
+int main( void )
+{
+    /* Create the two queues, both of which send character pointers. The 
+       priority of the receiving task is above the priority of the sending 
+       tasks, so the queues will never have more than one item in them at 
+       any one time*/
+    xQueue1 = xQueueCreate( 1, sizeof( char * ) );
+    xQueue2 = xQueueCreate( 1, sizeof( char * ) );
+
+    /* Create the queue set. Two queues will be added to the set, each of
+       which can contain 1 item, so the maximum number of queue handles the 
+       queue set will ever have to hold at one time is 2 (2 queues multiplied 
+       by 1 item per queue). */
+    xQueueSet = xQueueCreateSet( 1 * 2 );
+
+    /* Add the two queues to the set. */
+    xQueueAddToSet( xQueue1, xQueueSet );
+    xQueueAddToSet( xQueue2, xQueueSet );
+
+    /* Create the tasks that send to the queues. */
+    xTaskCreate( vSenderTask1, "Sender1", 1000, NULL, 1, NULL );
+    xTaskCreate( vSenderTask2, "Sender2", 1000, NULL, 1, NULL );
+
+    /* Create the task that reads from the queue set to determine which of
+       the two queues contain data. */
+    xTaskCreate( vReceiverTask, "Receiver", 1000, NULL, 2, NULL );
+
+    /* Start the scheduler so the created tasks start executing. */
+    vTaskStartScheduler();
+
+    /* As normal, vTaskStartScheduler() should not return, so the following
+       lines will never execute. */
+    for( ;; );
+    return 0;
+}
+</code></pre>
+<p><em><strong>Listing 5.24</strong></em> <em>Implementation of main() for Example 5.3</em></p>
+<p>The first sending task uses <code>xQueue1</code> to send a character pointer to the
+receiving task every 100 milliseconds. The second sending task uses
+<code>xQueue2</code> to send a character pointer to the receiving task every 200
+milliseconds. The character pointers point to a string that identifies
+the sending task. Listing 5.25 shows the implementation of both tasks.</p>
+<p><a name="list5.25" title="Listing 5.25 The sending tasks used in Example 5.3"></a></p>
+<pre><code class="language-c">void vSenderTask1( void *pvParameters )
+{
+    const TickType_t xBlockTime = pdMS_TO_TICKS( 100 );
+    const char * const pcMessage = "Message from vSenderTask1\r\n";
+
+    /* As per most tasks, this task is implemented within an infinite loop. */
+
+    for( ;; )
+    {
+
+        /* Block for 100ms. */
+        vTaskDelay( xBlockTime );
+
+        /* Send this task's string to xQueue1. It is not necessary to use a
+           block time, even though the queue can only hold one item. This is 
+           because the priority of the task that reads from the queue is 
+           higher than the priority of this task; as soon as this task writes 
+           to the queue it will be pre-empted by the task that reads from the 
+           queue, so the queue will already be empty again by the time the 
+           call to xQueueSend() returns. The block time is set to 0. */
+        xQueueSend( xQueue1, &amp;pcMessage, 0 );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+void vSenderTask2( void *pvParameters )
+{
+    const TickType_t xBlockTime = pdMS_TO_TICKS( 200 );
+    const char * const pcMessage = "Message from vSenderTask2\r\n";
+
+    /* As per most tasks, this task is implemented within an infinite loop. */
+    for( ;; )
+    {
+        /* Block for 200ms. */
+        vTaskDelay( xBlockTime );
+
+        /* Send this task's string to xQueue2. It is not necessary to use a
+           block time, even though the queue can only hold one item. This is 
+           because the priority of the task that reads from the queue is 
+           higher than the priority of this task; as soon as this task writes 
+           to the queue it will be pre-empted by the task that reads from the 
+           queue, so the queue will already be empty again by the time the 
+           call to xQueueSend() returns. The block time is set to 0. */
+        xQueueSend( xQueue2, &amp;pcMessage, 0 );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.25</strong></em> <em>The sending tasks used in Example 5.3</em></p>
+<p>The queues written to by the sending tasks are members of the same queue
+set. Each time a task sends to one of the queues, the handle of the
+queue is sent to the queue set. The receiving task calls
+<code>xQueueSelectFromSet()</code> to read the queue handles from the queue set.
+After the receiving task receives a queue handle from the set, it knows
+the queue referenced by the received handle contains data, so it reads the
+data from the queue directly. The data it reads from the queue is a
+pointer to a string, which the receiving task prints out.</p>
+<p>If a call to <code>xQueueSelectFromSet()</code> times out, it returns NULL. In Example
+5.3, <code>xQueueSelectFromSet()</code> is called with an indefinite block time, so it
+will never time out, and can only return a valid queue handle.
+Therefore, the receiving task does not need to check to see if
+<code>xQueueSelectFromSet()</code> returned NULL before using the returned value.</p>
+<p><code>xQueueSelectFromSet()</code> only returns a queue handle if the queue
+referenced by the handle contains data, so it is not necessary to use a
+block time when reading from the queue.</p>
+<p>Listing 5.26 shows the implementation of the receive task.</p>
+<p><a name="list5.26" title="Listing 5.26 The receive task used in Example 5.3"></a></p>
+<pre><code class="language-c">void vReceiverTask( void *pvParameters )
+{
+    QueueHandle_t xQueueThatContainsData;
+    char *pcReceivedString;
+
+    /* As per most tasks, this task is implemented within an infinite loop. */
+    for( ;; )
+    {
+        /* Block on the queue set to wait for one of the queues in the set to
+           contain data. Cast the QueueSetMemberHandle_t value returned from
+           xQueueSelectFromSet() to a QueueHandle_t, as it is known all the 
+           members of the set are queues (the queue set does not contain any 
+           semaphores). */
+        xQueueThatContainsData = ( QueueHandle_t ) xQueueSelectFromSet(
+                                                     xQueueSet, portMAX_DELAY );
+
+        /* An indefinite block time was used when reading from the queue set,
+           so xQueueSelectFromSet() will not have returned unless one of the 
+           queues in the set contained data, and xQueueThatContainsData cannot
+           be NULL. Read from the queue. It is not necessary to specify a 
+           block time because it is known the queue contains data. The block 
+           time is set to 0. */
+        xQueueReceive( xQueueThatContainsData, &amp;pcReceivedString, 0 );
+
+        /* Print the string received from the queue. */
+        vPrintString( pcReceivedString );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.26</strong></em> <em>The receive task used in Example 5.3</em></p>
+<p>Figure 5.7 shows the output produced by Example 5.3. It can be seen that
+the receiving task receives strings from both sending tasks. The block
+time used by <code>vSenderTask1()</code> is half of the block time used by
+<code>vSenderTask2()</code>, which causes the strings sent by <code>vSenderTask1()</code> to print out
+twice as often as those sent by <code>vSenderTask2()</code>.</p>
+<p><a name="fig5.7" title="Figure 5.7 The output produced when Example 5.3 is executed"></a></p>
+<div align="center">
+<img src="../media/image37.jpg" alt="Figure 5.7 *The output produced when Example 5.3 is executed*"/>
+<p><em><strong>Figure 5.7</strong></em> <strong>The output produced when Example 5.3 is executed</strong></p>
+</div>
+<h3 id="565-more-realistic-queue-set-use-cases"><a class="header" href="#565-more-realistic-queue-set-use-cases">5.6.5 More Realistic Queue Set Use Cases</a></h3>
+<p>Example 5.3 demonstrated a very simplistic case; the queue set only
+contained queues, and the two queues it contained were both used to send
+a character pointer. In a real application, a queue set might contain
+both queues and semaphores, and the queues might not all hold the same
+data type. When this is the case, it is necessary to test the value
+returned by <code>xQueueSelectFromSet()</code>, before using the returned value.
+Listing 5.27 demonstrates how to use the value returned from
+<code>xQueueSelectFromSet()</code> when the set has the following members:</p>
+<ul>
+<li>A binary semaphore.</li>
+<li>A queue from which character pointers are read.</li>
+<li>A queue from which <code>uint32_t</code> values are read.</li>
+</ul>
+<p>Listing 5.27 assumes the queues and semaphore have already been created
+and added to the queue set.</p>
+<p><a name="list5.27" title="Listing 5.27 Using a queue set that contains queues and semaphores"></a></p>
+<pre><code class="language-c">/* The handle of the queue from which character pointers are received. */
+QueueHandle_t xCharPointerQueue;
+
+/* The handle of the queue from which uint32_t values are received. */
+QueueHandle_t xUint32tQueue;
+
+/* The handle of the binary semaphore. */
+SemaphoreHandle_t xBinarySemaphore;
+
+/* The queue set to which the two queues and the binary semaphore belong. */
+QueueSetHandle_t xQueueSet;
+
+void vAMoreRealisticReceiverTask( void *pvParameters )
+{
+    QueueSetMemberHandle_t xHandle;
+    char *pcReceivedString;
+    uint32_t ulRecievedValue;
+    const TickType_t xDelay100ms = pdMS_TO_TICKS( 100 );
+
+    for( ;; )
+    {
+        /* Block on the queue set for a maximum of 100ms to wait for one of the
+           members of the set to contain data. */
+        xHandle = xQueueSelectFromSet( xQueueSet, xDelay100ms );
+
+        /* Test the value returned from xQueueSelectFromSet(). If the returned
+           value is NULL then the call to xQueueSelectFromSet() timed out. If 
+           the returned value is not NULL then the returned value will be the 
+           handle of one of the set's members. The QueueSetMemberHandle_t 
+           value can be cast to either a QueueHandle_t or a SemaphoreHandle_t.
+           Whether an explicit cast is required depends on the compiler. */
+
+        if( xHandle == NULL )
+        {
+            /* The call to xQueueSelectFromSet() timed out. */
+        }
+        else if( xHandle == ( QueueSetMemberHandle_t ) xCharPointerQueue )
+        {
+            /* The call to xQueueSelectFromSet() returned the handle of the 
+               queue that receives character pointers. Read from the queue. 
+               The queue is known to contain data, so a block time of 0 is 
+               used. */
+            xQueueReceive( xCharPointerQueue, &amp;pcReceivedString, 0 );
+
+            /* The received character pointer can be processed here... */
+        }
+        else if( xHandle == ( QueueSetMemberHandle_t ) xUint32tQueue )
+        {
+            /* The call to xQueueSelectFromSet() returned the handle of the 
+               queue that receives uint32_t types. Read from the queue. The 
+               queue is known to contain data, so a block time of 0 is used. */
+            xQueueReceive(xUint32tQueue, &amp;ulRecievedValue, 0 );
+
+            /* The received value can be processed here... */
+        }
+        else if( xHandle == ( QueueSetMemberHandle_t ) xBinarySemaphore )
+        {
+            /* The call to xQueueSelectFromSet() returned the handle of the 
+               binary semaphore. Take the semaphore now. The semaphore is 
+               known to be available so a block time of 0 is used. */
+            xSemaphoreTake( xBinarySemaphore, 0 );
+
+            /* Whatever processing is necessary when the semaphore is taken 
+               can be performed here... */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 5.27</strong></em> <em>Using a queue set that contains queues and semaphores</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch05/5.5-working-with-large-or-variable-sized-data.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch05/5.7-using-a-queue-to-create-a-mailbox.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch05/5.5-working-with-large-or-variable-sized-data.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch05/5.7-using-a-queue-to-create-a-mailbox.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

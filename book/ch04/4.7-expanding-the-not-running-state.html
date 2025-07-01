@@ -1,0 +1,655 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Expanding the Not Running State - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="47-expanding-the-not-running-state"><a class="header" href="#47-expanding-the-not-running-state">4.7 Expanding the <em>Not Running</em> State</a></h2>
+<p>So far, the created tasks have always had processing to perform and have
+never had to wait for anything—and since they never had to wait for anything,
+they were always able to enter the <em>Running</em> state. Such 'continuous processing'
+tasks have limited usefulness because they can only be created at the very lowest
+priority. If they run at any other priority, they will prevent tasks of lower
+priority from ever running at all.</p>
+<p>To make these tasks useful, they must be re-written to be event-driven. An
+event-driven task only has work (processing) to perform after an event
+triggers it and cannot enter the <em>Running</em> state before that time.
+The scheduler always selects the highest priority task that can run. If
+a high-priority task cannot be selected because it is waiting for an
+event, the scheduler must, instead, select a lower-priority task that
+can run. Therefore, writing event-driven tasks means tasks can be
+created at different priorities without the highest priority tasks
+starving all the lower priority tasks of processing time.</p>
+<h3 id="471-the-blocked-state"><a class="header" href="#471-the-blocked-state">4.7.1 The <em>Blocked</em> State</a></h3>
+<p>A task waiting for an event is said to be in the 'Blocked' state, a
+sub-state of the <em>Not Running</em> state.</p>
+<p>Tasks can enter the <em>Blocked</em> state to wait for two different types of
+events:</p>
+<ol>
+<li>
+<p>Temporal (time-related) events— these events occur either when a delay period
+expires or an absolute time is reached. For example, a task may
+enter the <em>Blocked</em> state to wait for 10 milliseconds to pass.</p>
+</li>
+<li>
+<p>Synchronization events— these events originate from another task
+or interrupt. For example, a task may enter the <em>Blocked</em> state to
+wait for data to arrive on a queue. Synchronization events cover a
+broad range of event types.</p>
+</li>
+</ol>
+<p>FreeRTOS queues, binary semaphores, counting semaphores, mutexes,
+recursive mutexes, event groups, stream buffers, message buffers, and
+direct to task notifications can all create synchronization events.
+Later chapters cover most of these features.</p>
+<p>A task can block on a synchronization event with a timeout, effectively
+blocking on both types of event simultaneously. For example, a task may
+choose to wait for a maximum of 10 milliseconds for data to arrive on a
+queue. The task will leave the <em>Blocked</em> state if data arrives within 10
+milliseconds or if 10 milliseconds pass without data arriving.</p>
+<h3 id="472-the-suspended-state"><a class="header" href="#472-the-suspended-state">4.7.2 The <em>Suspended</em> State</a></h3>
+<p><em>Suspended</em> is also a sub-state of <em>Not Running</em>. Tasks in the Suspended
+state are not available to the scheduler. The only way to enter the
+Suspended state is through a call to the <code>vTaskSuspend()</code> API function,
+and the only way out is through a call to the <code>vTaskResume()</code> or
+<code>xTaskResumeFromISR()</code> API functions. Most applications do not use the
+Suspended state.</p>
+<h3 id="473-the-ready-state"><a class="header" href="#473-the-ready-state">4.7.3 The Ready State</a></h3>
+<p>Tasks that are in the <em>Not Running</em> state and are not <em>Blocked</em> or <em>Suspended</em>
+are said to be in the <em>Ready</em> state. They can run, and are therefore 'ready' to
+run, but are not currently in the <em>Running</em> state.</p>
+<h3 id="474-completing-the-state-transition-diagram"><a class="header" href="#474-completing-the-state-transition-diagram">4.7.4 Completing the State Transition Diagram</a></h3>
+<p>Figure 4.7 expands on the simplified state diagram to include all of the
+<em>Not Running</em> sub-states described in this section. The tasks created in the
+examples so far have not used the <em>Blocked</em> or <em>Suspended</em> states. They have
+only transitioned between the <em>Ready</em> state and the <em>Running</em> state as shown by
+the bold lines in Figure 4.7.</p>
+<p><a name="fig4.7" title="Figure 4.7 Full task state machine"></a></p>
+<hr />
+<p><img src="../media/figure_4.7_full_task_state_machine.png" alt="" />
+<em><strong>Figure 4.7</strong></em> <em>Full task state machine</em></p>
+<hr />
+<h2 id=""><a class="header" href="#"><a name="example4.4" title="Example 4.4 Using the Blocked state to create a delay"></a></a></h2>
+<p><em><strong>Example 4.4</strong></em> *Using the <em>Blocked</em> state to create a delay</i></h3></p>
+<hr />
+<p>All the tasks created in the examples presented so far have been
+'periodic'—they have delayed for a period and then printed out their string,
+before delaying once more, and so on. The delay has been generated very
+crudely using a null loop—the task polled an incrementing
+loop counter until it reached a fixed value. Example 4.3 clearly
+demonstrated the disadvantage of this method. The higher priority task
+remained in the <em>Running</em> state while it executed the null loop,
+'starving' the lower priority task of any processing time.</p>
+<p>There are several other disadvantages to any form of polling, not least
+of which is its inefficiency. During polling, the task does not really
+have any work to do, but it still uses the maximum processing time, and so
+wastes processor cycles. Example 4.4 corrects this behavior by replacing
+the polling null loop with a call to the <code>vTaskDelay()</code> API function, whose
+prototype is shown in Listing 4.12. The new task definition is
+shown in Listing 4.13. Note that the <code>vTaskDelay()</code> API function is
+available only when <code>INCLUDE_vTaskDelay</code> is set to 1 in FreeRTOSConfig.h.</p>
+<p><code>vTaskDelay()</code> places the calling task into the <em>Blocked</em> state for a fixed
+number of tick interrupts. The task does not use any processing time
+while it is in the <em>Blocked</em> state, so the task only uses processing time
+when there is actually work to be done.</p>
+<p><a name="list4.12" title="Listing 4.12 The vTaskDelay() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskDelay( TickType_t xTicksToDelay );
+</code></pre>
+<p><em><strong>Listing 4.12</strong></em> <em>The vTaskDelay() API function prototype</em></p>
+<p><strong>vTaskDelay parameters:</strong></p>
+<ul>
+<li>
+<p><code>xTicksToDelay</code></p>
+<p>The number of tick interrupts that the calling task will remain
+in the <em>Blocked</em> state before being transitioned back into the Ready
+state.</p>
+<p>For example, if a task called <code>vTaskDelay( 100 )</code> when the tick count
+was 10,000, then it would immediately enter the <em>Blocked</em> state, and
+remain in the <em>Blocked</em> state until the tick count reached 10,100.</p>
+<p>The macro <code>pdMS_TO_TICKS()</code> can be used to convert a time specified in
+milliseconds into a time specified in ticks. For example, calling
+<code>vTaskDelay( pdMS_TO_TICKS( 100 ) )</code> results in the calling task remaining
+in the <em>Blocked</em> state for 100 milliseconds.</p>
+</li>
+</ul>
+<p><a name="list4.13" title="Listing 4.13 The source code for the example task after replacing the null loop delay with a call..."></a></p>
+<pre><code class="language-c">void vTaskFunction( void * pvParameters )
+{
+    char * pcTaskName;
+    const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
+
+    /*
+     * The string to print out is passed in via the parameter. Cast this to a
+     * character pointer.
+     */
+    pcTaskName = ( char * ) pvParameters;
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /* Print out the name of this task. */
+        vPrintLine( pcTaskName );
+
+        /*
+         * Delay for a period. This time a call to vTaskDelay() is used which
+         * places the task into the Blocked state until the delay period has
+         * expired. The parameter takes a time specified in 'ticks', and the
+         * pdMS_TO_TICKS() macro is used (where the xDelay250ms constant is
+         * declared) to convert 250 milliseconds into an equivalent time in
+         * ticks.
+         */
+        vTaskDelay( xDelay250ms );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.13</strong></em> <em>The source code for the example task after replacing the null loop
+delay with a call to vTaskDelay()</em></p>
+<p>Even though the two tasks are still being created at different
+priorities, both will now run. The output of Example 4.4, which is shown
+in Figure 4.8, confirms the expected behavior.</p>
+<p><a name="fig4.8" title="Figure 4.8 The output produced when Example 4.4 is executed"></a></p>
+<hr />
+<pre><code class="language-console">C:\Temp&gt;rtosdemo
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+Task 2 is running
+Task 1 is running
+</code></pre>
+<p><em><strong>Figure 4.8</strong></em> <em>The output produced when Example 4.4 is executed</em></p>
+<hr />
+<p>The execution sequence shown in Figure 4.9 explains why both tasks run,
+even though they are created at different priorities. The execution of
+the scheduler itself is omitted for simplicity.</p>
+<p>The idle task is created automatically when the scheduler is started, to
+ensure there is always at least one task that can run (at least one task
+in the <em>Ready</em> state). <a href="#48-the-idle-task-and-the-idle-task-hook">Section 4.8: The Idle Task and the Idle Task Hook</a>
+describes the Idle task in more detail.</p>
+<p><a name="fig4.9" title="Figure 4.9 The execution sequence when the tasks use vTaskDelay() in place of the null loop"></a></p>
+<hr />
+<p><img src="../media/figure_4.9_vTaskDelay_execution_sequence.png" alt="" />
+<em><strong>Figure 4.9</strong></em> <em>The execution sequence when the tasks use vTaskDelay() in place of
+the null loop</em></p>
+<hr />
+<p>Only the implementation of the two tasks has changed, not their
+functionality. Comparing Figure 4.9 with Figure 4.4 demonstrates clearly
+that this functionality is being achieved in a much more efficient
+manner.</p>
+<p>Figure 4.4 shows the execution pattern when the tasks use a null loop to
+create a delay and so are always able to run. As a result, they use one
+hundred percent of the available processor time between them. Figure 4.9
+shows the execution pattern when the tasks enter the <em>Blocked</em> state for
+the entirety of their delay period. They use processor time only when they
+actually have work that needs to be performed (in this case simply a
+message to be printed out), and as a result only use a tiny fraction of
+the available processing time.</p>
+<p>In the scenario shown in Figure 4.9, each time the tasks leave the <em>Blocked</em> state
+they execute for a fraction of a tick period before re-entering the
+Blocked state. Most of the time there are no application tasks that can
+run (no application tasks in the <em>Ready</em> state) and, therefore, no
+application tasks that can be selected to enter the <em>Running</em> state. While
+this is the case, the idle task runs. The amount of processing time
+allocated to the idle is a measure of the spare processing capacity in
+the system. Using an RTOS can significantly increase the spare
+processing capacity simply by allowing an application to be completely
+event driven.</p>
+<p>The bold lines in Figure 4.10 show the transitions performed by the tasks
+in Example 4.4, with each task now transitioning through the <em>Blocked</em> state
+before being returned to the <em>Ready</em> state.</p>
+<p><a name="fig4.10" title="Figure 4.10 Bold lines indicate the state transitions performed by the tasks..."></a></p>
+<hr />
+<p><img src="../media/figure_4.10_example_4.4_state_machine.png" alt="" />
+<em><strong>Figure 4.10</strong></em> <em>Bold lines indicate the state transitions performed by the tasks
+in Example 4.4</em></p>
+<hr />
+<h3 id="475-the-vtaskdelayuntil-api-function"><a class="header" href="#475-the-vtaskdelayuntil-api-function">4.7.5 The vTaskDelayUntil() API Function</a></h3>
+<p><code>vTaskDelayUntil()</code> is similar to <code>vTaskDelay()</code>. As just demonstrated, the
+<code>vTaskDelay()</code> parameter specifies the number of tick interrupts that
+should occur between a task calling <code>vTaskDelay()</code>, and the same task once
+again transitioning out of the <em>Blocked</em> state. The length of time the
+task remains in the blocked state is specified by the <code>vTaskDelay()</code>
+parameter, but the time at which the task leaves the blocked state is
+relative to the time at which <code>vTaskDelay()</code> was called.</p>
+<p>The parameters to <code>vTaskDelayUntil()</code> specify, instead, the exact tick
+count value at which the calling task should be moved from the Blocked
+state into the <em>Ready</em> state. <code>vTaskDelayUntil()</code> is the API function to use
+when a fixed execution period is required (where you want your task to
+execute periodically with a fixed frequency), as the time at which the
+calling task is unblocked is absolute, rather than relative to when the
+function was called (as is the case with <code>vTaskDelay()</code>).</p>
+<p><a name="list4.14" title="Listing 4.14 vTaskDelayUntil() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskDelayUntil( TickType_t * pxPreviousWakeTime,
+                      TickType_t xTimeIncrement );
+</code></pre>
+<p><em><strong>Listing 4.14</strong></em> <em>vTaskDelayUntil() API function prototype</em></p>
+<p><strong>vTaskDelayUntil() parameters</strong></p>
+<ul>
+<li>
+<p><code>pxPreviousWakeTime</code></p>
+<p>This parameter is named on the assumption that <code>vTaskDelayUntil()</code>
+is being used to implement a task that executes periodically and with a
+fixed frequency. In this case, <code>pxPreviousWakeTime</code> holds the time at
+which the task last left the <em>Blocked</em> state (was 'woken' up). This time
+is used as a reference point to calculate the time at which the task
+should next leave the <em>Blocked</em> state.</p>
+<p>The variable pointed to by <code>pxPreviousWakeTime</code> is updated
+automatically in the <code>vTaskDelayUntil()</code> function; it would not
+normally be modified by the application code, but must be initialized to
+the current tick count before its first use. Listing 4.15 demonstrates how
+to initialise the variable.</p>
+</li>
+<li>
+<p><code>xTimeIncrement</code></p>
+<p>This parameter is also named on the assumption that
+<code>vTaskDelayUntil()</code> is being used to implement a task that executes
+periodically and with a fixed frequency that is set by the
+<code>xTimeIncrement</code> value.</p>
+<p><code>xTimeIncrement</code> is specified in 'ticks'. The macro <code>pdMS_TO_TICKS()</code> can
+be used to convert a time specified in milliseconds into a time
+specified in ticks.</p>
+</li>
+</ul>
+<h2 id="-1"><a class="header" href="#-1"><a name="example4.5" title="Example 4.5 Converting the example tasks to use vTaskDelayUntil()"></a></a></h2>
+<p><em><strong>Example 4.5</strong></em> <em>Converting the example tasks to use vTaskDelayUntil()</em></p>
+<hr />
+<p>The two tasks created in Example 4.4 are periodic tasks, but using
+<code>vTaskDelay()</code> does not guarantee that the frequency at which they run is
+fixed, as the time at which the tasks leave the <em>Blocked</em> state is
+relative to when they call <code>vTaskDelay()</code>. Converting the tasks to use
+<code>vTaskDelayUntil()</code> instead of <code>vTaskDelay()</code> solves this potential problem.</p>
+<p><a name="list4.15" title="Listing 4.15 The implementation of the example task using vTaskDelayUntil()"></a></p>
+<pre><code class="language-c">void vTaskFunction( void * pvParameters )
+{
+    char * pcTaskName;
+    TickType_t xLastWakeTime;
+
+    /*
+     * The string to print out is passed in via the parameter. Cast this to a
+     * character pointer.
+     */
+    pcTaskName = ( char * ) pvParameters;
+
+    /*
+     * The xLastWakeTime variable needs to be initialized with the current tick
+     * count. Note that this is the only time the variable is written to
+     * explicitly. After this xLastWakeTime is automatically updated within
+     * vTaskDelayUntil().
+     */
+    xLastWakeTime = xTaskGetTickCount();
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /* Print out the name of this task. */
+        vPrintLine( pcTaskName );
+
+        /*
+         * This task should execute every 250 milliseconds exactly. As per
+         * the vTaskDelay() function, time is measured in ticks, and the
+         * pdMS_TO_TICKS() macro is used to convert milliseconds into ticks.
+         * xLastWakeTime is automatically updated within vTaskDelayUntil(), so
+         * is not explicitly updated by the task.
+         */
+        vTaskDelayUntil( &amp;xLastWakeTime, pdMS_TO_TICKS( 250 ) );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.15</strong></em> <em>The implementation of the example task using vTaskDelayUntil()</em></p>
+<p>The output produced by Example 4.5 is exactly as per that shown for Example 4.4
+in Figure 4.8.</p>
+<h2 id="-2"><a class="header" href="#-2"><a name="example4.6" title="Example 4.6 Combining blocking and non-blocking tasks"></a></a></h2>
+<p><em><strong>Example 4.6</strong></em> <em>Combining blocking and non-blocking tasks</em></p>
+<hr />
+<p>The previous examples examined the behavior of both polling and blocking
+tasks in isolation. This example re-enforces what we have already said regarding
+the expected system behavior and demonstrates the execution sequence when the
+two schemes are combined, as follows:</p>
+<ol>
+<li>
+<p>Two tasks are created at priority 1. These do nothing other than continuously
+print out a string.</p>
+<p>These tasks never make API function calls that could cause them to enter the
+<em>Blocked</em> state, so are always in either the Ready or the <em>Running</em> state.
+Tasks of this nature are called 'continuous processing' tasks, as they always
+have work to do (albeit rather trivial work, in this case).
+Listing 4.16 shows the source code for the continuous processing tasks.</p>
+</li>
+<li>
+<p>A third task is then created at priority 2, which is above the priority of
+the other two tasks. The third task also just prints out a string, but this
+time periodically, so it uses the <code>vTaskDelayUntil()</code> API function to place
+itself into the <em>Blocked</em> state between each print iteration.</p>
+</li>
+</ol>
+<p>Listing 4.17 shows the source code of the periodic task.</p>
+<p><a name="list4.16" title="Listing 4.16 The continuous processing task used in Example 4.6"></a></p>
+<pre><code class="language-c">void vContinuousProcessingTask( void * pvParameters )
+{
+    char * pcTaskName;
+
+    /*
+     * The string to print out is passed in via the parameter. Cast this to a
+     * character pointer.
+     */
+    pcTaskName = ( char * ) pvParameters;
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /*
+         * Print out the name of this task. This task just does this repeatedly
+         * without ever blocking or delaying.
+         */
+        vPrintLine( pcTaskName );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.16</strong></em> <em>The continuous processing task used in Example 4.6</em></p>
+<p><a name="list4.17" title="Listing 4.17 The periodic task used in Example 4.6"></a></p>
+<pre><code class="language-c">void vPeriodicTask( void * pvParameters )
+{
+    TickType_t xLastWakeTime;
+
+    const TickType_t xDelay3ms = pdMS_TO_TICKS( 3 );
+
+    /*
+     * The xLastWakeTime variable needs to be initialized with the current tick
+     * count. Note that this is the only time the variable is explicitly
+     * written to. After this xLastWakeTime is managed automatically by the
+     * vTaskDelayUntil() API function.
+     */
+    xLastWakeTime = xTaskGetTickCount();
+
+    /* As per most tasks, this task is implemented in an infinite loop. */
+    for( ;; )
+    {
+        /* Print out the name of this task. */
+        vPrintLine( "Periodic task is running" );
+
+        /*
+         * The task should execute every 3 milliseconds exactly – see the
+         * declaration of xDelay3ms in this function.
+         */
+        vTaskDelayUntil( &amp;xLastWakeTime, xDelay3ms );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 4.17</strong></em> <em>The periodic task used in Example 4.6</em></p>
+<p>Figure 4.11 shows the output produced by Example 4.6, with an explanation of the
+observed behavior given by the execution sequence shown in Figure 4.12.</p>
+<p><a name="fig4.11" title="Figure 4.11 The output produced when Example 4.6 is executed"></a></p>
+<hr />
+<pre><code class="language-console">Continuous task 2 running
+Continuous task 2 running
+Periodic task is running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 2 running
+Continuous task 2 running
+Continuous task 2 running
+Continuous task 2 running
+Continuous task 2 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Continuous task 1 running
+Periodic task is running
+Continuous task 2 running
+Continuous task 2 running
+</code></pre>
+<p><em><strong>Figure 4.11</strong></em> <em>The output produced when Example 4.6 is executed</em></p>
+<hr />
+<p><a name="fig4.12" title="Figure 4.12 The execution pattern of Example 4.6"></a></p>
+<hr />
+<p><img src="../media/figure_4.11_example_4.6_execution_pattern.png" alt="" />
+<em><strong>Figure 4.12</strong></em> <em>The execution pattern of Example 4.6</em></p>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch04/4.6-time-measurement-and-the-tick-interrupt.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch04/4.8-the-idle-task-and-the-idle-task-hook.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch04/4.6-time-measurement-and-the-tick-interrupt.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch04/4.8-the-idle-task-and-the-idle-task-hook.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
