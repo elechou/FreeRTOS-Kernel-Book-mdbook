@@ -1,0 +1,758 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Event Management Using Event Groups - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="93-event-management-using-event-groups"><a class="header" href="#93-event-management-using-event-groups">9.3 Event Management Using Event Groups</a></h2>
+<h3 id="931-the-xeventgroupcreate-api-function"><a class="header" href="#931-the-xeventgroupcreate-api-function">9.3.1 The xEventGroupCreate() API Function</a></h3>
+<p>FreeRTOS also includes the <code>xEventGroupCreateStatic()</code> function,
+which allocates the memory required to create an event group statically
+at compile time: An event group must be explicitly created before it can
+be used.</p>
+<p>Event groups are referenced using variables of type <code>EventGroupHandle_t</code>.
+The <code>xEventGroupCreate()</code> API function is used to create an event group,
+and returns an <code>EventGroupHandle_t</code> to reference the event group it
+creates.</p>
+<p><a name="list9.1" title="Listing 9.1 The xEventGroupCreate() API function prototype"></a></p>
+<pre><code class="language-c">EventGroupHandle_t xEventGroupCreate( void );
+</code></pre>
+<p><em><strong>Listing 9.1</strong></em> <em>The xEventGroupCreate() API function prototype</em></p>
+<p><strong>xEventGroupCreate() return value</strong></p>
+<ul>
+<li>
+<p>Return Value</p>
+<p>If NULL is returned, then the event group cannot be created
+because there is insufficient heap memory available for FreeRTOS to
+allocate the event group data structures. Chapter 3 provides more
+information on heap memory management.</p>
+<p>A non-NULL value being returned indicates that the event group has
+been created successfully. The returned value should be stored as the
+handle to the created event group.</p>
+</li>
+</ul>
+<h3 id="932-the-xeventgroupsetbits-api-function"><a class="header" href="#932-the-xeventgroupsetbits-api-function">9.3.2 The xEventGroupSetBits() API Function</a></h3>
+<p>The <code>xEventGroupSetBits()</code> API function sets one or more bits in an event
+group, and is typically used to notify a task that the events
+represented by the bit, or bits, being set has occurred.</p>
+<blockquote>
+<p><em>Note: Never call <code>xEventGroupSetBits()</code> from an interrupt service
+routine. The interrupt-safe version <code>xEventGroupSetBitsFromISR()</code> should
+be used in its place.</em></p>
+</blockquote>
+<p><a name="list9.2" title="Listing 9.2. The xEventGroupSetBits() API function prototype"></a></p>
+<pre><code class="language-c">EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup,
+
+const EventBits_t uxBitsToSet );
+</code></pre>
+<p><em><strong>Listing 9.2</strong></em> <em>The xEventGroupSetBits() API function prototype</em></p>
+<p><strong>xEventGroupSetBits() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xEventGroup</code></p>
+<p>The handle of the event group in which bits are being set. The event
+group handle will have been returned from the call to
+<code>xEventGroupCreate()</code> used to create the event group.</p>
+</li>
+<li>
+<p><code>uxBitsToSet</code></p>
+<p>A bit mask that specifies the event bit, or event bits, to set to
+1 in the event group. The value of the event group is updated by bitwise
+ORing the event group's existing value with the value passed in
+<code>uxBitsToSet</code>.</p>
+<p>As an example, setting <code>uxBitsToSet</code> to 0x04 (binary 0100) will result
+in event bit 3 in the event group becoming set (if it was not already
+set), while leaving all the other event bits in the event group
+unchanged.</p>
+</li>
+<li>
+<p>Return Value</p>
+<p>The value of the event group at the time the call to
+<code>xEventGroupSetBits()</code> returned. Note that the value returned will not
+necessarily have the bits specified by <code>uxBitsToSet</code> set, because the bits
+may have been cleared again by a different task.</p>
+</li>
+</ul>
+<h3 id="933-the-xeventgroupsetbitsfromisr-api-function"><a class="header" href="#933-the-xeventgroupsetbitsfromisr-api-function">9.3.3 The xEventGroupSetBitsFromISR() API Function</a></h3>
+<p><code>xEventGroupSetBitsFromISR()</code> is the interrupt safe version of
+<code>xEventGroupSetBits()</code>.</p>
+<p>Giving a semaphore is a deterministic operation because it is known in
+advance that giving a semaphore can result in at most one task leaving
+the Blocked state. When bits are set in an event group it is not known
+in advance how many tasks will leave the Blocked state, so setting bits
+in an event group is not a deterministic operation.</p>
+<p>The FreeRTOS design and implementation standard does not permit
+non-deterministic operations to be performed inside an interrupt service
+routine, or when interrupts are disabled. For that reason,
+<code>xEventGroupSetBitsFromISR()</code> does not set event bits directly inside the
+interrupt service routine, but instead defers the action to the RTOS
+daemon task.</p>
+<p><a name="list9.3" title="Listing 9.3 The xEventGroupSetBitsFromISR() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup,
+                                      const EventBits_t uxBitsToSet,
+                                      BaseType_t *pxHigherPriorityTaskWoken );
+</code></pre>
+<p><em><strong>Listing 9.3</strong></em> <em>The xEventGroupSetBitsFromISR() API function prototype</em></p>
+<p><strong>xEventGroupSetBitsFromISR() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xEventGroup</code></p>
+<p>The handle of the event group in which bits are being set. The event
+group handle will have been returned from the call to
+<code>xEventGroupCreate()</code> used to create the event group.</p>
+</li>
+<li>
+<p><code>uxBitsToSet</code></p>
+<p>A bit mask that specifies the event bit, or event bits, to set to
+1 in the event group. The value of the event group is updated by bitwise
+ORing the event group's existing value with the value passed in
+<code>uxBitsToSet</code>.</p>
+<p>As an example, setting <code>uxBitsToSet</code> to 0x05 (binary 0101) will result
+in event bit 2 and event bit 0 in the event group becoming set (if they
+were not already set), while leaving all the other event bits in the
+event group unchanged.</p>
+</li>
+<li>
+<p><code>pxHigherPriorityTaskWoken</code></p>
+<p><code>xEventGroupSetBitsFromISR()</code> does not set the event bits directly
+inside the interrupt service routine, but instead defers the action to
+the RTOS daemon task by sending a command on the timer command queue. If
+the daemon task was in the Blocked state to wait for data to become
+available on the timer command queue, then writing to the timer command
+queue will cause the daemon task to leave the Blocked state. If the
+priority of the daemon task is higher than the priority of the currently
+executing task (the task that was interrupted), then, internally,
+<code>xEventGroupSetBitsFromISR()</code> will set <code>*pxHigherPriorityTaskWoken</code> to
+<code>pdTRUE</code>.</p>
+<p>If <code>xEventGroupSetBitsFromISR()</code> sets this value to <code>pdTRUE</code>, then a
+context switch should be performed before the interrupt is exited. This
+will ensure that the interrupt returns directly to the daemon task, as
+the daemon task will be the highest priority Ready state task.</p>
+</li>
+<li>
+<p>Return Value</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdPASS</code> will be returned only if data was successfully sent to the
+timer command queue.</p>
+</li>
+<li>
+<p><code>pdFALSE</code> will be returned if the 'set bits' command could not be
+written to the timer command queue because the queue was already
+full.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="934-the-xeventgroupwaitbits-api-function"><a class="header" href="#934-the-xeventgroupwaitbits-api-function">9.3.4 The xEventGroupWaitBits() API Function</a></h3>
+<p>The <code>xEventGroupWaitBits()</code> API function allows a task to read the value
+of an event group, and optionally wait in the Blocked state for one or
+more event bits in the event group to become set, if the event bits are
+not already set.</p>
+<p><a name="list9.4" title="Listing 9.4 The xEventGroupWaitBits() API function prototype"></a></p>
+<pre><code class="language-c">EventBits_t xEventGroupWaitBits( EventGroupHandle_t xEventGroup,
+                                 const EventBits_t uxBitsToWaitFor,
+                                 const BaseType_t xClearOnExit,
+                                 const BaseType_t xWaitForAllBits,
+                                 TickType_t xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 9.4</strong></em> <em>The xEventGroupWaitBits() API function prototype</em></p>
+<p>The condition used by the scheduler to determine if a task will enter
+the Blocked state, and when a task will leave the Blocked state, is
+called the 'unblock condition'. The unblock condition is specified by a
+combination of the <code>uxBitsToWaitFor</code> and the <code>xWaitForAllBits</code> parameter
+values:</p>
+<ul>
+<li>
+<p><code>uxBitsToWaitFor</code> specifies which event bits in the event group to
+test</p>
+</li>
+<li>
+<p><code>xWaitForAllBits</code> specifies whether to use a bitwise OR test, or a
+bitwise AND test</p>
+</li>
+</ul>
+<p>A task will not enter the Blocked state if its unblock condition is met
+at the time <code>xEventGroupWaitBits()</code> is called.</p>
+<p>Examples of conditions that will result in a task either entering the
+Blocked state, or exiting the Blocked state, are provided in Table 6.
+Table 6 only shows the least significant four binary bits of the event
+group and uxBitsToWaitFor values—the other bits of those two values are
+assumed to be zero.</p>
+<p><a name="tbl6" title="Table 6 The Effect of the uxBitsToWaitFor and xWaitForAllBits Parameters"></a></p>
+<hr />
+<div class="table-wrapper"><table><thead><tr><th>Existing Event Group Value</th><th>uxBitsToWaitFor value</th><th>xWaitForAllBits value</th><th>Resultant Behavior</th></tr></thead><tbody>
+<tr><td>0000</td><td>0101</td><td>pdFALSE</td><td>The calling task will enter the Blocked state because neither of bit 0 or bit 2 are set in the event group, and will leave the Blocked state when either bit 0 OR bit 2 are set in the event group.</td></tr>
+<tr><td>0100</td><td>0101</td><td>pdTRUE</td><td>The calling task will enter the Blocked state because bit 0 and bit 2 are not both set in the event group, and will leave the Blocked state when both bit 0 AND bit 2 are set in the event group.</td></tr>
+<tr><td>0100</td><td>0110</td><td>pdFALSE</td><td>The calling task will not enter the Blocked state because xWaitForAllBits is pdFALSE, and one of the two bits specified by uxBitsToWaitFor is already set in the event group.</td></tr>
+<tr><td>0100</td><td>0110</td><td>pdTRUE</td><td>The calling task will enter the Blocked state because xWaitForAllBits is pdTRUE, and only one of the two bits specified by uxBitsToWaitFor is already set in the event group. The task will leave the Blocked state when both bit 1 and bit 2 are set in the event group.</td></tr>
+</tbody></table>
+</div>
+<p><em><strong>Table 6</strong></em> <em>The Effect of the uxBitsToWaitFor and xWaitForAllBits Parameters</em></p>
+<hr />
+<p>The calling task specifies bits to test using the <code>uxBitsToWaitFor</code>
+parameter, and it is likely the calling task will need to clear these
+bits back to zero after its unblock condition has been met. Event bits
+can be cleared using the <code>xEventGroupClearBits()</code> API function, but using
+that function to manually clear event bits will lead to race conditions
+in the application code if:</p>
+<ul>
+<li>There is more than one task using the same event group.</li>
+<li>Bits are set in the event group by a different task, or by an
+interrupt service routine.</li>
+</ul>
+<p>The <code>xClearOnExit</code> parameter is provided to avoid these potential race
+conditions. If <code>xClearOnExit</code> is set to <code>pdTRUE</code>, then the testing and
+clearing of event bits appears to the calling task to be an atomic
+operation (uninterruptable by other tasks or interrupts).</p>
+<p><strong>xEventGroupWaitBits() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xEventGroup</code></p>
+<p>The handle of the event group that contains the event bits being
+read. The event group handle will have been returned from the call to
+<code>xEventGroupCreate()</code> used to create the event group.</p>
+</li>
+<li>
+<p><code>uxBitsToWaitFor</code></p>
+<p>A bit mask that specifies the event bit, or event bits, to test
+in the event group.</p>
+<p>For example, if the calling task wants to wait for event bit 0 and/or
+event bit 2 to become set in the event group, then set <code>uxBitsToWaitFor</code>
+to 0x05 (binary 0101). Refer to Table 6 for further examples.</p>
+</li>
+<li>
+<p><code>xClearOnExit</code></p>
+<p>If the calling task's unblock condition has been met, and
+<code>xClearOnExit</code> is set to <code>pdTRUE</code>, then the event bits specified by
+<code>uxBitsToWaitFor</code> will be cleared back to 0 in the event group before the
+calling task exits the <code>xEventGroupWaitBits()</code> API function.</p>
+<p>If <code>xClearOnExit</code> is set to <code>pdFALSE</code>, then the state of the event bits
+in the event group are not modified by the <code>xEventGroupWaitBits()</code> API
+function.</p>
+</li>
+<li>
+<p><code>xWaitForAllBits</code></p>
+<p>The <code>uxBitsToWaitFor</code> parameter specifies the event bits to test in
+the event group. <code>xWaitForAllBits</code> specifies if the calling task should be
+removed from the Blocked state when one or more of the events bits
+specified by the <code>uxBitsToWaitFor</code> parameter are set, or only when all of
+the event bits specified by the <code>uxBitsToWaitFor</code> parameter are set.</p>
+<p>If <code>xWaitForAllBits</code> is set to <code>pdFALSE</code>, then a task that entered the
+Blocked state to wait for its unblock condition to be met will leave the
+Blocked state when any of the bits specified by <code>uxBitsToWaitFor</code> become
+set (or the timeout specified by the <code>xTicksToWait</code> parameter expires).</p>
+<p>If <code>xWaitForAllBits</code> is set to <code>pdTRUE</code>, then a task that entered the
+Blocked state to wait for its unblock condition to be met will only
+leave the Blocked state when all of the bits specified by
+<code>uxBitsToWaitFor</code> are set (or the timeout specified by the <code>xTicksToWait</code>
+parameter expires).</p>
+<p>Refer to Table 6 for examples.</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p>The maximum amount of time the task should remain in the Blocked
+state to wait for its unblock condition to be met.</p>
+<p><code>xEventGroupWaitBits()</code> will return immediately if <code>xTicksToWait</code> is
+zero, or the unblock condition is met at the time <code>xEventGroupWaitBits()</code>
+is called.</p>
+<p>The block time is specified in tick periods, so the absolute time it
+represents is dependent on the tick frequency. The macro <code>pdMS_TO_TICKS()</code>
+can be used to convert a time specified in milliseconds into a time
+specified in ticks.</p>
+<p>Setting <code>xTicksToWait</code> to <code>portMAX_DELAY</code> will cause the task to wait
+indefinitely (without timing out), provided <code>INCLUDE_vTaskSuspend</code> is set
+to 1 in FreeRTOSConfig.h.</p>
+</li>
+<li>
+<p>Returned Value</p>
+<p>If <code>xEventGroupWaitBits()</code> returned because the calling task's
+unblock condition was met, then the returned value is the value of the
+event group at the time the calling task's unblock condition was met
+(before any bits were automatically cleared if <code>xClearOnExit</code> was <code>pdTRUE</code>).
+In this case the returned value will also meet the unblock condition.</p>
+<p>If <code>xEventGroupWaitBits()</code> returned because the block time specified by
+the <code>xTicksToWait</code> parameter expired, then the returned value is the value
+of the event group at the time the block time expired. In this case the
+returned value will not meet the unblock condition.</p>
+</li>
+</ul>
+<h3 id="935-the-xeventgroupgetstaticbuffer-api-function"><a class="header" href="#935-the-xeventgroupgetstaticbuffer-api-function">9.3.5 The xEventGroupGetStaticBuffer() API Function</a></h3>
+<p>The <code>xEventGroupGetStaticBuffer()</code> API function provides a method to retrieve a pointer
+to a buffer of a statically created event group. It is the same buffer that is supplied
+at the time of creation of the event group.</p>
+<p>*Note: Never call <code>xEventGroupGetStaticBuffer()</code> from an interrupt service
+routine.</p>
+<p><a name="list9.5" title="Listing 9.5 The xEventGroupGetStaticBuffer() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xEventGroupGetStaticBuffer( EventGroupHandle_t xEventGroup,
+
+StaticEventGroup_t ** ppxEventGroupBuffer );
+</code></pre>
+<p><em><strong>Listing 9.5</strong></em> <em>The xEventGroupGetStaticBuffer() API function prototype</em></p>
+<p><strong>xEventGroupGetStaticBuffer() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xEventGroup</code></p>
+<p>The event group for which to retrieve the buffer. This event group must
+be created by <code>xEventGroupCreateStatic()</code>.</p>
+</li>
+<li>
+<p><code>ppxEventGroupBuffer</code></p>
+<p>Used to return a pointer to the event groups's data structure buffer.
+It is the same buffer that is supplied at the time of creation.</p>
+</li>
+<li>
+<p>Return Value</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdTRUE</code> will be returned if the buffer was successfully retrieved.</p>
+</li>
+<li>
+<p><code>pdFALSE</code> will be returned if the buffer was not successfully retrieved.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example9.1" title="Example 9.1 Experimenting with event groups"></a></a></h2>
+<p><em><strong>Example 9.1</strong></em> <em>Experimenting with event groups</em></p>
+<hr />
+<p>This example demonstrates how to:</p>
+<ul>
+<li>Create an event group.</li>
+<li>Set bits in an event group from an interrupt service routine.</li>
+<li>Set bits in an event group from a task.</li>
+<li>Block on an event group.</li>
+</ul>
+<p>The effect of the <code>xEventGroupWaitBits()</code> <code>xWaitForAllBits</code> parameter is
+demonstrated by first executing the example with <code>xWaitForAllBits</code> set to
+<code>pdFALSE</code>, and then executing the example with <code>xWaitForAllBits</code> set to
+<code>pdTRUE</code>.</p>
+<p>Event bit 0 and event bit 1 are set from a task. Event bit 2 is set from
+an interrupt service routine. These three bits are given descriptive
+names using the #define statements shown in Listing 9.6.</p>
+<p><a name="list9.6" title="Listing 9.6 Event bit definitions used in Example 9.1"></a></p>
+<pre><code class="language-c">/* Definitions for the event bits in the event group. */
+#define mainFIRST_TASK_BIT ( 1UL &lt;&lt; 0UL )  /* Event bit 0, set by a task */
+#define mainSECOND_TASK_BIT ( 1UL &lt;&lt; 1UL ) /* Event bit 1, set by a task */
+#define mainISR_BIT ( 1UL &lt;&lt; 2UL )         /* Event bit 2, set by an ISR */
+</code></pre>
+<p><em><strong>Listing 9.6</strong></em> <em>Event bit definitions used in Example 9.1</em></p>
+<p>Listing 9.7 shows the implementation of the task that sets event bit 0
+and event bit 1. It sits in a loop, repeatedly setting one bit, then the
+other, with a delay of 200 milliseconds between each call to
+<code>xEventGroupSetBits()</code>. A string is printed out before each bit is set to
+allow the sequence of execution to be seen in the console.</p>
+<p><a name="list9.7" title="Listing 9.7 The task that sets two bits in the event group in Example 9.1"></a></p>
+<pre><code class="language-c">static void vEventBitSettingTask( void *pvParameters )
+{
+    const TickType_t xDelay200ms = pdMS_TO_TICKS( 200UL );
+
+    for( ;; )
+    {
+        /* Delay for a short while before starting the next loop. */
+        vTaskDelay( xDelay200ms );
+
+        /* Print out a message to say event bit 0 is about to be set by the
+           task, then set event bit 0. */
+        vPrintString( "Bit setting task -\t about to set bit 0.\r\n" );
+        xEventGroupSetBits( xEventGroup, mainFIRST_TASK_BIT );
+
+        /* Delay for a short while before setting the other bit. */
+        vTaskDelay( xDelay200ms );
+
+        /* Print out a message to say event bit 1 is about to be set by the
+           task, then set event bit 1. */
+        vPrintString( "Bit setting task -\t about to set bit 1.\r\n" );
+        xEventGroupSetBits( xEventGroup, mainSECOND_TASK_BIT );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 9.7</strong></em> <em>The task that sets two bits in the event group in Example 9.1</em></p>
+<p>Listing 9.8 shows the implementation of the interrupt service routine
+that sets bit 2 in the event group. Again, a string is printed out
+before the bit is set to allow the sequence of execution to be seen in
+the console. In this case however, because console output should not be
+performed directly in an interrupt service routine,
+<code>xTimerPendFunctionCallFromISR()</code> is used to perform the output in the
+context of the RTOS daemon task.</p>
+<p>As in previous examples, the interrupt service routine is triggered by a
+simple periodic task that forces a software interrupt. In this example,
+the interrupt is generated every 500 milliseconds.</p>
+<p><a name="list9.8" title="Listing 9.8 The ISR that sets bit 2 in the event group in Example 9.1"></a></p>
+<pre><code class="language-c">static uint32_t ulEventBitSettingISR( void )
+{
+    /* The string is not printed within the interrupt service routine, but is
+       instead sent to the RTOS daemon task for printing. It is therefore
+       declared static to ensure the compiler does not allocate the string on
+       the stack of the ISR, as the ISR's stack frame will not exist when the
+       string is printed from the daemon task. */
+    static const char *pcString = "Bit setting ISR -\t about to set bit 2.\r\n";
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Print out a message to say bit 2 is about to be set. Messages cannot
+       be printed from an ISR, so defer the actual output to the RTOS daemon
+       task by pending a function call to run in the context of the RTOS
+       daemon task. */
+    xTimerPendFunctionCallFromISR( vPrintStringFromDaemonTask,
+                                   ( void * ) pcString,
+                                   0,
+                                   &amp;xHigherPriorityTaskWoken );
+
+    /* Set bit 2 in the event group. */
+    xEventGroupSetBitsFromISR( xEventGroup,
+                               mainISR_BIT,
+                               &amp;xHigherPriorityTaskWoken );
+
+    /* xTimerPendFunctionCallFromISR() and xEventGroupSetBitsFromISR() both
+       write to the timer command queue, and both used the same
+       xHigherPriorityTaskWoken variable. If writing to the timer command
+       queue resulted in the RTOS daemon task leaving the Blocked state, and
+       if the priority of the RTOS daemon task is higher than the priority of
+       the currently executing task (the task this interrupt interrupted) then
+       xHigherPriorityTaskWoken will have been set to pdTRUE.
+
+       xHigherPriorityTaskWoken is used as the parameter to
+       portYIELD_FROM_ISR(). If xHigherPriorityTaskWoken equals pdTRUE, then
+       calling portYIELD_FROM_ISR() will request a context switch. If
+       xHigherPriorityTaskWoken is still pdFALSE, then calling
+       portYIELD_FROM_ISR() will have no effect.
+
+       The implementation of portYIELD_FROM_ISR() used by the Windows port
+       includes a return statement, which is why this function does not
+       explicitly return a value. */
+
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 9.8</strong></em> <em>The ISR that sets bit 2 in the event group in Example 9.1</em></p>
+<p>Listing 9.9 shows the implementation of the task that calls
+<code>xEventGroupWaitBits()</code> to block on the event group. The task prints out a
+string for each bit that is set in the event group.</p>
+<p>The <code>xEventGroupWaitBits()</code> <code>xClearOnExit</code> parameter is set to <code>pdTRUE</code>, so
+the event bit, or bits, that caused the call to <code>xEventGroupWaitBits()</code> to
+return will be cleared automatically before <code>xEventGroupWaitBits()</code>
+returns.</p>
+<p><a name="list9.9" title="Listing 9.9 The task that blocks to wait for event bits to become set in Example 9.1"></a></p>
+<pre><code class="language-c">static void vEventBitReadingTask( void *pvParameters )
+{
+    EventBits_t xEventGroupValue;
+    const EventBits_t xBitsToWaitFor = ( mainFIRST_TASK_BIT  |
+                                         mainSECOND_TASK_BIT |
+                                         mainISR_BIT );
+
+    for( ;; )
+    {
+        /* Block to wait for event bits to become set within the event
+           group. */
+        xEventGroupValue = xEventGroupWaitBits( /* The event group to read */
+                                                xEventGroup,
+
+                                                /* Bits to test */
+                                                xBitsToWaitFor,
+
+                                                /* Clear bits on exit if the
+                                                   unblock condition is met */
+                                                pdTRUE,
+
+                                                /* Don't wait for all bits. This
+                                                   parameter is set to pdTRUE for the
+                                                   second execution. */
+                                                pdFALSE,
+
+                                                /* Don't time out. */
+                                                portMAX_DELAY );
+
+        /* Print a message for each bit that was set. */
+        if( ( xEventGroupValue &amp; mainFIRST_TASK_BIT ) != 0 )
+        {
+            vPrintString( "Bit reading task -\t Event bit 0 was set\r\n" );
+        }
+
+        if( ( xEventGroupValue &amp; mainSECOND_TASK_BIT ) != 0 )
+        {
+            vPrintString( "Bit reading task -\t Event bit 1 was set\r\n" );
+        }
+
+        if( ( xEventGroupValue &amp; mainISR_BIT ) != 0 )
+        {
+            vPrintString( "Bit reading task -\t Event bit 2 was set\r\n" );
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 9.9</strong></em> <em>The task that blocks to wait for event bits to become set in Example 9.1</em></p>
+<p>The <code>main()</code> function creates the event group, and the tasks, before
+starting the scheduler. See Listing 9.10 for its implementation. The
+priority of the task that reads from the event group is higher than the
+priority of the task that writes to the event group, ensuring the
+reading task will pre-empt the writing task each time the reading task's
+unblock condition is met.</p>
+<p><a name="list9.10" title="Listing 9.10 Creating the event group and tasks in Example 9.1"></a></p>
+<pre><code class="language-c">int main( void )
+{
+    /* Before an event group can be used it must first be created. */
+    xEventGroup = xEventGroupCreate();
+
+    /* Create the task that sets event bits in the event group. */
+    xTaskCreate( vEventBitSettingTask, "Bit Setter", 1000, NULL, 1, NULL );
+
+    /* Create the task that waits for event bits to get set in the event
+       group. */
+    xTaskCreate( vEventBitReadingTask, "Bit Reader", 1000, NULL, 2, NULL );
+
+    /* Create the task that is used to periodically generate a software
+       interrupt. */
+    xTaskCreate( vInterruptGenerator, "Int Gen", 1000, NULL, 3, NULL );
+
+    /* Install the handler for the software interrupt. The syntax necessary
+       to do this is dependent on the FreeRTOS port being used. The syntax
+       shown here can only be used with the FreeRTOS Windows port, where such
+       interrupts are only simulated. */
+    vPortSetInterruptHandler( mainINTERRUPT_NUMBER, ulEventBitSettingISR );
+
+    /* Start the scheduler so the created tasks start executing. */
+    vTaskStartScheduler();
+
+    /* The following line should never be reached. */
+    for( ;; );
+    return 0;
+}
+</code></pre>
+<p><em><strong>Listing 9.10</strong></em> <em>Creating the event group and tasks in Example 9.1</em></p>
+<p>The output produced when Example 9.1 is executed with the
+<code>xEventGroupWaitBits()</code> <code>xWaitForAllBits</code> parameter set to <code>pdFALSE</code> is shown
+in Figure 9.3. In Figure 9.3, it can be seen that, because the
+<code>xWaitForAllBits</code> parameter in the call to <code>xEventGroupWaitBits()</code> was set
+to <code>pdFALSE</code>, the task that reads from the event group leaves the Blocked
+state and executes immediately every time any of the event bits are set.</p>
+<p><a name="fig9.3" title="Figure 9.3 The output produced when Example 9.1 is executed with xWaitForAllBits set to pdFALSE"></a></p>
+<div align="center">
+<img src="../media/image73.jpg" alt="Figure 9.3 *The output produced when Example 9.1 is executed with xWaitForAllBits set to pdFALSE*"/>
+<p><em><strong>Figure 9.3</strong></em> <strong>The output produced when Example 9.1 is executed with xWaitForAllBits set to pdFALSE</strong></p>
+</div>
+<p>The output produced when Example 9.1 is executed with the
+<code>xEventGroupWaitBits()</code> <code>xWaitForAllBits</code> parameter set to <code>pdTRUE</code> is shown
+in Figure 9.4. In Figure 9.4 it can be seen that, because the
+<code>xWaitForAllBits</code> parameter was set to <code>pdTRUE</code>, the task that reads from
+the event group only leaves the Blocked state after all three of the
+event bits are set.</p>
+<p><a name="fig9.4" title="Figure 9.4 The output produced when Example 9.1 is executed with xWaitForAllBits set to pdTRUE"></a></p>
+<div align="center">
+<img src="../media/image74.jpg" alt="Figure 9.4 *The output produced when Example 9.1 is executed with xWaitForAllBits set to pdTRUE*"/>
+<p><em><strong>Figure 9.4</strong></em> <strong>The output produced when Example 9.1 is executed with xWaitForAllBits set to pdTRUE</strong></p>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch09/9.2-characteristics-of-an-event-group.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch09/9.4-task-synchronization-using-an-event-group.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch09/9.2-characteristics-of-an-event-group.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch09/9.4-task-synchronization-using-an-event-group.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

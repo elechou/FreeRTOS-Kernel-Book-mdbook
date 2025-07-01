@@ -1,0 +1,301 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Introduction - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="31-introduction"><a class="header" href="#31-introduction">3.1 Introduction</a></h2>
+<h3 id="311-prerequisites"><a class="header" href="#311-prerequisites">3.1.1 Prerequisites</a></h3>
+<p>Being a competent C programmer is a prerequisite for using FreeRTOS, so
+this chapter assumes the reader is familiar with concepts such as:</p>
+<ul>
+<li>The different compiling and linking phases of building a C project.</li>
+<li>What the stack and heap are.</li>
+<li>The standard C library <code>malloc()</code> and <code>free()</code> functions.</li>
+</ul>
+<h3 id="312-scope"><a class="header" href="#312-scope">3.1.2 Scope</a></h3>
+<p>This chapter covers:</p>
+<ul>
+<li>When FreeRTOS allocates RAM.</li>
+<li>The five example memory allocation schemes supplied with FreeRTOS.</li>
+<li>Which memory allocation scheme to select.</li>
+</ul>
+<h3 id="313-switching-between-static-and-dynamic-memory-allocation"><a class="header" href="#313-switching-between-static-and-dynamic-memory-allocation">3.1.3 Switching Between Static and Dynamic Memory Allocation</a></h3>
+<p>The following chapters introduce kernel objects such as tasks, queues,
+semaphores, and event groups. The RAM required to hold these objects can
+be allocated statically at compile-time or dynamically at run time.
+Dynamic allocation reduces design and planning effort, simplifies the
+API, and minimizes the RAM footprint. Static allocation is more
+deterministic, removes the need to handle memory allocation failures,
+and removes the risk of heap fragmentation (where the heap has enough
+free memory but not in one usable contiguous block).</p>
+<p>The FreeRTOS API functions that create kernel objects using statically
+allocated memory are only available when <code>configSUPPORT_STATIC_ALLOCATION</code>
+is set to 1 in FreeRTOSConfig.h. The FreeRTOS API functions that create
+kernel objects using dynamically allocated memory are only available
+when <code>configSUPPORT_DYNAMIC_ALLOCATION</code> is either set to 1 or left
+undefined in FreeRTOSConfig.h. It is valid to have both constants set to
+1 simultaneously.</p>
+<p>More information concerning <code>configSUPPORT_STATIC_ALLOCATION</code> is in
+section 3.4 Using Static Memory Allocation.</p>
+<h3 id="314-using-dynamic-memory-allocation"><a class="header" href="#314-using-dynamic-memory-allocation">3.1.4 Using Dynamic Memory Allocation</a></h3>
+<p>Dynamic memory allocation is a C programming concept, not a concept
+specific to either FreeRTOS or multitasking. It is relevant to FreeRTOS
+because kernel objects can optionally be created using dynamically
+allocated memory, and the general-purpose C library <code>malloc()</code> and <code>free()</code>
+functions may not be suitable for one or more of the following reasons:</p>
+<ul>
+<li>They are not always available on small embedded systems.</li>
+<li>Their implementation can be relatively large, taking up valuable
+code space.</li>
+<li>They are rarely thread-safe.</li>
+<li>They are not deterministic; the amount of time taken to execute the
+functions will differ from call to call.</li>
+<li>They can suffer from fragmentation (where the heap has enough free
+memory but not in one usable contiguous block).</li>
+<li>They can complicate the linker configuration.</li>
+<li>They can be the source of difficult to debug errors if the heap
+space is allowed to grow into memory used by other variables.</li>
+</ul>
+<h3 id="315-options-for-dynamic-memory-allocation"><a class="header" href="#315-options-for-dynamic-memory-allocation">3.1.5 Options for Dynamic Memory Allocation</a></h3>
+<p>Early versions of FreeRTOS used a memory pools allocation scheme, where
+pools of different size memory blocks are pre-allocated at compile-time,
+then returned by the memory allocation functions. Although block
+allocation is common in real-time systems, it was removed from FreeRTOS
+because its inefficient use of RAM in really small embedded systems led to
+many support requests.</p>
+<p>FreeRTOS now treats memory allocation as part of the portable layer
+(instead of part of the core codebase). This is because different
+embedded systems have different dynamic memory allocation and timing
+requirements, so a single dynamic memory allocation algorithm will only
+ever be appropriate for a subset of applications. Also, removing dynamic
+memory allocation from the core codebase enables application writers to
+provide their own specific implementations when appropriate.</p>
+<p>When FreeRTOS requires RAM it calls <code>pvPortMalloc()</code> instead of <code>malloc()</code>.
+Likewise, when FreeRTOS frees previously allocated RAM it calls
+<code>vPortFree()</code> instead of <code>free()</code>. <code>pvPortMalloc()</code> has the same prototype as
+the standard C library <code>malloc()</code> function, and <code>vPortFree()</code> has the same
+prototype as the standard C library <code>free()</code> function.</p>
+<p><code>pvPortMalloc()</code> and <code>vPortFree()</code> are public functions, so they can also be
+called from application code.</p>
+<p>FreeRTOS comes with five example implementations of <code>pvPortMalloc()</code> and
+<code>vPortFree()</code>, which are all documented in this chapter. FreeRTOS
+applications can use one of the example implementations or provide their
+own.</p>
+<p>The five examples are defined in the heap_1.c, heap_2.c, heap_3.c,
+heap_4.c and heap_5.c source files respectively, all of which are
+located in the FreeRTOS/Source/portable/MemMang directory.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch03/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch03/3.2-example-memory-allocation-schemes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch03/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch03/3.2-example-memory-allocation-schemes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

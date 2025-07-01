@@ -1,0 +1,1535 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Using Task Notifications - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="103-using-task-notifications"><a class="header" href="#103-using-task-notifications">10.3 Using Task Notifications</a></h2>
+<h3 id="1031-task-notification-api-options"><a class="header" href="#1031-task-notification-api-options">10.3.1 Task Notification API Options</a></h3>
+<p>Task notifications are a very powerful feature that can often be used in
+place of a binary semaphore, a counting semaphore, an event group, and
+sometimes even a queue. This wide range of usage scenarios can be
+achieved by using the <code>xTaskNotify()</code> API function to send a task
+notification, and the <code>xTaskNotifyWait()</code> API function to receive a task
+notification.</p>
+<p>However, in the majority of cases, the full flexibility provided by the
+<code>xTaskNotify()</code> and <code>xTaskNotifyWait()</code> API functions is not required, and
+simpler functions would suffice. Therefore, the <code>xTaskNotifyGive()</code> API
+function is provided as a simpler but less flexible alternative to
+<code>xTaskNotify()</code>, and the <code>ulTaskNotifyTake()</code> API function is provided as a
+simpler but less flexible alternative to <code>xTaskNotifyWait()</code>.</p>
+<p>The task notification system is not limited to a single notification event.  The
+configuration parameter <code>configTASK_NOTIFICATION_ARRAY_ENTRIES</code> is set to 1 by default.
+If it is set to a value greater than 1, an array of notifications are created inside
+each task.  This allows notifications to be managed by index.  Every task
+notification api function has an indexed version.  Using the non-indexed version
+will result in accessing notification[0] (the first one in the array).  The <code>indexed</code>
+version of each API function is identified by the suffix <code>Indexed</code> so the function
+<code>xTaskNotify</code> becomes <code>xTaskNotifyIndexed</code>.  For simplicity only the non-indexed
+versions of each function will be used throughout this book.</p>
+<p>The task notification API's are implemented as macro that make calls to the
+underlying <code>Generic</code> versions of each API function type.  For simplicy the API
+macros will be called functions throughout this book.</p>
+<h4 id="10311-the-complete-list-of-api-functions-27"><a class="header" href="#10311-the-complete-list-of-api-functions-27">10.3.1.1 The complete list of API functions <sup>27</sup></a></h4>
+<ul>
+<li><code>xTaskNotifyGive</code></li>
+<li><code>xTaskNotifyGiveIndexed</code></li>
+<li><code>vTaskNotifyGiveFromISR</code></li>
+<li><code>vTaskNotifyGiveIndexedFromISR</code></li>
+<li><code>vTaskNotifyTake</code></li>
+<li><code>vTaskNotifyTakeIndexed</code></li>
+<li><code>xTaskNotify</code></li>
+<li><code>xTaskNotifyIndexed</code></li>
+<li><code>xTaskNotifyWait</code></li>
+<li><code>xTaskNotifyWaitIndexed</code></li>
+<li><code>xTaskNotifyStateClear</code></li>
+<li><code>xTaskNotifyStateClearIndexed</code></li>
+<li><code>ulTaskNotifyValueClear</code></li>
+<li><code>ulTaskNotifyValueClearIndexed</code></li>
+<li><code>xTaskNotifyAndQueryIndexedFromISR</code></li>
+<li><code>xTaskNotifyAndQueryFromISR</code></li>
+<li><code>xTaskNotifyFromISR</code></li>
+<li><code>xTaskNotifyIndexedFromISR</code></li>
+<li><code>xTaskNotifyAndQuery</code></li>
+<li><code>xTaskNotifyAndQueryIndexed</code></li>
+</ul>
+<p><em>(27): These functions are actually implemented as macros.</em></p>
+<blockquote>
+<p>Note: The <code>FromISR</code> functions do not exist for receiving notifications because a notification is always sent to a task and interrupts are not associated with any task.</p>
+</blockquote>
+<h3 id="1032-the-xtasknotifygive-api-functions"><a class="header" href="#1032-the-xtasknotifygive-api-functions">10.3.2 The xTaskNotifyGive() API Functions</a></h3>
+<p><code>xTaskNotifyGive()</code> sends a notification directly to a task, and
+increments (adds one to) the receiving task's notification value.
+Calling <code>xTaskNotifyGive()</code> will set the receiving task's notification
+state to pending, if it was not already pending.</p>
+<p>The <code>xTaskNotifyGive()</code> API function is provided to allow a task
+notification to be used as a lighter weight and faster alternative to a
+binary or counting semaphore.</p>
+<p><a name="list10.1" title="Listing 10.1 The xTaskNotifyGive() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xTaskNotifyGive( TaskHandle_t xTaskToNotify );
+BaseType_t xTaskNotifyGiveIndexed( TaskHandle_t xTaskToNotify, UBaseType_t uxIndexToNotify );
+</code></pre>
+<p><em><strong>Listing 10.1</strong></em> <em>The xTaskNotifyGive() API function prototype</em></p>
+<p><strong>xTaskNotifyGive()/xTaskNotifyGiveIndexed() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xTaskToNotify</code></p>
+<p>The handle of the task to which the notification is being sent—see
+the <code>pxCreatedTask</code> parameter of the <code>xTaskCreate()</code> API function for
+information on obtaining handles to tasks.</p>
+</li>
+<li>
+<p><code>uxIndexToNotify</code></p>
+<p>The index into the array</p>
+</li>
+<li>
+<p>Return value</p>
+<p><code>xTaskNotifyGive()</code> is a macro that calls <code>xTaskNotify()</code>. The
+parameters passed into <code>xTaskNotify()</code> by the macro are set such that
+<code>pdPASS</code> is the only possible return value. <code>xTaskNotify()</code> is described
+later in this book.</p>
+</li>
+</ul>
+<h3 id="1033-the-vtasknotifygivefromisr-api-function"><a class="header" href="#1033-the-vtasknotifygivefromisr-api-function">10.3.3 The vTaskNotifyGiveFromISR() API Function</a></h3>
+<p><code>vTaskNotifyGiveFromISR()</code> is a version of <code>xTaskNotifyGive()</code> that can be
+used in an interrupt service routine.</p>
+<p><a name="list10.2" title="Listing 10.2 The vTaskNotifyGiveFromISR() API function prototype"></a></p>
+<pre><code class="language-c">void vTaskNotifyGiveFromISR( TaskHandle_t xTaskToNotify,
+                             BaseType_t *pxHigherPriorityTaskWoken );
+</code></pre>
+<p><em><strong>Listing 10.2</strong></em> <em>The vTaskNotifyGiveFromISR() API function prototype</em></p>
+<p><strong>vTaskNotifyGiveFromISR() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xTaskToNotify</code></p>
+<p>The handle of the task to which the notification is being sent—see
+the <code>pxCreatedTask</code> parameter of the <code>xTaskCreate()</code> API function for
+information on obtaining handles to tasks.</p>
+</li>
+<li>
+<p><code>pxHigherPriorityTaskWoken</code></p>
+<p>If the task to which the notification is being sent is waiting in
+the Blocked state to receive a notification, then sending the
+notification will cause the task to leave the Blocked state.</p>
+<p>If calling <code>vTaskNotifyGiveFromISR()</code> causes a task to leave the
+Blocked state, and the unblocked task has a priority higher than the
+priority of the currently executing task (the task that was
+interrupted), then, internally, <code>vTaskNotifyGiveFromISR()</code> will set
+<code>*pxHigherPriorityTaskWoken</code> to <code>pdTRUE</code>.</p>
+<p>If <code>vTaskNotifyGiveFromISR()</code> sets this value to <code>pdTRUE</code>, then a context
+switch should be performed before the interrupt is exited. This will
+ensure that the interrupt returns directly to the highest priority Ready
+state task.</p>
+<p>As with all interrupt safe API functions, the
+<code>pxHigherPriorityTaskWoken</code> parameter must be set to <code>pdFALSE</code> before it is used.</p>
+</li>
+</ul>
+<h3 id="1034-the-ultasknotifytake-api-function"><a class="header" href="#1034-the-ultasknotifytake-api-function">10.3.4 The ulTaskNotifyTake() API Function</a></h3>
+<p><code>ulTaskNotifyTake()</code> allows a task to wait in the Blocked state for its
+notification value to be greater than zero, and either decrements
+(subtracts one from) or clears the task's notification value before it
+returns.</p>
+<p>The <code>ulTaskNotifyTake()</code> API function is provided to allow a task
+notification to be used as a lighter weight and faster alternative to a
+binary or counting semaphore.</p>
+<p><a name="list10.3" title="Listing 10.3 The ulTaskNotifyTake() API function prototype"></a></p>
+<pre><code class="language-c">uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t
+xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 10.3</strong></em> <em>The ulTaskNotifyTake() API function prototype</em></p>
+<p><strong>ulTaskNotifyTake() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xClearCountOnExit</code></p>
+<p>If <code>xClearCountOnExit</code> is set to <code>pdTRUE</code>, then the calling task's
+notification value will be cleared to zero before the call to
+<code>ulTaskNotifyTake()</code> returns.</p>
+<p>If <code>xClearCountOnExit</code> is set to <code>pdFALSE</code>, and the calling task's
+notification value is greater than zero, then the calling task's
+notification value will be decremented before the call to
+<code>ulTaskNotifyTake()</code> returns.</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p>The maximum amount of time the calling task should remain in the
+Blocked state to wait for its notification value to be greater than
+zero.</p>
+<p>The block time is specified in tick periods, so the absolute time it
+represents is dependent on the tick frequency. The macro <code>pdMS_TO_TICKS()</code>
+can be used to convert a time specified in milliseconds to a time
+specified in ticks.</p>
+<p>Setting <code>xTicksToWait</code> to <code>portMAX_DELAY</code> will cause the task to wait
+indefinitely (without timing out), provided <code>INCLUDE_vTaskSuspend</code> is set
+to 1 in <code>FreeRTOSConfig.h</code>.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>The returned value is the calling task's notification value
+<em>before</em> it was either cleared to zero or decremented, as
+specified by the value of the <code>xClearCountOnExit</code> parameter.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero), and the
+return value is not zero, then it is possible the calling task was
+placed into the Blocked state to wait for its notification value to be
+greater than zero, and its notification value was updated before the
+block time expired.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero), and the
+return value is zero, then the calling task was placed into the Blocked
+state to wait for its notification value to be greater than zero, but
+the specified block time expired before that happened.</p>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example10.1" title="Example 10.1 Using a task notification in place of a semaphore, method 1"></a></a></h2>
+<p><em><strong>Example 10.1</strong></em> <em>Using a task notification in place of a semaphore, method 1</em></p>
+<hr />
+<p>Example 7.1 used a binary semaphore to unblock a task from within an
+interrupt service routine—effectively synchronizing the task with the
+interrupt. This example replicates the functionality of Example 7.1, but
+uses a direct to task notification in place of the binary semaphore.</p>
+<p>Listing 10.4 shows the implementation of the task that is synchronized
+with the interrupt. The call to <code>xSemaphoreTake()</code> that was used in
+Example 7.1 has been replaced by a call to <code>ulTaskNotifyTake()</code>.</p>
+<p>The <code>ulTaskNotifyTake()</code> <code>xClearCountOnExit</code> parameter is set to <code>pdTRUE</code>,
+which results in the receiving task's notification value being cleared
+to zero before <code>ulTaskNotifyTake()</code> returns. It is therefore necessary to
+process all the events that are already available between each call to
+<code>ulTaskNotifyTake()</code>. In Example 7.1, because a binary semaphore was used,
+the number of pending events had to be determined from the hardware,
+which is not always practical. In Example 10.1, the number of pending
+events is returned from <code>ulTaskNotifyTake()</code>.</p>
+<p>Interrupt events that occur between calls to <code>ulTaskNotifyTake</code> are
+latched in the task's notification value, and calls to
+<code>ulTaskNotifyTake()</code> will return immediately if the calling task already
+has notifications pending.</p>
+<p><a name="list10.4" title="Listing 10.4 The implementation of the task to which the interrupt processing is deferred (the task that..."></a></p>
+<pre><code class="language-c">/* The rate at which the periodic task generates software interrupts. */
+const TickType_t xInterruptFrequency = pdMS_TO_TICKS( 500UL );
+
+static void vHandlerTask( void *pvParameters )
+{
+    /* xMaxExpectedBlockTime is set to be a little longer than the maximum
+       expected time between events. */
+    const TickType_t xMaxExpectedBlockTime = xInterruptFrequency +
+                                             pdMS_TO_TICKS( 10 );
+    uint32_t ulEventsToProcess;
+
+    /* As per most tasks, this task is implemented within an infinite loop. */
+    for( ;; )
+    {
+        /* Wait to receive a notification sent directly to this task from the
+           interrupt service routine. */
+        ulEventsToProcess = ulTaskNotifyTake( pdTRUE, xMaxExpectedBlockTime );
+        if( ulEventsToProcess != 0 )
+        {
+            /* To get here at least one event must have occurred. Loop here 
+               until all the pending events have been processed (in this case,
+               just print out a message for each event). */
+            while( ulEventsToProcess &gt; 0 )
+            {
+                vPrintString( "Handler task - Processing event.\r\n" );
+                ulEventsToProcess--;
+            }
+        }
+        else
+        {
+            /* If this part of the function is reached then an interrupt did 
+               not arrive within the expected time, and (in a real application)
+               it may be necessary to perform some error recovery operations. */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 10.4</strong></em> <em>The implementation of the task to which the interrupt processing is deferred (the task that synchronizes with the interrupt) in Example 10.1</em></p>
+<p>The periodic task used to generate software interrupts prints a message
+before the interrupt is generated, and again after the interrupt has
+been generated. This allows the sequence of execution to be observed in
+the output produced.</p>
+<p>Listing 10.5 shows the interrupt handler. This does very little other
+than send a notification directly to the task to which interrupt
+handling is deferred.</p>
+<p><a name="list10.5" title="Listing 10.5 The implementation of the interrupt service routine used in Example 10.1"></a></p>
+<pre><code class="language-c">static uint32_t ulExampleInterruptHandler( void )
+{
+    BaseType_t xHigherPriorityTaskWoken;
+
+    /* The xHigherPriorityTaskWoken parameter must be initialized to pdFALSE as
+       it will get set to pdTRUE inside the interrupt safe API function if a
+       context switch is required. */
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Send a notification directly to the task to which interrupt processing 
+       is being deferred. */
+    vTaskNotifyGiveFromISR( /* The handle of the task to which the notification
+                               is being sent. The handle was saved when the task
+                               was created. */
+                            xHandlerTask,
+
+                            /* xHigherPriorityTaskWoken is used in the usual 
+                               way. */
+                            &amp;xHigherPriorityTaskWoken );
+
+    /* Pass the xHigherPriorityTaskWoken value into portYIELD_FROM_ISR(). If 
+       xHigherPriorityTaskWoken was set to pdTRUE inside vTaskNotifyGiveFromISR()
+       then calling portYIELD_FROM_ISR() will request a context switch. If
+       xHigherPriorityTaskWoken is still pdFALSE then calling 
+       portYIELD_FROM_ISR() will have no effect. The implementation of
+       portYIELD_FROM_ISR() used by the Windows port includes a return statement,
+       which is why this function does not explicitly return a value. */
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 10.5</strong></em> <em>The implementation of the interrupt service routine used in Example 10.1</em></p>
+<p>The output produced when Example 10.1 is executed is shown in Figure 10.3.
+As expected, it is identical to that produced when Example 7.1 is
+executed. <code>vHandlerTask()</code> enters the Running state as soon as the
+interrupt is generated, so the output from the task splits the output
+produced by the periodic task. Further explanation is provided in Figure 10.4.</p>
+<p><a name="fig10.3" title="Figure 10.3 The output produced when Example 7.1 is executed"></a>
+<a name="fig10.4" title="Figure 10.4 The sequence of execution when Example 10.1 is executed"></a></p>
+<div align="center">
+<img src="../media/image78.png" alt="Figure 10.3 *The output produced when Example 7.1 is executed*
+<p><img src="../media/image79.png" alt="" /><br />
+<em><strong>Figure 10.4</strong></em> <em>The sequence of execution when Example 10.1 is executed</em>"/&gt;</p>
+<p><em><strong>Figure 10.3</strong></em> *<em>The output produced when Example 7.1 is executed</em></p>
+<p><img src="../media/image79.png" alt="" /><br />
+<em><strong>Figure 10.4</strong></em> <em>The sequence of execution when Example 10.1 is executed</em>*</p>
+</div>
+<h2 id="-1"><a class="header" href="#-1"><a name="example10.2" title="Example 10.2 Using a task notification in place of a semaphore, method 2"></a></a></h2>
+<p><em><strong>Example 10.2</strong></em> <em>Using a task notification in place of a semaphore, method 2</em></p>
+<hr />
+<p>In Example 10.1, the <code>ulTaskNotifyTake()</code> <code>xClearOnExit</code> parameter was set to
+<code>pdTRUE</code>. Example 10.1 modifies Example 10.1 slightly to demonstrate the
+behavior when the <code>ulTaskNotifyTake()</code> <code>xClearOnExit</code> parameter is instead
+set to <code>pdFALSE</code>.</p>
+<p>When <code>xClearOnExit</code> is <code>pdFALSE</code>, calling <code>ulTaskNotifyTake()</code> will only
+decrement (reduce by one) the calling task's notification value, instead
+of clearing it to zero. The notification count is therefore the
+difference between the number of events that have occurred, and the
+number of events that have been processed. That allows the structure of
+<code>vHandlerTask()</code> to be simplified in two ways:</p>
+<ol>
+<li>
+<p>The number of events waiting to be processed is held in the
+notification value, so it does not need to be held in a local
+variable.</p>
+</li>
+<li>
+<p>It is only necessary to process one event between each call to
+<code>ulTaskNotifyTake()</code>.</p>
+</li>
+</ol>
+<p>The implementation of <code>vHandlerTask()</code> used in Example 10.2 is shown in
+Listing 10.6.</p>
+<p><a name="list10.6" title="Listing 10.6 The implementation of the task to which the interrupt processing is deferred (the task..."></a></p>
+<pre><code class="language-c">static void vHandlerTask( void *pvParameters )
+{
+    /* xMaxExpectedBlockTime is set to be a little longer than the maximum 
+       expected time between events. */
+    const TickType_t xMaxExpectedBlockTime = xInterruptFrequency + 
+                                             pdMS_TO_TICKS( 10 );
+
+    /* As per most tasks, this task is implemented within an infinite loop. */
+    for( ;; )
+    {
+        /* Wait to receive a notification sent directly to this task from the
+           interrupt service routine. The xClearCountOnExit parameter is now
+           pdFALSE, so the task's notification value will be decremented by
+           ulTaskNotifyTake(), and not cleared to zero. */
+        if( ulTaskNotifyTake( pdFALSE, xMaxExpectedBlockTime ) != 0 )
+        {
+            /* To get here an event must have occurred. Process the event (in 
+               this case just print out a message). */
+            vPrintString( "Handler task - Processing event.\r\n" );
+        }
+        else
+        {
+            /* If this part of the function is reached then an interrupt did 
+               not arrive within the expected time, and (in a real application)
+               it may be necessary to perform some error recovery operations. */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 10.6</strong></em> <em>The implementation of the task to which the interrupt processing is deferred (the task that synchronizes with the interrupt) in Example 102</em></p>
+<p>For demonstration purposes, the interrupt service routine has also been
+modified to send more than one task notification per interrupt, and in
+so doing, simulate multiple interrupts occurring at high frequency. The
+implementation of the interrupt service routine used in Example 10.2 is
+shown in Listing 10.7.</p>
+<p><a name="list10.7" title="Listing 10.7 The implementation of the interrupt service routine used in Example 10.2"></a></p>
+<pre><code class="language-c">static uint32_t ulExampleInterruptHandler( void )
+{
+    BaseType_t xHigherPriorityTaskWoken;
+
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Send a notification to the handler task multiple times. The first
+       'give' will unblock the task, the following 'gives' are to demonstrate 
+       that the receiving task's notification value is being used to count 
+       (latch) events - allowing the task to process each event in turn. */
+    vTaskNotifyGiveFromISR( xHandlerTask, &amp;xHigherPriorityTaskWoken );
+    vTaskNotifyGiveFromISR( xHandlerTask, &amp;xHigherPriorityTaskWoken );
+    vTaskNotifyGiveFromISR( xHandlerTask, &amp;xHigherPriorityTaskWoken );
+
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 10.7</strong></em> <em>The implementation of the interrupt service routine used in Example 10.2</em></p>
+<p>The output produced when Example 10.2 is executed is shown in Figure 10.5.
+As can be seen, <code>vHandlerTask()</code> processes all three events each time an
+interrupt is generated.</p>
+<p><a name="fig10.5" title="Figure 10.5 The output produced when Example 10.2 is executed"></a></p>
+<div align="center">
+<img src="../media/image80.jpg" alt="Figure 10.5 *The output produced when Example 10.2 is executed*"/>
+<p><em><strong>Figure 10.5</strong></em> <strong>The output produced when Example 10.2 is executed</strong></p>
+</div>
+<h3 id="1035-the-xtasknotify-and-xtasknotifyfromisr-api-functions"><a class="header" href="#1035-the-xtasknotify-and-xtasknotifyfromisr-api-functions">10.3.5 The xTaskNotify() and xTaskNotifyFromISR() API Functions</a></h3>
+<p><code>xTaskNotify()</code> is a more capable version of <code>xTaskNotifyGive()</code> that can be
+used to update the receiving task's notification value in any of the
+following ways:</p>
+<ul>
+<li>
+<p>Increment (add one to) the receiving task's notification value, in
+which case <code>xTaskNotify()</code> is equivalent to <code>xTaskNotifyGive()</code>.</p>
+</li>
+<li>
+<p>Set one or more bits in the receiving task's notification value.
+This allows a task's notification value to be used as a lighter
+weight and faster alternative to an event group.</p>
+</li>
+<li>
+<p>Write a completely new number into the receiving task's notification
+value, but only if the receiving task has read its notification
+value since it was last updated. This allows a task's notification
+value to provide similar functionality to that provided by a queue
+that has a length of one.</p>
+</li>
+<li>
+<p>Write a completely new number into the receiving task's notification
+value, even if the receiving task has not read its notification
+value since it was last updated. This allows a task's notification
+value to provide similar functionality to that provided by the
+<code>xQueueOverwrite()</code> API function. The resultant behavior is sometimes
+referred to as a 'mailbox'.</p>
+</li>
+</ul>
+<p><code>xTaskNotify()</code> is more flexible and powerful than <code>xTaskNotifyGive()</code>, and
+because of that extra flexibility and power, it is also a little more
+complex to use.</p>
+<p><code>xTaskNotifyFromISR()</code> is a version of <code>xTaskNotify()</code> that can be used in
+an interrupt service routine, and therefore has an additional
+<code>pxHigherPriorityTaskWoken</code> parameter.</p>
+<p>Calling <code>xTaskNotify()</code> will always set the receiving task's notification
+state to pending, if it was not already pending.</p>
+<p><a name="list10.8" title="Listing 10.8 Prototypes for the xTaskNotify() and xTaskNotifyFromISR() API functions"></a></p>
+<pre><code class="language-c">BaseType_t xTaskNotify( TaskHandle_t xTaskToNotify,
+                        uint32_t ulValue,
+                        eNotifyAction eAction );
+
+BaseType_t xTaskNotifyFromISR( TaskHandle_t xTaskToNotify,
+                               uint32_t ulValue,
+                               eNotifyAction eAction,
+                               BaseType_t *pxHigherPriorityTaskWoken );
+</code></pre>
+<p><em><strong>Listing 10.8</strong></em> <em>Prototypes for the xTaskNotify() and xTaskNotifyFromISR() API functions</em></p>
+<p><strong>xTaskNotify() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xTaskToNotify</code></p>
+<p>The handle of the task to which the notification is being sent—see
+the <code>pxCreatedTask</code> parameter of the <code>xTaskCreate()</code> API function for
+information on obtaining handles to tasks.</p>
+</li>
+<li>
+<p><code>ulValue</code></p>
+<p>How ulValue is used is dependent on the eNotifyAction value. See below.</p>
+</li>
+<li>
+<p><code>eNotifyAction</code></p>
+<p>An enumerated type that specifies how to update the receiving task's
+notification value. See below.</p>
+</li>
+<li>
+<p>Return value</p>
+<p><code>xTaskNotify()</code> will return <code>pdPASS</code> <em>except</em> in the one case noted below.</p>
+</li>
+</ul>
+<p><strong>Valid xTaskNotify() eNotifyAction Parameter Values, and Their Resultant
+Effect on the Receiving Task's Notification Value</strong></p>
+<ul>
+<li>
+<p><code>eNoAction</code></p>
+<p>The receiving task's notification state is set to pending without
+it's notification value being updated. The <code>xTaskNotify()</code> <code>ulValue</code>
+parameter is not used.</p>
+<p>The <code>eNoAction</code> action allows a task notification to be used as a
+faster and lighter-weight alternative to a binary semaphore.</p>
+</li>
+<li>
+<p><code>eSetBits</code></p>
+<p>The receiving task's notification value is bitwise OR'ed with the
+value passed in the <code>xTaskNotify()</code> <code>ulValue</code> parameter. For example, if
+<code>ulValue</code> is set to 0x01, then bit 0 will be set in the receiving task's
+notification value. As another example, if <code>ulValue</code> is 0x06 (binary 0110)
+then bit 1 and bit 2 will be set in the receiving task's notification value.</p>
+<p>The <code>eSetBits</code> action allows a task notification to be used as a faster
+and lighter-weight alternative to an event group.</p>
+</li>
+<li>
+<p><code>eIncrement</code></p>
+<p>The receiving task's notification value is incremented. The
+<code>xTaskNotify()</code> <code>ulValue</code> parameter is not used.</p>
+<p>The <code>eIncrement</code> action allows a task notification to be used as a
+faster and lighter-weight alternative to a binary or counting semaphore,
+and is equivalent to the simpler <code>xTaskNotifyGive()</code> API function.</p>
+</li>
+<li>
+<p><code>eSetValueWithoutOverwrite</code></p>
+<p>If the receiving task had a notification pending before
+<code>xTaskNotify()</code> was called, then no action is taken and <code>xTaskNotify()</code> will
+return <code>pdFAIL</code>.</p>
+<p>If the receiving task did not have a notification pending before
+<code>xTaskNotify()</code> was called, then the receiving task's notification value
+is set to the value passed in the <code>xTaskNotify()</code> <code>ulValue</code> parameter.</p>
+</li>
+<li>
+<p><code>eSetValueWithOverwrite</code></p>
+<p>The receiving task's notification value is set to the value passed
+in the <code>xTaskNotify()</code> <code>ulValue</code> parameter, regardless of whether the
+receiving task had a notification pending before <code>xTaskNotify()</code> was
+called or not.</p>
+</li>
+</ul>
+<h3 id="1036-the-xtasknotifywait-api-function"><a class="header" href="#1036-the-xtasknotifywait-api-function">10.3.6 The xTaskNotifyWait() API Function</a></h3>
+<p><code>xTaskNotifyWait()</code> is a more capable version of <code>ulTaskNotifyTake()</code>. It
+allows a task to wait, with an optional timeout, for the calling task's
+notification state to become pending, should it not already be pending.
+<code>xTaskNotifyWait()</code> provides options for bits to be cleared in the calling
+task's notification value both on entry to the function, and on exit
+from the function.</p>
+<p><a name="list10.9" title="Listing 10.9 The xTaskNotifyWait() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xTaskNotifyWait( uint32_t   ulBitsToClearOnEntry,
+                            uint32_t   ulBitsToClearOnExit,
+                            uint32_t   *pulNotificationValue,
+                            TickType_t xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 10.9</strong></em> <em>The xTaskNotifyWait() API function prototype</em></p>
+<p><strong>xTaskNotifyWait() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>ulBitsToClearOnEntry</code></p>
+<p>If the calling task did not have a notification pending before it
+called <code>xTaskNotifyWait()</code>, then any bits set in <code>ulBitsToClearOnEntry</code> will
+be cleared in the task's notification value on entry to the function.</p>
+<p>For example, if <code>ulBitsToClearOnEntry</code> is 0x01, then bit 0 of the
+task's notification value will be cleared. As another example, setting
+<code>ulBitsToClearOnEntry</code> to 0xffffffff (<code>ULONG_MAX</code>) will clear all the bits
+in the task's notification value, effectively clearing the value to 0.</p>
+</li>
+<li>
+<p><code>ulBitsToClearOnExit</code></p>
+<p>If the calling task exits <code>xTaskNotifyWait()</code> because it received a
+notification, or because it already had a notification pending when
+<code>xTaskNotifyWait()</code> was called, then any bits set in <code>ulBitsToClearOnExit</code>
+will be cleared in the task's notification value before the task exits
+the <code>xTaskNotifyWait()</code> function.</p>
+<p>The bits are cleared after the task's notification value has been
+saved in <code>*pulNotificationValue</code> (see the description of
+<code>pulNotificationValue</code> below).</p>
+<p>For example, if <code>ulBitsToClearOnExit</code> is 0x03, then bit 0 and bit 1 of
+the task's notification value will be cleared before the function
+exits.</p>
+<p>Setting <code>ulBitsToClearOnExit</code> to 0xffffffff (<code>ULONG_MAX</code>) will clear all
+the bits in the task's notification value, effectively clearing the
+value to 0.</p>
+</li>
+<li>
+<p><code>pulNotificationValue</code></p>
+<p>Used to pass out the task's notification value. The value copied
+to <code>*pulNotificationValue</code> is the task's notification value as it was
+before any bits were cleared due to the <code>ulBitsToClearOnExit</code> setting.</p>
+<p><code>pulNotificationValue</code> is an optional parameter and can be set to NULL
+if it is not required.</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p>The maximum amount of time the calling task should remain in the
+Blocked state to wait for its notification state to become pending.</p>
+<p>The block time is specified in tick periods, so the absolute time it
+represents is dependent on the tick frequency. The macro <code>pdMS_TO_TICKS()</code>
+can be used to convert a time specified in milliseconds to a time
+specified in ticks.</p>
+<p>Setting <code>xTicksToWait</code> to <code>portMAX_DELAY</code> will cause the task to wait
+indefinitely (without timing out), provided <code>INCLUDE_vTaskSuspend</code> is set
+to 1 in <code>FreeRTOSConfig.h</code>.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdTRUE</code></p>
+<p>This indicates <code>xTaskNotifyWait()</code> returned because a notification was
+received, or because the calling task already had a notification pending
+when <code>xTaskNotifyWait()</code> was called.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero), then it is
+possible that the calling task was placed into the Blocked state, to
+wait for its notification state to become pending, but its notification
+state was set to pending before the block time expired.</p>
+</li>
+<li>
+<p><code>pdFALSE</code></p>
+<p>This indicates that <code>xTaskNotifyWait()</code> returned without the calling
+task receiving a task notification.</p>
+<p>If <code>xTicksToWait</code> was not zero, then the calling task will have been
+held in the Blocked state to wait for its notification state to become
+pending, but the specified block time expired before that happened.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="1037-task-notifications-used-in-peripheral-device-drivers-uart-example"><a class="header" href="#1037-task-notifications-used-in-peripheral-device-drivers-uart-example">10.3.7 Task Notifications Used in Peripheral Device Drivers: UART Example</a></h3>
+<p>Peripheral driver libraries provide functions that perform common
+operations on hardware interfaces. Examples of peripherals for which
+such libraries are often provided include Universal Asynchronous
+Receivers and Transmitters (UARTs), Serial Peripheral Interface (SPI)
+ports, analog to digital converters (ADCs), and Ethernet ports. Examples
+of functions typically provided by such libraries include functions to
+initialize a peripheral, send data to a peripheral, and receive data
+from a peripheral.</p>
+<p>Some operations on peripherals take a relatively long time to complete.
+Examples of such operations include a high precision ADC conversion, and
+the transmission of a large data packet on a UART. In these cases the
+driver library function could be implemented to poll (repeatedly read)
+the peripheral's status registers to determine when the operation has
+completed. However, polling in this manner is nearly always wasteful as
+it utilizes 100% of the processor's time while no productive processing
+is being performed. The waste is particularly expensive in a
+multi-tasking system, where a task that is polling a peripheral might be
+preventing the execution of a lower priority task that does have
+productive processing to perform.</p>
+<p>To avoid the potential for wasted processing time, an efficient RTOS
+aware device driver should be interrupt driven, and give a task that
+initiates a lengthy operation the option of waiting in the Blocked state
+for the operation to complete. That way, lower priority tasks can
+execute while the task performing the lengthy operation is in the
+Blocked state, and no tasks use processing time unless they can use it
+productively.</p>
+<p>It is common practice for RTOS aware driver libraries to use a binary
+semaphore to place tasks into the Blocked state. The technique is
+demonstrated by the pseudo code shown in Listing 10.10, which provides the
+outline of an RTOS aware library function that transmits data on a UART
+port. In Listing 10.10:</p>
+<ul>
+<li>
+<p><code>xUART</code> is a structure that describes the UART peripheral, and holds
+state information. The <code>xTxSemaphore</code> member of the structure is a
+variable of type <code>SemaphoreHandle_t</code>. It is assumed the semaphore has
+already been created.</p>
+</li>
+<li>
+<p>The <code>xUART_Send()</code> function does not include any mutual exclusion
+logic. If more than one task is going to use the <code>xUART_Send()</code>
+function, then the application writer will have to manage mutual
+exclusion within the application itself. For example, a task may be
+required to obtain a mutex before calling <code>xUART_Send()</code>.</p>
+</li>
+<li>
+<p>The <code>xSemaphoreTake()</code> API function is used to place the calling task
+into the Blocked state after the UART transmission has been initiated.</p>
+</li>
+<li>
+<p>The <code>xSemaphoreGiveFromISR()</code> API function is used to remove the task
+from the Blocked state after the transmission has completed, which
+is when the UART peripheral's transmit end interrupt service routine
+executes.</p>
+</li>
+</ul>
+<p><a name="list10.10" title="Listing 10.10 Pseudo code demonstrating how a binary semaphore can be used in a driver library transmit..."></a></p>
+<pre><code class="language-c">/* Driver library function to send data to a UART. */
+
+BaseType_t xUART_Send( xUART *pxUARTInstance, 
+                       uint8_t *pucDataSource, 
+                       size_t uxLength )
+{
+    BaseType_t xReturn;
+
+    /* Ensure the UART's transmit semaphore is not already available by 
+       attempting to take the semaphore without a timeout. */
+    xSemaphoreTake( pxUARTInstance-&gt;xTxSemaphore, 0 );
+
+    /* Start the transmission. */
+    UART_low_level_send( pxUARTInstance, pucDataSource, uxLength );
+
+    /* Block on the semaphore to wait for the transmission to complete. If 
+       the semaphore is obtained then xReturn will get set to pdPASS. If the 
+       semaphore take operation times out then xReturn will get set to pdFAIL. 
+       Note that, if the interrupt occurs between UART_low_level_send() being 
+       called, and xSemaphoreTake() being called, then the event will be 
+       latched in the binary semaphore, and the call to xSemaphoreTake() will 
+       return immediately. */
+    xReturn = xSemaphoreTake( pxUARTInstance-&gt;xTxSemaphore, 
+                              pxUARTInstance-&gt;xTxTimeout );
+
+    return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+/* The service routine for the UART's transmit end interrupt, which executes 
+   after the last byte has been sent to the UART. */
+void xUART_TransmitEndISR( xUART *pxUARTInstance )
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Clear the interrupt. */
+    UART_low_level_interrupt_clear( pxUARTInstance );
+
+    /* Give the Tx semaphore to signal the end of the transmission. If a task 
+       is Blocked waiting for the semaphore then the task will be removed from
+       the Blocked state. */
+    xSemaphoreGiveFromISR( pxUARTInstance-&gt;xTxSemaphore, 
+                           &amp;xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 10.10</strong></em> <em>Pseudo code demonstrating how a binary semaphore can be used in a driver library transmit function</em></p>
+<p>The technique demonstrated in Listing 10.10 is perfectly workable, and
+indeed common practice, but it has some drawbacks:</p>
+<ul>
+<li>
+<p>The library uses multiple semaphores, which increases its RAM
+footprint.</p>
+</li>
+<li>
+<p>Semaphores cannot be used until they have been created, so a library
+that uses semaphores cannot be used until it has been explicitly
+initialized.</p>
+</li>
+<li>
+<p>Semaphores are generic objects that are applicable to a wide range
+of use cases; they include logic to allow any number of tasks to
+wait in the Blocked state for the semaphore to become available, and
+to select (in a deterministic manner) which task to remove from the
+Blocked state when the semaphore does become available. Executing
+that logic takes a finite time, and that processing overhead is
+unnecessary in the scenario shown is Listing 10.10, in which there
+cannot be more than one task waiting for the semaphore at any given
+time.</p>
+</li>
+</ul>
+<p>Listing 10.11 demonstrates how to avoid these drawbacks by using a task
+notification in place of a binary semaphore.</p>
+<blockquote>
+<p><em>Note: If a library uses task notifications, then the library's
+documentation must clearly state that calling a library function can
+change the calling task's notification state and notification value.</em></p>
+</blockquote>
+<p>In Listing 10.11:</p>
+<ul>
+<li>
+<p>The <code>xTxSemaphore</code> member of the <code>xUART</code> structure has been replaced by
+the <code>xTaskToNotify</code> member. <code>xTaskToNotify</code> is a variable of type
+<code>TaskHandle_t</code>, and is used to hold the handle of the task that is
+waiting for the UART operation to complete.</p>
+</li>
+<li>
+<p>The <code>xTaskGetCurrentTaskHandle()</code> FreeRTOS API function is used to
+obtain the handle of the task that is in the Running state.</p>
+</li>
+<li>
+<p>The library does not create any FreeRTOS objects, so it does not incur
+a RAM overhead, and does not need to be explicitly initialized.</p>
+</li>
+<li>
+<p>The task notification is sent directly to the task that is waiting
+for the UART operation to complete, so no unnecessary logic is
+executed.</p>
+</li>
+</ul>
+<p>The <code>xTaskToNotify</code> member of the <code>xUART</code> structure is accessed from both a
+task and an interrupt service routine, requiring that consideration be
+given as to how the processor will update its value:</p>
+<ul>
+<li>
+<p>If <code>xTaskToNotify</code> is updated by a single memory write operation, then
+it can be updated outside of a critical section, exactly as shown in
+Listing 10.11. This would be the case if <code>xTaskToNotify</code> is a 32-bit
+variable (<code>TaskHandle_t</code> was a 32-bit type), and the processor on
+which FreeRTOS is running is a 32-bit processor.</p>
+</li>
+<li>
+<p>If more than one memory write operation is required to update
+<code>xTaskToNotify</code>, then <code>xTaskToNotify</code> must only be updated from within a
+critical section—otherwise the interrupt service routine might
+access <code>xTaskToNotify</code> while it is in an inconsistent state. This
+would be the case if <code>xTaskToNotify</code> is a 32-bit variable, and the
+processor on which FreeRTOS is running is a 16-bit processor, as it
+would require two 16-bit memory write operations to update all
+32-bits.</p>
+</li>
+</ul>
+<p>Internally, within the FreeRTOS implementation, <code>TaskHandle_t</code> is a
+pointer, so <code>sizeof( TaskHandle_t )</code> always equals <code>sizeof( void * )</code>.</p>
+<p><a name="list10.11" title="Listing 10.11 Pseudo code demonstrating how a task notification can be used in a driver library transmit..."></a></p>
+<pre><code class="language-c">/* Driver library function to send data to a UART. */
+BaseType_t xUART_Send( xUART *pxUARTInstance, 
+                       uint8_t *pucDataSource, 
+                       size_t uxLength )
+{
+    BaseType_t xReturn;
+
+    /* Save the handle of the task that called this function. The book text
+       contains notes as to whether the following line needs to be protected 
+       by a critical section or not. */
+    pxUARTInstance-&gt;xTaskToNotify = xTaskGetCurrentTaskHandle();
+
+    /* Ensure the calling task does not already have a notification pending by 
+       calling ulTaskNotifyTake() with the xClearCountOnExit parameter set to 
+       pdTRUE, and a block time of 0 (don't block). */
+    ulTaskNotifyTake( pdTRUE, 0 );
+
+    /* Start the transmission. */
+    UART_low_level_send( pxUARTInstance, pucDataSource, uxLength );
+
+    /* Block until notified that the transmission is complete. If the 
+       notification is received then xReturn will be set to 1 because the ISR 
+       will have incremented this task's notification value to 1 (pdTRUE). If 
+       the operation times out then xReturn will be 0 (pdFALSE) because this 
+       task's notification value will not have been changed since it was 
+       cleared to 0 above. Note that, if the ISR executes between the calls to
+       UART_low_level_send() and the call to ulTaskNotifyTake(), then the 
+       event will be latched in the task's notification value, and the call to 
+       ulTaskNotifyTake() will return immediately. */
+    xReturn = ( BaseType_t ) ulTaskNotifyTake( pdTRUE, 
+                                               pxUARTInstance-&gt;xTxTimeout );
+
+    return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+/* The ISR that executes after the last byte has been sent to the UART. */
+void xUART_TransmitEndISR( xUART *pxUARTInstance )
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    /* This function should not execute unless there is a task waiting to be 
+       notified. Test this condition with an assert. This step is not strictly
+       necessary, but will aid debugging. configASSERT() is described in 
+       section 12.2. */
+    configASSERT( pxUARTInstance-&gt;xTaskToNotify != NULL );
+
+    /* Clear the interrupt. */
+    UART_low_level_interrupt_clear( pxUARTInstance );
+
+    /* Send a notification directly to the task that called xUART_Send(). If 
+       the task is Blocked waiting for the notification then the task will be 
+       removed from the Blocked state. */
+    vTaskNotifyGiveFromISR( pxUARTInstance-&gt;xTaskToNotify,
+                            &amp;xHigherPriorityTaskWoken );
+
+    /* Now there are no tasks waiting to be notified. Set the xTaskToNotify 
+       member of the xUART structure back to NULL. This step is not strictly 
+       necessary but will aid debugging. */
+    pxUARTInstance-&gt;xTaskToNotify = NULL;
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 10.11</strong></em> <em>Pseudo code demonstrating how a task notification can be used in a driver library transmit function</em></p>
+<p>Task notifications can also replace semaphores in receive functions, as
+demonstrated in pseudo code Listing 10.12, which provides the outline of
+an RTOS aware library function that receives data on a UART port.
+Referring to Listing 10.12:</p>
+<ul>
+<li>
+<p>The <code>xUART_Receive()</code> function does not include any mutual exclusion
+logic. If more than one task is going to use the <code>xUART_Receive()</code>
+function, then the application writer will have to manage mutual
+exclusion within the application itself. For example, a task may be
+required to obtain a mutex before calling <code>xUART_Receive()</code>.</p>
+</li>
+<li>
+<p>The UART's receive interrupt service routine places the characters
+that are received by the UART into a RAM buffer. The <code>xUART_Receive()</code>
+function returns characters from the RAM buffer.</p>
+</li>
+<li>
+<p>The <code>xUART_Receive()</code> <code>uxWantedBytes</code> parameter is used to specify the
+number of characters to receive. If the RAM buffer does not already
+contain the requested number characters, then the calling task is
+placed into the Blocked state to wait to be notified that the number
+of characters in the buffer has increased. The <code>while()</code> loop is used
+to repeat this sequence until either the receive buffer contains the
+requested number of characters, or a timeout occurs.</p>
+</li>
+<li>
+<p>The calling task may enter the Blocked state more than once. The
+block time is therefore adjusted to take into account the amount of
+time that has already passed since <code>xUART_Receive()</code> was called. The
+adjustments ensure the total time spent inside <code>xUART_Receive()</code> does
+not exceed the block time specified by the <code>xRxTimeout</code> member of the
+<code>xUART</code> structure. The block time is adjusted using the FreeRTOS
+<code>vTaskSetTimeOutState()</code> and <code>xTaskCheckForTimeOut()</code> helper functions.</p>
+</li>
+</ul>
+<p><a name="list10.12" title="Listing 10.12 Pseudo code demonstrating how a task notification can be used in a driver library receive..."></a></p>
+<pre><code class="language-c">/* Driver library function to receive data from a UART. */
+
+size_t xUART_Receive( xUART *pxUARTInstance, 
+                      uint8_t *pucBuffer,
+                      size_t uxWantedBytes )
+{
+    size_t uxReceived = 0;
+    TickType_t xTicksToWait;
+    TimeOut_t xTimeOut;
+
+    /* Record the time at which this function was entered. */
+    vTaskSetTimeOutState( &amp;xTimeOut );
+
+    /* xTicksToWait is the timeout value - it is initially set to the maximum 
+       receive timeout for this UART instance. */
+    xTicksToWait = pxUARTInstance-&gt;xRxTimeout;
+
+    /* Save the handle of the task that called this function. The book text 
+       contains notes as to whether the following line needs to be protected 
+       by a critical section or not. */
+    pxUARTInstance-&gt;xTaskToNotify = xTaskGetCurrentTaskHandle();
+
+    /* Loop until the buffer contains the wanted number of bytes, or a
+       timeout occurs. */
+    while( UART_bytes_in_rx_buffer( pxUARTInstance ) &lt; uxWantedBytes )
+    {
+        /* Look for a timeout, adjusting xTicksToWait to account for the time
+           spent in this function so far. */
+        if( xTaskCheckForTimeOut( &amp;xTimeOut, &amp;xTicksToWait ) != pdFALSE )
+        {
+            /* Timed out before the wanted number of bytes were available, 
+               exit the loop. */
+            break;
+        }
+
+        /* The receive buffer does not yet contain the required amount of 
+           bytes. Wait for a maximum of xTicksToWait ticks to be notified that 
+           the receive interrupt service routine has placed more data into the 
+           buffer. It does not matter if the calling task already had a 
+           notification pending when it called this function, if it did, it
+           would just iteration around this while loop one extra time. */
+        ulTaskNotifyTake( pdTRUE, xTicksToWait );
+    }
+
+    /* No tasks are waiting for receive notifications, so set xTaskToNotify
+       back to NULL. The book text contains notes as to whether the following 
+       line needs to be protected by a critical section or not. */
+    pxUARTInstance-&gt;xTaskToNotify = NULL;
+
+    /* Attempt to read uxWantedBytes from the receive buffer into pucBuffer. 
+       The actual number of bytes read (which might be less than uxWantedBytes)
+       is returned. */
+    uxReceived = UART_read_from_receive_buffer( pxUARTInstance, 
+                                                pucBuffer,
+                                                uxWantedBytes );
+    return uxReceived;
+}
+
+/*-----------------------------------------------------------*/
+
+/* The interrupt service routine for the UART's receive interrupt */
+void xUART_ReceiveISR( xUART *pxUARTInstance )
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Copy received data into this UART's receive buffer and clear the
+       interrupt. */
+    UART_low_level_receive( pxUARTInstance );
+
+    /* If a task is waiting to be notified of the new data then notify it now. */
+    if( pxUARTInstance-&gt;xTaskToNotify != NULL )
+    {
+        vTaskNotifyGiveFromISR( pxUARTInstance-&gt;xTaskToNotify,
+                                &amp;xHigherPriorityTaskWoken );
+        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    }
+}
+</code></pre>
+<p><em><strong>Listing 10.12</strong></em> <em>Pseudo code demonstrating how a task notification can be used in a driver library receive function</em></p>
+<h3 id="1038-task-notifications-used-in-peripheral-device-drivers-adc-example"><a class="header" href="#1038-task-notifications-used-in-peripheral-device-drivers-adc-example">10.3.8 Task Notifications Used in Peripheral Device Drivers: ADC Example</a></h3>
+<p>The previous section demonstrated how to use <code>vTaskNotifyGiveFromISR()</code> to
+send a task notification from an interrupt to a task.
+<code>vTaskNotifyGiveFromISR()</code> is a simple function to use, but its
+capabilities are limited; it can only send a task notification as a
+valueless event, it cannot send data. This section demonstrates how to
+use <code>xTaskNotifyFromISR()</code> to send data with a task notification event.
+The technique is demonstrated by the pseudo code shown in Listing 10.13,
+which provides the outline of an RTOS aware interrupt service routine
+for an Analog to Digital Converter (ADC). In Listing 10.13:</p>
+<ul>
+<li>
+<p>It is assumed an ADC conversion is started at least every 50
+milliseconds.</p>
+</li>
+<li>
+<p><code>ADC_ConversionEndISR()</code> is the interrupt service routine for the
+ADC's conversion end interrupt, which is the interrupt that executes
+each time a new ADC value is available.</p>
+</li>
+<li>
+<p>The task implemented by <code>vADCTask()</code> processes each value generated by
+the ADC. It is assumed the task's handle was stored in
+<code>xADCTaskToNotify</code> when the task was created.</p>
+</li>
+<li>
+<p><code>ADC_ConversionEndISR()</code> uses <code>xTaskNotifyFromISR()</code> with the <code>eAction</code>
+parameter set to <code>eSetValueWithoutOverwrite</code> to send a task
+notification to the <code>vADCTask()</code> task, and write the result of the ADC
+conversion into the task's notification value.</p>
+</li>
+<li>
+<p>The <code>vADCTask()</code> task uses <code>xTaskNotifyWait()</code> to wait to be notified
+that a new ADC value is available, and to retrieve the result of the
+ADC conversion from its notification value.</p>
+</li>
+</ul>
+<p><a name="list10.13" title="Listing 10.13 Pseudo code demonstrating how a task notification can be used to pass a value to a task"></a></p>
+<pre><code class="language-c">/* A task that uses an ADC. */
+void vADCTask( void *pvParameters )
+{
+    uint32_t ulADCValue;
+    BaseType_t xResult;
+
+    /* The rate at which ADC conversions are triggered. */
+    const TickType_t xADCConversionFrequency = pdMS_TO_TICKS( 50 );
+
+    for( ;; )
+    {
+        /* Wait for the next ADC conversion result. */
+        xResult = xTaskNotifyWait(
+                    /* The new ADC value will overwrite the old value, so there
+                       is no need to clear any bits before waiting for the new 
+                       notification value. */
+                    0,
+                    /* Future ADC values will overwrite the existing value, so
+                       there is no need to clear any bits before exiting 
+                       xTaskNotifyWait(). */
+                    0,
+                    /* The address of the variable into which the task's 
+                       notification value (which holds the latest ADC 
+                       conversion result) will be copied. */
+                    &amp;ulADCValue,
+                    /* A new ADC value should be received every 
+                       xADCConversionFrequency ticks. */
+                    xADCConversionFrequency * 2 );
+
+        if( xResult == pdPASS )
+        {
+            /* A new ADC value was received. Process it now. */
+            ProcessADCResult( ulADCValue );
+        }
+        else
+        {
+            /* The call to xTaskNotifyWait() did not return within the expected
+               time, something must be wrong with the input that triggers the 
+               ADC conversion, or with the ADC itself. Handle the error here. */
+        }
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/* The interrupt service routine that executes each time an ADC conversion 
+   completes. */
+void ADC_ConversionEndISR( xADC *pxADCInstance )
+{
+    uint32_t ulConversionResult;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE, xResult;
+
+    /* Read the new ADC value and clear the interrupt. */
+    ulConversionResult = ADC_low_level_read( pxADCInstance );
+
+    /* Send a notification, and the ADC conversion result, directly to
+       vADCTask(). */
+    xResult = xTaskNotifyFromISR( xADCTaskToNotify, /* xTaskToNotify parameter */
+                                  ulConversionResult, /* ulValue parameter */
+                                  eSetValueWithoutOverwrite, /* eAction parameter. */
+                                  &amp;xHigherPriorityTaskWoken );
+
+    /* If the call to xTaskNotifyFromISR() returns pdFAIL then the task is not
+       keeping up with the rate at which ADC values are being generated. 
+       configASSERT() is described in section 11.2. */
+    configASSERT( xResult == pdPASS );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+</code></pre>
+<p><em><strong>Listing 10.13</strong></em> <em>Pseudo code demonstrating how a task notification can be used to pass a value to a task</em></p>
+<h3 id="1039-task-notifications-used-directly-within-an-application"><a class="header" href="#1039-task-notifications-used-directly-within-an-application">10.3.9 Task Notifications Used Directly Within an Application</a></h3>
+<p>This section reinforces the power of task notifications by demonstrating
+their use in a hypothetical application that includes the following
+functionality:</p>
+<ul>
+<li>
+<p>The application communicates across a slow internet connection to
+send data to, and request data from, a remote data server. From here
+on, the remote data server is referred to as the <em>cloud server</em>.</p>
+</li>
+<li>
+<p>After requesting data from the cloud server, the requesting task
+must wait in the Blocked state for the requested data to be
+received.</p>
+</li>
+<li>
+<p>After sending data to the cloud server, the sending task must wait
+in the Blocked state for an acknowledgement that the cloud server
+received the data correctly.</p>
+</li>
+</ul>
+<p>A schematic of the software design is shown in Figure 10.6. In Figure 10.6:</p>
+<ul>
+<li>
+<p>The complexity of handling multiple internet connections to the
+cloud server is encapsulated within a single FreeRTOS task. The task
+acts as a proxy server within the FreeRTOS application, and is
+referred to as the <em>server task</em>.</p>
+</li>
+<li>
+<p>Application tasks read data from the cloud server by calling
+<code>CloudRead()</code>. <code>CloudRead()</code> does not communicate with the cloud server
+directly, but instead sends the read request to the server task on a
+queue, and receives the requested data from the server task as a
+task notification.</p>
+</li>
+<li>
+<p>Application tasks write data to the cloud server by calling
+<code>CloudWrite()</code>. <code>CloudWrite()</code> does not communicate with the cloud
+server directly, but instead sends the write request to the server
+task on a queue, and receives the result of the write operation from
+the server task as a task notification.</p>
+</li>
+</ul>
+<p>The structure sent to the server task by the <code>CloudRead()</code> and
+<code>CloudWrite()</code> functions is shown in Listing 10.14.</p>
+<p><a name="fig10.6" title="Figure 10.6 The communication paths from the application tasks to the cloud server, and back again"></a></p>
+<div align="center">
+<img src="../media/image81.png" alt="Figure 10.6 *The communication paths from the application tasks to the cloud server, and back again*"/>
+<p><em><strong>Figure 10.6</strong></em> <strong>The communication paths from the application tasks to the cloud server, and back again</strong></p>
+</div>
+<p><a name="list10.14" title="Listing 10.14 The structure and data type sent on a queue to the server task"></a></p>
+<pre><code class="language-c">typedef enum CloudOperations
+{
+    eRead, /* Send data to the cloud server. */
+    eWrite /* Receive data from the cloud server. */
+} Operation_t;
+
+typedef struct CloudCommand
+{
+    Operation_t eOperation; /* The operation to perform (read or write). */
+    uint32_t ulDataID; /* Identifies the data being read or written. */
+    uint32_t ulDataValue; /* Only used when writing data to the cloud server. */
+    TaskHandle_t xTaskToNotify;/* The handle of the task performing the operation. */
+} CloudCommand_t;
+</code></pre>
+<p><em><strong>Listing 10.14</strong></em> <em>The structure and data type sent on a queue to the server task</em></p>
+<p>Pseudo code for <code>CloudRead()</code> is shown in Listing 10.15. The function sends
+its request to the server task, then calls <code>xTaskNotifyWait()</code> to wait in
+the Blocked state until it is notified that the requested data is
+available.</p>
+<p>Pseudo code showing how the server task manages a read request is shown
+in Listing 10.16. When the data has been received from the cloud server,
+the server task unblocks the application task, and sends the received
+data to the application task, by calling <code>xTaskNotify()</code> with the <code>eAction</code>
+parameter set to <code>eSetValueWithOverwrite</code>.</p>
+<p>Listing 10.16 shows a simplified scenario, as it assumes <code>GetCloudData()</code>
+does not have to wait to obtain a value from the cloud server.</p>
+<p><a name="list10.15" title="Listing 10.15 The Implementation of the Cloud Read API Function"></a></p>
+<pre><code class="language-c">/* ulDataID identifies the data to read. pulValue holds the address of the 
+   variable into which the data received from the cloud server is to be written. */
+BaseType_t CloudRead( uint32_t ulDataID, uint32_t *pulValue )
+{
+    CloudCommand_t xRequest;
+    BaseType_t xReturn;
+
+    /* Set the CloudCommand_t structure members to be correct for this read
+       request. */
+    xRequest.eOperation = eRead; /* This is a request to read data. */
+    xRequest.ulDataID = ulDataID; /* A code that identifies the data to read. */
+    xRequest.xTaskToNotify = xTaskGetCurrentTaskHandle(); /* Handle of the
+                                                             calling task. */
+
+    /* Ensure there are no notifications already pending by reading the
+       notification value with a block time of 0, then send the structure to 
+       the server task. */
+    xTaskNotifyWait( 0, 0, NULL, 0 );
+    xQueueSend( xServerTaskQueue, &amp;xRequest, portMAX_DELAY );
+
+    /* Wait for a notification from the server task. The server task writes
+       the value received from the cloud server directly into this task's 
+       notification value, so there is no need to clear any bits in the 
+       notification value on entry to or exit from the xTaskNotifyWait() 
+       function. The received value is written to *pulValue, so pulValue is
+       passed as the address to which the notification value is written. */
+    xReturn = xTaskNotifyWait( 0, /* No bits cleared on entry */
+                               0, /* No bits to clear on exit */
+                               pulValue, /* Notification value into *pulValue */
+                               pdMS_TO_TICKS( 250 ) ); /* Wait 250ms maximum */
+
+    /* If xReturn is pdPASS, then the value was obtained. If xReturn is pdFAIL,
+       then the request timed out. */
+    return xReturn;
+}
+</code></pre>
+<p><em><strong>Listing 10.15</strong></em> <em>The Implementation of the Cloud Read API Function</em></p>
+<p><a name="list10.16" title="Listing 10.16 The Server Task Processing a Read Request"></a></p>
+<pre><code class="language-c">void ServerTask( void *pvParameters )
+{
+    CloudCommand_t xCommand;
+    uint32_t ulReceivedValue;
+
+    for( ;; )
+    {
+        /* Wait for the next CloudCommand_t structure to be received from a task */
+        xQueueReceive( xServerTaskQueue, &amp;xCommand, portMAX_DELAY );
+
+        switch( xCommand.eOperation ) /* Was it a read or write request? */
+        {
+            case eRead:
+
+                /* Obtain the requested data item from the remote cloud server */
+                ulReceivedValue = GetCloudData( xCommand.ulDataID );
+
+                /* Call xTaskNotify() to send both a notification and the value
+                   received from the cloud server to the task that made the 
+                   request. The handle of the task is obtained from the 
+                   CloudCommand_t structure. */
+                xTaskNotify( xCommand.xTaskToNotify, /* The task's handle is in
+                                                        the structure */
+                             ulReceivedValue, /* Cloud data sent as notification 
+                                                 value */
+                             eSetValueWithOverwrite );
+                break;
+
+                /* Other switch cases go here. */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 10.16</strong></em> <em>The Server Task Processing a Read Request</em></p>
+<p>Pseudo code for <code>CloudWrite()</code> is shown in Listing 10.17. For the purpose of
+demonstration, <code>CloudWrite()</code> returns a bitwise status code, where each
+bit in the status code is assigned a unique meaning. Four example status
+bits are shown by the #define statements at the top of Listing 10.17.</p>
+<p>The task clears the four status bits, sends its request to the server
+task, then calls <code>xTaskNotifyWait()</code> to wait in the Blocked state for the
+status notification.</p>
+<p><a name="list10.17" title="Listing 10.17 The Implementation of the Cloud Write API Function"></a></p>
+<pre><code class="language-c">/* Status bits used by the cloud write operation. */
+#define SEND_SUCCESSFUL_BIT ( 0x01 &lt;&lt; 0 )
+#define OPERATION_TIMED_OUT_BIT ( 0x01 &lt;&lt; 1 )
+#define NO_INTERNET_CONNECTION_BIT ( 0x01 &lt;&lt; 2 )
+#define CANNOT_LOCATE_CLOUD_SERVER_BIT ( 0x01 &lt;&lt; 3 )
+
+/* A mask that has the four status bits set. */
+#define CLOUD_WRITE_STATUS_BIT_MASK ( SEND_SUCCESSFUL_BIT |
+                                      OPERATION_TIMED_OUT_BIT |
+                                      NO_INTERNET_CONNECTION_BIT |
+                                      CANNOT_LOCATE_CLOUD_SERVER_BIT )
+
+uint32_t CloudWrite( uint32_t ulDataID, uint32_t ulDataValue )
+{
+    CloudCommand_t xRequest;
+    uint32_t ulNotificationValue;
+
+    /* Set the CloudCommand_t structure members to be correct for this
+       write request. */
+    xRequest.eOperation = eWrite; /* This is a request to write data */
+    xRequest.ulDataID = ulDataID; /* A code that identifies the data being
+                                     written */
+    xRequest.ulDataValue = ulDataValue; /* Value of the data written to the
+                                           cloud server. */
+    xRequest.xTaskToNotify = xTaskGetCurrentTaskHandle(); /* Handle of the 
+                                                             calling task. */
+
+    /* Clear the three status bits relevant to the write operation by calling
+       xTaskNotifyWait() with the ulBitsToClearOnExit parameter set to
+       CLOUD_WRITE_STATUS_BIT_MASK, and a block time of 0. The current
+       notification value is not required, so the pulNotificationValue 
+       parameter is set to NULL. */
+    xTaskNotifyWait( 0, CLOUD_WRITE_STATUS_BIT_MASK, NULL, 0 );
+
+    /* Send the request to the server task. */
+    xQueueSend( xServerTaskQueue, &amp;xRequest, portMAX_DELAY );
+
+    /* Wait for a notification from the server task. The server task writes
+       a bitwise status code into this task's notification value, which is 
+       written to ulNotificationValue. */
+    xTaskNotifyWait( 0, /* No bits cleared on entry. */
+                     CLOUD_WRITE_STATUS_BIT_MASK, /* Clear relevant bits to 0 on exit. */
+                     &amp;ulNotificationValue, /* Notified value. */
+                     pdMS_TO_TICKS( 250 ) ); /* Wait a maximum of 250ms. */
+
+    /* Return the status code to the calling task. */
+    return ( ulNotificationValue &amp; CLOUD_WRITE_STATUS_BIT_MASK );
+}
+</code></pre>
+<p><em><strong>Listing 10.17</strong></em> <em>The Implementation of the Cloud Write API Function</em></p>
+<p>Pseudo code demonstrating how the server task manages a write request is
+shown in Listing 10.18. When the data has been sent to the cloud server,
+the server task unblocks the application task, and sends the bitwise
+status code to the application task, by calling <code>xTaskNotify()</code> with the
+<code>eAction</code> parameter set to <code>eSetBits</code>. Only the bits defined by the
+<code>CLOUD_WRITE_STATUS_BIT_MASK</code> constant can get altered in the receiving
+task's notification value, so the receiving task can use other bits in
+its notification value for other purposes.</p>
+<p>Listing 10.18 shows a simplified scenario, as it assumes <code>SetCloudData()</code>
+does not have to wait to obtain an acknowledgement from the remote cloud
+server.</p>
+<p><a name="list10.18" title="Listing 10.18 The Server Task Processing a Send Request"></a></p>
+<pre><code class="language-c">void ServerTask( void *pvParameters )
+{
+    CloudCommand_t xCommand;
+    uint32_t ulBitwiseStatusCode;
+
+    for( ;; )
+    {
+        /* Wait for the next message. */
+        xQueueReceive( xServerTaskQueue, &amp;xCommand, portMAX_DELAY );
+
+        /* Was it a read or write request? */
+        switch( xCommand.eOperation )
+        {
+            case eWrite:
+
+            /* Send the data to the remote cloud server. SetCloudData() returns
+               a bitwise status code that only uses the bits defined by the
+               CLOUD_WRITE_STATUS_BIT_MASK definition (shown in Listing 10.17). */
+            ulBitwiseStatusCode = SetCloudData( xCommand.ulDataID,
+                                                xCommand.ulDataValue );
+
+            /* Send a notification to the task that made the write request. 
+               The eSetBits action is used so any status bits set in 
+               ulBitwiseStatusCode will be set in the notification value of 
+               the task being notified. All the other bits remain unchanged. 
+               The handle of the task is obtained from the CloudCommand_t
+               structure. */
+            xTaskNotify( xCommand.xTaskToNotify, /* The task's handle is in 
+                                                    the structure. */
+                         ulBitwiseStatusCode,    /* Cloud data sent as 
+                                                    notification value. */
+                         eSetBits );
+            break;
+
+            /* Other switch cases go here. */
+        }
+    }
+}
+</code></pre>
+<p><em><strong>Listing 10.18</strong></em> <em>The Server Task Processing a Send Request</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch10/10.2-task-notifications-benefits-and-limitations.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch11/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch10/10.2-task-notifications-benefits-and-limitations.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch11/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

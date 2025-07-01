@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Other Common Sources of Error - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="135-other-common-sources-of-error"><a class="header" href="#135-other-common-sources-of-error">13.5 Other Common Sources of Error</a></h2>
+<h3 id="1351-symptom-adding-a-simple-task-to-a-demo-causes-the-demo-to-crash"><a class="header" href="#1351-symptom-adding-a-simple-task-to-a-demo-causes-the-demo-to-crash">13.5.1 Symptom: Adding a simple task to a demo causes the demo to crash</a></h3>
+<p>Creating a task requires memory to be obtained from the heap. Many of
+the demo application projects dimension the heap to be exactly big
+enough to create the demo tasks—so, after the tasks are created, there
+will be insufficient heap remaining for any further tasks, queues, event
+groups, or semaphores to be added.</p>
+<p>The idle task, and possibly also the RTOS daemon task, are created
+automatically when <code>vTaskStartScheduler()</code> is called.
+<code>vTaskStartScheduler()</code> will return only if there is not enough heap
+memory remaining for these tasks to be created. Including a null loop <code>[ for(;;); ]</code>
+after the call to <code>vTaskStartScheduler()</code> can make this error easier to debug.</p>
+<p>To be able to add more tasks, you must either increase the heap size, or remove
+some of the existing demo tasks. The increase in heap size will always be
+limited by the amount of RAM available. See section 3.2, Example Memory
+Allocation Schemes, for more information.</p>
+<h3 id="1352-symptom-using-an-api-function-within-an-interrupt-causes-the-application-to-crash"><a class="header" href="#1352-symptom-using-an-api-function-within-an-interrupt-causes-the-application-to-crash">13.5.2 Symptom: Using an API function within an interrupt causes the application to crash</a></h3>
+<p>Do not use API functions within interrupt service routines, unless the
+name of the API function ends with '...FromISR()'. In particular, do not
+create a critical section within an interrupt unless using the interrupt
+safe macros. See section 7.2, Using the FreeRTOS API from an ISR, for
+more information.</p>
+<p>In FreeRTOS ports that support interrupt nesting, do not use any API
+functions in an interrupt that has been assigned an interrupt priority
+above <code>configMAX_SYSCALL_INTERRUPT_PRIORITY</code>. See section 7.8, Interrupt
+Nesting, for more information.</p>
+<h3 id="1353-symptom-sometimes-the-application-crashes-within-an-interrupt-service-routine"><a class="header" href="#1353-symptom-sometimes-the-application-crashes-within-an-interrupt-service-routine">13.5.3 Symptom: Sometimes the application crashes within an interrupt service routine</a></h3>
+<p>The first thing to check is that the interrupt is not causing a stack
+overflow. Some ports only check for stack overflow within tasks, and not
+within interrupts.</p>
+<p>The way interrupts are defined and used differs between ports and
+between compilers. Therefore, the second thing to check is that the
+syntax, macros, and calling conventions used in the interrupt service
+routine are exactly as described on the documentation page provided for
+the port being used, and exactly as demonstrated in the demo application
+provided with the port.</p>
+<p>If the application is running on a processor that uses numerically low
+priority numbers to represent logically high priorities, then ensure the
+priority assigned to each interrupt takes that into account, as it can
+seem counter-intuitive. If the application is running on a processor
+that defaults the priority of each interrupt to the maximum possible
+priority, then ensure the priority of each interrupt is not left at its
+default value. See section 7.8, Interrupt Nesting, and section 13.2,
+Interrupt Priorities, for more information.</p>
+<h3 id="1354-symptom-the-scheduler-crashes-when-attempting-to-start-the-first-task"><a class="header" href="#1354-symptom-the-scheduler-crashes-when-attempting-to-start-the-first-task">13.5.4 Symptom: The scheduler crashes when attempting to start the first task</a></h3>
+<p>Ensure the FreeRTOS interrupt handlers have been installed. Refer to the
+documentation page for the FreeRTOS port in use for information, and the
+demo application provided for the port for an example.</p>
+<p>Some processors must be in a privileged mode before the scheduler can be
+started. The easiest way to achieve this is to place the processor into
+a privileged mode within the C startup code, before main() is called.</p>
+<h3 id="1355-symptom-interrupts-are-unexpectedly-left-disabled-or-critical-sections-do-not-nest-correctly"><a class="header" href="#1355-symptom-interrupts-are-unexpectedly-left-disabled-or-critical-sections-do-not-nest-correctly">13.5.5 Symptom: Interrupts are unexpectedly left disabled, or critical sections do not nest correctly</a></h3>
+<p>If a FreeRTOS API function is called before the scheduler has been
+started then interrupts will deliberately be left disabled, and not
+re-enabled again until the first task starts to execute. This is done to
+protect the system from crashes caused by interrupts that attempt to use
+FreeRTOS API functions during system initialization, before the
+scheduler has been started, and while the scheduler may be in an
+inconsistent state.</p>
+<p>Do not alter the microcontroller interrupt enable bits or priority flags
+using any method other than calls to <code>taskENTER_CRITICAL()</code> and
+<code>taskEXIT_CRITICAL()</code>. These macros keep a count of their call nesting
+depth to ensure interrupts become enabled again only when the call
+nesting has unwound completely to zero. Be aware that some library
+functions may themselves enable and disable interrupts.</p>
+<h3 id="1356-symptom-the-application-crashes-even-before-the-scheduler-is-started"><a class="header" href="#1356-symptom-the-application-crashes-even-before-the-scheduler-is-started">13.5.6 Symptom: The application crashes even before the scheduler is started</a></h3>
+<p>An interrupt service routine that could potentially cause a context
+switch must not be permitted to execute before the scheduler has been
+started. The same applies to any interrupt service routine that attempts
+to send to or receive from a FreeRTOS object, such as a queue or
+semaphore. A context switch cannot occur until after the scheduler has
+started.</p>
+<p>Many API functions cannot be called until after the scheduler has been
+started. It is best to restrict API usage to the creation of objects
+such as tasks, queues, and semaphores, rather than the use of these
+objects, until after <code>vTaskStartScheduler()</code> has been called.</p>
+<h3 id="1357-symptom-calling-api-functions-while-the-scheduler-is-suspended-or-from-inside-a-critical-section-causes-the-application-to-crash"><a class="header" href="#1357-symptom-calling-api-functions-while-the-scheduler-is-suspended-or-from-inside-a-critical-section-causes-the-application-to-crash">13.5.7 Symptom: Calling API functions while the scheduler is suspended, or from inside a critical section, causes the application to crash</a></h3>
+<p>The scheduler is suspended by calling <code>vTaskSuspendAll()</code> and resumed
+(unsuspended) by calling <code>xTaskResumeAll()</code>. A critical section is entered
+by calling <code>taskENTER_CRITICAL()</code>, and exited by calling
+<code>taskEXIT_CRITICAL()</code>.</p>
+<p>Do not call API functions while the scheduler is suspended, or from
+inside a critical section.</p>
+<h2 id="136-additional-debugging-steps"><a class="header" href="#136-additional-debugging-steps">13.6 Additional Debugging Steps</a></h2>
+<p>If you encounter an issue not covered in the common causes described above,
+you can try to use some of the following debugging steps.</p>
+<ul>
+<li>Define <code>configASSERT()</code>, enable malloc failed checking and stack overflow
+checking in the application's FreeRTOSConfig file.</li>
+<li>Check the return values of the FreeRTOS APIs to make sure those were
+successful.</li>
+<li>Check that the secheduler related configuration, like <code>configUSE_TIME_SLICING</code>, and
+<code>configUSE_PREEMPTION</code> are set correctly as per the application requirements.</li>
+<li><a href="https://www.freertos.org/Debugging-Hard-Faults-On-Cortex-M-Microcontrollers.html">This page</a>
+provides details about debugging hard faults on Cortex-M microcontrollers.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch13/13.4-use-of-printf-and-sprintf.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch13/13.4-use-of-printf-and-sprintf.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

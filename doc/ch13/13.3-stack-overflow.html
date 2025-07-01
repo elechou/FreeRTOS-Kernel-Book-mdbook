@@ -1,0 +1,325 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Stack Overflow - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="133-stack-overflow"><a class="header" href="#133-stack-overflow">13.3 Stack Overflow</a></h2>
+<p>Stack overflow is the second most common source of support requests.
+FreeRTOS provides several features to assist trapping and debugging
+stack related issues<sup class="footnote-reference" id="fr-28-1"><a href="#footnote-28">1</a></sup>.</p>
+<h3 id="1331-the-uxtaskgetstackhighwatermark-api-function"><a class="header" href="#1331-the-uxtaskgetstackhighwatermark-api-function">13.3.1 The uxTaskGetStackHighWaterMark() API Function</a></h3>
+<p>Each task maintains its own stack, the total size of which is specified
+when the task is created. <code>uxTaskGetStackHighWaterMark()</code> is used to query
+how close a task has come to overflowing the stack space allocated to
+it. This value is called the stack 'high water mark'.</p>
+<p><a name="list13.1" title="Listing 13.1 The uxTaskGetStackHighWaterMark() API function prototype"></a></p>
+<pre><code class="language-c">UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask );
+</code></pre>
+<p><em><strong>Listing 13.1</strong></em> <em>The uxTaskGetStackHighWaterMark() API function prototype</em></p>
+<p><strong>uxTaskGetStackHighWaterMark() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xTask</code></p>
+<p>The handle of the task whose stack high water mark is being
+queried (the subject task)—see the pxCreatedTask parameter of the
+<code>xTaskCreate()</code> API function for information on obtaining handles to
+tasks.</p>
+<p>A task can query its own stack high water mark by passing NULL in
+place of a valid task handle.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>The amount of stack used by the task grows and shrinks as the task
+executes and interrupts are processed. <code>uxTaskGetStackHighWaterMark()</code>
+returns the minimum amount of remaining stack space that has been
+available since the task started executing. This is the amount of stack
+that remains unused when stack usage is at its greatest (or deepest)
+value. The closer the high water mark is to zero, the closer the task
+has come to overflowing its stack.</p>
+</li>
+</ul>
+<p><code>uxTaskGetStackHighWaterMark2()</code> API can be used instead of
+<code>uxTaskGetStackHighWaterMark()</code> which only differs in the return type.</p>
+<p><a name="list13.2" title="Listing 13.2 The uxTaskGetStackHighWaterMark2() API function prototype"></a></p>
+<pre><code class="language-c">configSTACK_DEPTH_TYPE uxTaskGetStackHighWaterMark2( TaskHandle_t xTask );
+</code></pre>
+<p><em><strong>Listing 13.2</strong></em> <em>The uxTaskGetStackHighWaterMark2() API function prototype</em></p>
+<p>Using <code>configSTACK_DEPTH_TYPE</code> allows the application writer to control the type
+used for stack depth.</p>
+<h3 id="1332-run-time-stack-checkingoverview"><a class="header" href="#1332-run-time-stack-checkingoverview">13.3.2 Run Time Stack Checking—Overview</a></h3>
+<p>FreeRTOS includes three optional run time stack checking mechanisms. These
+are controlled by the <code>configCHECK_FOR_STACK_OVERFLOW</code> compile time
+configuration constant within FreeRTOSConfig.h. Both methods increase
+the time it takes to perform a context switch.</p>
+<p>The stack overflow hook (or stack overflow callback) is a function that
+is called by the kernel when it detects a stack overflow. To use a stack
+overflow hook function:</p>
+<ol>
+<li>
+<p>Set <code>configCHECK_FOR_STACK_OVERFLOW</code> to either 1 , 2 or 3 in
+FreeRTOSConfig.h, as described in the following sub-sections.</p>
+</li>
+<li>
+<p>Provide the implementation of the hook function, using the exact
+function name and prototype shown in Listing 13.3.</p>
+</li>
+</ol>
+<p><a name="list13.3" title="Listing 13.3 The stack overflow hook function prototype"></a></p>
+<pre><code class="language-c">void vApplicationStackOverflowHook( TaskHandle_t *pxTask, signed char *pcTaskName );
+</code></pre>
+<p><em><strong>Listing 13.3</strong></em> <em>The stack overflow hook function prototype</em></p>
+<p>The stack overflow hook is provided to make trapping and debugging stack
+errors easier, but there is no real way to recover from a stack overflow
+when it occurs. The function's parameters pass the handle and name of
+the task that has overflowed its stack into the hook function.</p>
+<p>The stack overflow hook gets called from the context of an interrupt.</p>
+<p>Some microcontrollers generate a fault exception when they detect an
+incorrect memory access, and it is possible for a fault to be triggered
+before the kernel has a chance to call the stack overflow hook function.</p>
+<h3 id="1333-run-time-stack-checkingmethod-1"><a class="header" href="#1333-run-time-stack-checkingmethod-1">13.3.3 Run Time Stack Checking—Method 1</a></h3>
+<p>Method 1 is selected when <code>configCHECK_FOR_STACK_OVERFLOW</code> is set to 1.</p>
+<p>A task's entire execution context is saved onto its stack each time it
+gets swapped out. It is likely that this will be the time at which stack
+usage reaches its peak. When <code>configCHECK_FOR_STACK_OVERFLOW</code> is set to 1,
+the kernel checks that the stack pointer remains within the valid stack
+space after the context has been saved. The stack overflow hook is
+called if the stack pointer is found to be outside its valid range.</p>
+<p>Method 1 is quick to execute, but can miss stack overflows that occur
+between context switches.</p>
+<h3 id="1334-run-time-stack-checkingmethod-2"><a class="header" href="#1334-run-time-stack-checkingmethod-2">13.3.4 Run Time Stack Checking—Method 2</a></h3>
+<p>Method 2 performs additional checks to those already described for
+method 1. It is selected when <code>configCHECK_FOR_STACK_OVERFLOW</code> is set to 2.</p>
+<p>When a task is created, its stack is filled with a known pattern. Method
+2 tests the last valid 20 bytes of the task stack space to verify that
+this pattern has not been overwritten. The stack overflow hook function
+is called if any of the 20 bytes have changed from their expected
+values.</p>
+<p>Method 2 is not as quick to execute as method 1, but is still relatively
+fast, as only 20 bytes are tested. Most likely, it will catch all stack
+overflows; however, it is possible (but highly improbable) that some
+overflows will be missed.</p>
+<h3 id="1334-run-time-stack-checkingmethod-3"><a class="header" href="#1334-run-time-stack-checkingmethod-3">13.3.4 Run Time Stack Checking—Method 3</a></h3>
+<p>Method 3 is selected when <code>configCHECK_FOR_STACK_OVERFLOW</code> is set to 3.</p>
+<p>This method is available only for selected ports. When available, this method
+enables ISR stack checking. When an ISR stack overflow is detected, an
+assert is triggered. Note that the stack overflow hook function is not called in
+this case because it is specific to a task stack and not the ISR stack.</p>
+<hr>
+<ol class="footnote-definition"><li id="footnote-28">
+<p>These features are not available in the FreeRTOS Windows port. <a href="#fr-28-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch13/13.2-interrupt-priorities.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch13/13.4-use-of-printf-and-sprintf.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch13/13.2-interrupt-priorities.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch13/13.4-use-of-printf-and-sprintf.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

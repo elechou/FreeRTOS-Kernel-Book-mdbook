@@ -1,0 +1,484 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Creating and Starting a Software Timer - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="65-creating-and-starting-a-software-timer"><a class="header" href="#65-creating-and-starting-a-software-timer">6.5 Creating and Starting a Software Timer</a></h2>
+<h3 id="651-the-xtimercreate-api-function"><a class="header" href="#651-the-xtimercreate-api-function">6.5.1 The xTimerCreate() API Function</a></h3>
+<p>FreeRTOS also includes the <code>xTimerCreateStatic()</code> function, which
+allocates the memory required to create a timer statically at compile
+time: A software timer must be explicitly created before it can be used.</p>
+<p>Software timers are referenced by variables of type <code>TimerHandle_t</code>.
+<code>xTimerCreate()</code> is used to create a software timer and returns a
+<code>TimerHandle_t</code> to reference the software timer it creates. Software
+timers are created in the Dormant state.</p>
+<p>Software timers can be created before the scheduler is running, or from
+a task after the scheduler has been started.</p>
+<p><a href="ch02.html#25-data-types-and-coding-style-guide">Section 2.5: Data Types and Coding Style Guide</a> describes the data types and naming conventions used.</p>
+<p><a name="list6.3" title="Listing 6.3 The xTimerCreate() API function prototype"></a></p>
+<pre><code class="language-c">TimerHandle_t xTimerCreate( const char * const pcTimerName,
+                            const TickType_t xTimerPeriodInTicks,
+                            const BaseType_t xAutoReload,
+                            void * const pvTimerID,
+                            TimerCallbackFunction_t pxCallbackFunction );
+</code></pre>
+<p><em><strong>Listing 6.3</strong></em> <em>The xTimerCreate() API function prototype</em></p>
+<p><strong>xTimerCreate() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>pcTimerName</code></p>
+<p>A descriptive name for the timer. This is not used by FreeRTOS in
+any way. It is included purely as a debugging aid. Identifying a timer
+by a human readable name is much simpler than attempting to identify it
+by its handle.</p>
+</li>
+<li>
+<p><code>xTimerPeriodInTicks</code></p>
+<p>The timer's period specified in ticks. The <code>pdMS_TO_TICKS()</code> macro can
+be used to convert a time specified in milliseconds into a time
+specified in ticks. Cannot be 0.</p>
+</li>
+<li>
+<p><code>xAutoReload</code></p>
+<p>Set <code>xAutoReload</code> to <code>pdTRUE</code> to create an auto-reload timer. Set
+<code>xAutoReload</code> to <code>pdFALSE</code> to create a one-shot timer.</p>
+</li>
+<li>
+<p><code>pvTimerID</code></p>
+<p>Each software timer has an ID value. The ID is a void pointer,
+and can be used by the application writer for any purpose. The ID is
+particularly useful when the same callback function is used by more than
+one software timer, as it can be used to provide timer specific storage.
+Use of a timer's ID is demonstrated in an example in this
+chapter.</p>
+<p><code>pvTimerID</code> sets an initial value for the ID of the task being created.</p>
+</li>
+<li>
+<p><code>pxCallbackFunction</code></p>
+<p>Software timer callback functions are simply C functions that
+conform to the prototype shown in Listing 6.1. The <code>pxCallbackFunction</code>
+parameter is a pointer to the function (in effect, just the function
+name) to use as the callback function for the software timer being
+created.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>If NULL is returned, then the software timer cannot be created
+because there is insufficient heap memory available for FreeRTOS to
+allocate the necessary data structure.</p>
+<p>If a non-NULL value is returned it indicates that the software timer has
+been created successfully. The returned value is the handle of the
+created timer.</p>
+<p>Chapter 3 provides more information on heap memory management.</p>
+</li>
+</ul>
+<h3 id="652-the-xtimerstart-api-function"><a class="header" href="#652-the-xtimerstart-api-function">6.5.2 The xTimerStart() API Function</a></h3>
+<p><code>xTimerStart()</code> is used to start a software timer that is in the Dormant
+state, or reset (re-start) a software timer that is in the Running
+state. <code>xTimerStop()</code> is used to stop a software timer that is in the
+Running state. Stopping a software timer is the same as transitioning
+the timer into the Dormant state.</p>
+<p><code>xTimerStart()</code> can be called before the scheduler is started, but when
+this is done, the software timer will not actually start until the time
+at which the scheduler starts.</p>
+<blockquote>
+<p><em>Note: Never call <code>xTimerStart()</code> from an interrupt service routine. The
+interrupt-safe version <code>xTimerStartFromISR()</code> should be used in its
+place.</em></p>
+</blockquote>
+<p><a name="list6.4" title="Listing 6.4 The xTimerStart() API function prototype"></a></p>
+<pre><code class="language-c">BaseType_t xTimerStart( TimerHandle_t xTimer, TickType_t xTicksToWait );
+</code></pre>
+<p><em><strong>Listing 6.4</strong></em> <em>The xTimerStart() API function prototype</em></p>
+<p><strong>xTimerStart() parameters and return value</strong></p>
+<ul>
+<li>
+<p><code>xTimer</code></p>
+<p>The handle of the software timer being started or reset. The handle
+will have been returned from the call to <code>xTimerCreate()</code> used to create
+the software timer.</p>
+</li>
+<li>
+<p><code>xTicksToWait</code></p>
+<p><code>xTimerStart()</code> uses the timer command queue to send the 'start a
+timer' command to the daemon task. <code>xTicksToWait</code> specifies the maximum
+amount of time the calling task should remain in the Blocked state to
+wait for space to become available on the timer command queue, should
+the queue already be full.</p>
+<p><code>xTimerStart()</code> will return immediately if <code>xTicksToWait</code> is zero and the
+timer command queue is already full.</p>
+<p>The block time is specified in tick periods, so the absolute time it
+represents is dependent on the tick frequency. The macro <code>pdMS_TO_TICKS()</code>
+can be used to convert a time specified in milliseconds into a time
+specified in ticks.</p>
+<p>If <code>INCLUDE_vTaskSuspend</code> is set to 1 in <code>FreeRTOSConfig.h</code> then setting
+<code>xTicksToWait</code> to <code>portMAX_DELAY</code> will result in the calling task remaining
+in the Blocked state indefinitely (without a timeout) to wait for space
+to become available in the timer command queue.</p>
+<p>If <code>xTimerStart()</code> is called before the scheduler has been started then
+the value of <code>xTicksToWait</code> is ignored, and <code>xTimerStart()</code> behaves as if
+<code>xTicksToWait</code> had been set to zero.</p>
+</li>
+<li>
+<p>Return value</p>
+<p>There are two possible return values:</p>
+<ul>
+<li>
+<p><code>pdPASS</code></p>
+<p><code>pdPASS</code> will be returned only if the 'start a timer' command was
+successfully sent to the timer command queue.</p>
+<p>If the priority of the daemon task is above the priority of the task
+that called <code>xTimerStart()</code>, then the scheduler will ensure the start
+command is processed before <code>xTimerStart()</code> returns. This is because the
+daemon task will pre-empt the task that called <code>xTimerStart()</code> as soon as
+there is data in the timer command queue.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero), then it is
+possible the calling task was placed into the Blocked state to wait for
+space to become available in the timer command queue before the function
+returned, but data was successfully written to the timer command queue
+before the block time expired.</p>
+</li>
+<li>
+<p><code>pdFAIL</code></p>
+<p><code>pdFAIL</code> will be returned if the 'start a timer' command could not be
+written to the timer command queue because the queue was already
+full.</p>
+<p>If a block time was specified (<code>xTicksToWait</code> was not zero) then the
+calling task will have been placed into the Blocked state to wait for
+the daemon task to make room in the timer command queue, but the
+specified block time expired before that happened.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id=""><a class="header" href="#"><a name="example6.1" title="Example 6.1 Creating one-shot and auto-reload timers"></a></a></h2>
+<p><em><strong>Example 6.1</strong></em> <em>Creating one-shot and auto-reload timers</em></p>
+<hr />
+<p>This example creates and starts a one-shot timer and an auto-reload
+timer—as shown in Listing 6.5.</p>
+<p><a name="list6.5" title="Listing 6.5 Creating and starting the timers used in Example 6.1"></a></p>
+<pre><code class="language-c">/* The periods assigned to the one-shot and auto-reload timers are 3.333
+   second and half a second respectively. */
+#define mainONE_SHOT_TIMER_PERIOD pdMS_TO_TICKS( 3333 )
+#define mainAUTO_RELOAD_TIMER_PERIOD pdMS_TO_TICKS( 500 )
+
+int main( void )
+{
+    TimerHandle_t xAutoReloadTimer, xOneShotTimer;
+    BaseType_t xTimer1Started, xTimer2Started;
+
+    /* Create the one shot timer, storing the handle to the created timer in
+       xOneShotTimer. */
+    xOneShotTimer = xTimerCreate(
+        /* Text name for the software timer - not used by FreeRTOS. */
+                                  "OneShot",
+        /* The software timer's period in ticks. */
+                                   mainONE_SHOT_TIMER_PERIOD,
+        /* Setting uxAutoRealod to pdFALSE creates a one-shot software timer. */
+                                   pdFALSE,
+        /* This example does not use the timer id. */
+                                   0,
+        /* Callback function to be used by the software timer being created. */
+                                   prvOneShotTimerCallback );
+
+    /* Create the auto-reload timer, storing the handle to the created timer
+       in xAutoReloadTimer. */
+    xAutoReloadTimer = xTimerCreate(
+        /* Text name for the software timer - not used by FreeRTOS. */
+                                     "AutoReload",
+        /* The software timer's period in ticks. */
+                                     mainAUTO_RELOAD_TIMER_PERIOD,
+        /* Setting uxAutoRealod to pdTRUE creates an auto-reload timer. */
+                                     pdTRUE,
+        /* This example does not use the timer id. */
+                                     0,
+        /* Callback function to be used by the software timer being created. */
+                                     prvAutoReloadTimerCallback );
+
+    /* Check the software timers were created. */
+    if( ( xOneShotTimer != NULL ) &amp;&amp; ( xAutoReloadTimer != NULL ) )
+    {
+        /* Start the software timers, using a block time of 0 (no block time).
+           The scheduler has not been started yet so any block time specified
+           here would be ignored anyway. */
+        xTimer1Started = xTimerStart( xOneShotTimer, 0 );
+        xTimer2Started = xTimerStart( xAutoReloadTimer, 0 );
+
+        /* The implementation of xTimerStart() uses the timer command queue,
+           and xTimerStart() will fail if the timer command queue gets full.
+           The timer service task does not get created until the scheduler is
+           started, so all commands sent to the command queue will stay in the
+           queue until after the scheduler has been started. Check both calls
+           to xTimerStart() passed. */
+        if( ( xTimer1Started == pdPASS ) &amp;&amp; ( xTimer2Started == pdPASS ) )
+        {
+            /* Start the scheduler. */
+            vTaskStartScheduler();
+        }
+    }
+
+    /* As always, this line should not be reached. */
+    for( ;; );
+}
+</code></pre>
+<p><em><strong>Listing 6.5</strong></em> <em>Creating and starting the timers used in Example 6.1</em></p>
+<p>The timers' callback functions just print a message each time they are
+called. The implementation of the one-shot timer callback function is
+shown in Listing 6.6. The implementation of the auto-reload timer
+callback function is shown in Listing 6.7.</p>
+<p><a name="list6.5" title="Listing 6.6 The callback function used by the one-shot timer in Example 6.1"></a></p>
+<pre><code class="language-c">static void prvOneShotTimerCallback( TimerHandle_t xTimer )
+{
+    TickType_t xTimeNow;
+
+    /* Obtain the current tick count. */
+    xTimeNow = xTaskGetTickCount();
+
+    /* Output a string to show the time at which the callback was executed. */
+    vPrintStringAndNumber( "One-shot timer callback executing", xTimeNow );
+
+    /* File scope variable. */
+    ulCallCount++;
+}
+</code></pre>
+<p><em><strong>Listing 6.6</strong></em> <em>The callback function used by the one-shot timer in Example 6.1</em></p>
+<p><a name="list6.7" title="Listing 6.7 The callback function used by the auto-reload timer in Example 6.1"></a></p>
+<pre><code class="language-c">static void prvAutoReloadTimerCallback( TimerHandle_t xTimer )
+{
+    TickType_t xTimeNow;
+
+    /* Obtain the current tick count. */
+    xTimeNow = xTaskGetTickCount();
+
+    /* Output a string to show the time at which the callback was executed. */
+    vPrintStringAndNumber( "Auto-reload timer callback executing", xTimeNow);
+
+    ulCallCount++;
+}
+</code></pre>
+<p><em><strong>Listing 6.7</strong></em> <em>The callback function used by the auto-reload timer in Example 6.1</em></p>
+<p>Executing this example produces the output shown in Figure 6.7. Figure 6.7
+shows the auto-reload timer's callback function executing with a fixed
+period of 500 ticks (<code>mainAUTO_RELOAD_TIMER_PERIOD</code> is set to 500 in
+Listing 6.5), and the one-shot timer's callback function executing only
+once, when the tick count is 3333 (<code>mainONE_SHOT_TIMER_PERIOD</code> is set to
+3333 in Listing 6.5).</p>
+<p><a name="fig6.7" title="Figure 6.7 The output produced when Example 6.1 is executed"></a></p>
+<div align="center">
+<img src="../media/image44.jpg" alt="Figure 6.7 *The output produced when Example 6.1 is executed*"/>
+<p><em><strong>Figure 6.7</strong></em> <strong>The output produced when Example 6.1 is executed</strong></p>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch06/6.4-the-context-of-a-software-timer.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch06/6.6-the-timer-id.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch06/6.4-the-context-of-a-software-timer.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch06/6.6-the-timer-id.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

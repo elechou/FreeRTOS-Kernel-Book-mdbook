@@ -1,0 +1,425 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Multitasking in Small Embedded Systems - Mastering the FreeRTOS</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Mastering the FreeRTOS</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="11-multitasking-in-small-embedded-systems"><a class="header" href="#11-multitasking-in-small-embedded-systems">1.1 Multitasking in Small Embedded Systems</a></h2>
+<h3 id="111-about-the-freertos-kernel"><a class="header" href="#111-about-the-freertos-kernel">1.1.1 About the FreeRTOS Kernel</a></h3>
+<p>FreeRTOS is a collection of C libraries comprised of a real-time kernel
+and a set of modular libraries that implement complementary
+functionality.</p>
+<p>Richard Barry originally developed FreeRTOS around 2003. Real-Time
+Engineers Ltd, Richard's company, continued FreeRTOS development in
+close partnership with the world's leading chip companies until Amazon
+Web Services (AWS) took stewardship of FreeRTOS 2016. Richard now
+continues his work on FreeRTOS as a senior principal engineer within the
+AWS IoT team.  FreeRTOS is MIT licensed open source code, available for
+any purpose.  You don't have to be an AWS customer to benefit from AWS's
+stewardship!</p>
+<p>The FreeRTOS kernel is ideally suited to deeply embedded real-time
+applications that run on microcontrollers or small microprocessors. This
+type of application typically includes a mix of both hard and soft
+real-time requirements.</p>
+<p>Soft real-time requirements state a time deadline—but breaching the
+deadline would not render the system useless. For example, responding to
+keystrokes too slowly might make a system seem annoyingly unresponsive
+without actually making it unusable.</p>
+<p>Hard real-time requirements state a time deadline—and breaching the
+deadline would result in absolute failure of the system. For example, a
+driver's airbag has the potential to do more harm than good if it
+responded to crash sensor inputs too slowly.</p>
+<p>The FreeRTOS kernel is a real-time kernel (or real-time scheduler) that
+enables applications built on FreeRTOS to meet their hard real-time
+requirements. It enables applications to be organized as a collection of
+independent threads of execution. For example, on a processor that has
+only one core, only a single thread of execution can execute at any
+one time. The kernel decides which thread to execute by examining the
+priority assigned to each thread by the application designer. In the
+simplest case, the application designer could assign higher priorities
+to threads that implement hard real-time requirements and lower
+priorities to threads that implement soft real-time requirements.
+Allocating priorities in that way would ensure hard real-time threads
+always execute ahead of soft real-time threads, but priority assignment
+decisions are not always that simplistic.</p>
+<p>Do not be concerned if you do not fully understand the concepts in the
+previous paragraph yet. The following chapters provide a detailed
+explanation, with many examples, to help you understand how to use a
+real-time kernel, and FreeRTOS in particular.</p>
+<h3 id="112-value-proposition"><a class="header" href="#112-value-proposition">1.1.2 Value Proposition</a></h3>
+<p>The unprecedented global success of the FreeRTOS kernel comes from its
+compelling value proposition; FreeRTOS is professionally developed,
+strictly quality controlled, robust, supported, does not contain any
+intellectual property ownership ambiguity, and is truly free to use in
+commercial applications without any requirement to expose your
+proprietary source code. Further, AWS's stewardship provides a global
+presence, expert security event response procedures, a large and diverse
+development team, expertise in formal verification, pen testing, memory
+safety proofs, and long-term
+support – all while maintaining FreeRTOS as a hardware, development
+tool, and cloud service-neutral open-source project. FreeRTOS
+development is transparent and community-driven in GitHub, and does not
+require any special tools or development practices.</p>
+<p>You can take a product to market using FreeRTOS without even telling us,
+let alone paying any fees, and thousands of companies do just that. If
+at any time you would like to receive additional backup, or if your
+legal team requires additional written guarantees or indemnification,
+then our strategic partners provide simple low-cost commercial license
+options. Peace of mind comes with the knowledge that you can opt to take
+the commercial route whenever you choose.</p>
+<h3 id="113-a-note-about-terminology"><a class="header" href="#113-a-note-about-terminology">1.1.3 A Note About Terminology</a></h3>
+<p>In FreeRTOS, each thread of execution is called a 'task'. There is no
+consensus on terminology within the embedded community, but I prefer
+'task' to 'thread,' as thread can have a more specific meaning in some
+fields of application.</p>
+<h3 id="114-why-use-an-rtos"><a class="header" href="#114-why-use-an-rtos">1.1.4 Why Use an RTOS?</a></h3>
+<p>There are many well-established techniques for writing good embedded
+software without using a multithreading kernel. If the system under
+development is simple, then these techniques might provide the most
+appropriate solution. Using a kernel would likely be preferable in more
+complex cases, but where the crossover point occurs will always be
+subjective.</p>
+<p>As already described, task prioritization can help ensure an application
+meets its processing deadlines, but a kernel can bring other less
+obvious benefits. Some of these are listed very briefly below.</p>
+<ul>
+<li>
+<p>Abstracting away timing information</p>
+<p>The RTOS is responsible for execution timing and provides a time-related
+API to the application. That allows the structure of the application
+code to be more straightforward and the overall code size to be smaller.</p>
+</li>
+<li>
+<p>Maintainability/Extensibility</p>
+<p>Abstracting away timing details results in fewer interdependencies
+between modules and allows the software to evolve in a controlled and
+predictable way. Also, the kernel is responsible for the timing, so
+application performance is less susceptible to changes in the underlying
+hardware.</p>
+</li>
+<li>
+<p>Modularity</p>
+<p>Tasks are independent modules, each of which should have a well-defined
+purpose.</p>
+</li>
+<li>
+<p>Team development</p>
+<p>Tasks should also have well-defined interfaces, allowing easier
+team development.</p>
+</li>
+<li>
+<p>Easier testing</p>
+<p>Tasks that are well-defined independent modules with clean interfaces
+are easier to test in isolation.</p>
+</li>
+<li>
+<p>Code reuse</p>
+<p>Code designed with greater modularity and fewer interdependencies is
+easier to reuse.</p>
+</li>
+<li>
+<p>Improved efficiency</p>
+<p>Application code that uses an RTOS can be completely event-driven. No
+processing time needs to be wasted by polling for events that
+have not occurred.</p>
+<p>Countering the efficiency gained from being event driven is the need to process the RTOS tick
+interrupt and switch execution from one task to another. However,
+applications that don't use an RTOS normally include some form of tick
+interrupt anyway.</p>
+</li>
+<li>
+<p>Idle time</p>
+<p>The automatically created Idle task executes when there are no
+application tasks that require processing. The Idle task can measure
+spare processing capacity, perform background checks, or place the
+processor into a low-power mode.</p>
+</li>
+<li>
+<p>Power Management</p>
+<p>The efficiency gains that result from using an RTOS allow the processor to
+spend more time in a low power mode.</p>
+<p>Power consumption can be decreased significantly by placing the
+processor into a low power state each time the Idle task runs. FreeRTOS
+also has a special tick-less mode. Using the tick-less mode allows the
+processor to enter a lower power mode than would otherwise be possible
+and remain in the low power mode for longer.</p>
+</li>
+<li>
+<p>Flexible interrupt handling</p>
+<p>Interrupt handlers can be kept very short by deferring processing to
+either a task created by the application writer or the automatically
+created RTOS daemon task (also known as the timer task).</p>
+</li>
+<li>
+<p>Mixed processing requirements</p>
+<p>Simple design patterns can achieve a mix of periodic, continuous, and
+event-driven processing within an application. In addition, hard and
+soft real-time requirements can be met by selecting appropriate task and
+interrupt priorities.</p>
+</li>
+</ul>
+<h3 id="115-freertos-kernel-features"><a class="header" href="#115-freertos-kernel-features">1.1.5 FreeRTOS Kernel Features</a></h3>
+<p>The FreeRTOS kernel has the following standard features:</p>
+<ul>
+<li>Pre-emptive or co-operative operation</li>
+<li>Optional time-slicing</li>
+<li>Very flexible task priority assignment</li>
+<li>Flexible, fast and light-weight task notification mechanisms</li>
+<li>Queues</li>
+<li>Binary semaphores</li>
+<li>Counting semaphores</li>
+<li>Mutexes</li>
+<li>Recursive mutexes</li>
+<li>Software timers</li>
+<li>Event groups</li>
+<li>Stream buffers</li>
+<li>Message buffers</li>
+<li>Co-routines (deprecated)</li>
+<li>Tick hook functions</li>
+<li>Idle hook functions</li>
+<li>Stack overflow checking</li>
+<li>Trace macros</li>
+<li>Task run-time statistics gathering</li>
+<li>Optional commercial licensing and support</li>
+<li>Full interrupt nesting model (for some architectures)</li>
+<li>A tick-less capability for extreme low power applications (for some architectures)</li>
+<li>Memory Protection Unit support for isolating tasks and increasing application safety (for some architectures)</li>
+<li>Software managed interrupt stack when appropriate (this can help save RAM)</li>
+<li>The ability to create RTOS objects using either statically or
+dynamically allocated memory</li>
+</ul>
+<h3 id="116-licensing-and-the-freertos-openrtos-and-safertos-family"><a class="header" href="#116-licensing-and-the-freertos-openrtos-and-safertos-family">1.1.6 Licensing, and The FreeRTOS, OpenRTOS, and SafeRTOS Family</a></h3>
+<p>The <strong>FreeRTOS</strong> MIT open source license is designed to ensure:</p>
+<ul>
+<li>
+<p>FreeRTOS can be used in commercial applications.</p>
+</li>
+<li>
+<p>FreeRTOS itself remains freely available to everybody.</p>
+</li>
+<li>
+<p>FreeRTOS users retain ownership of their intellectual property.</p>
+</li>
+</ul>
+<p>See <a href="https://www.FreeRTOS.org/license">https://www.FreeRTOS.org/license</a> for the latest open source
+license information.</p>
+<p><strong>OpenRTOS</strong> is a commercially licensed version of FreeRTOS provided
+under license from Amazon Web Services by a third party.</p>
+<p><strong>SafeRTOS</strong> shares the same usage model as FreeRTOS, but has been
+developed in accordance with the practices, procedures, and processes
+necessary to claim compliance with various internationally recognized
+safety related standards.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ch01/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../ch01/1.2-included-source-files-and-projects.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ch01/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../ch01/1.2-included-source-files-and-projects.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
