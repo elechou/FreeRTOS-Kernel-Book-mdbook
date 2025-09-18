@@ -1,5 +1,6 @@
 # FreeRTOS-Kernel-Book
 
-This is a fork from FreeRTOS/FreeRTOS-Kernel-Book.
+A web-deployed mdBook version of the book 'Mastering the FreeRTOS Real Time Kernel'.
+Link: [https://elechou.tech/FreeRTOS-Kernel-Book-mdbook/](https://elechou.github.io/FreeRTOS-Kernel-Book-mdbook/booktitle.html)
 
-This repo contains the contents of [FreeRTOS Kernel Book](./toc.md).
+This is a fork from FreeRTOS/FreeRTOS-Kernel-Book. (https://github.com/FreeRTOS/FreeRTOS-Kernel-Book)
